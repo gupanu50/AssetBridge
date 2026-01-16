@@ -1,0 +1,234 @@
+/* eslint-disable react/no-unstable-nested-components */
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import React, { useMemo, useRef, useState } from 'react';
+import { mainColors } from '../../Utils/helper';
+import scaler from '../../Utils/scaler';
+import CommonHeader from '../../ReusableComponents/commonHeader';
+import IconButton from '../../ReusableComponents/iconButton';
+import { Images } from '../../Assets';
+import { TopTab, WatchRow } from './type';
+import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
+import { styles } from './styles';
+
+const WatchListScreen = () => {
+  const topTabListRef = useRef<FlatList<TopTab>>(null);
+  const [activeTopTab, setActiveTopTab] = useState('Watchlist');
+  const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
+    const isActive = activeTopTab === item.label;
+    return (
+      <CommonTabSlider
+        activeTab="Watchlist"
+        index={index}
+        label={item?.label}
+        isActive={isActive}
+        setIsActive={setActiveTopTab}
+      />
+    );
+  };
+  const topTabs = useMemo(
+    () => [
+      { id: 't1', label: 'Watchlist' },
+      { id: 't2', label: 'WatchList 1' },
+      { id: 't3', label: 'WatcList 2' },
+      // if later you want more tabs, add here (it will remain slidable)
+      // {id:'t4', label:'Watchlist'}
+    ],
+    [],
+  );
+  const watchRows = useMemo(
+    () => [
+      {
+        id: 'w1',
+        name: 'GOLDBEES',
+        exch: 'NFO',
+        price: '106.45',
+        change: '0.82(0.78%)',
+        isUp: true,
+      },
+      {
+        id: 'w2',
+        name: 'HDFCBANK',
+        exch: 'NSE',
+        price: '1000.00',
+        change: '10.80(1.09%)',
+        isUp: true,
+      },
+      {
+        id: 'w3',
+        name: 'HINDUNILVR',
+        exch: 'NFO',
+        price: '2444.40',
+        change: '-33.40(-1.35%)',
+        isUp: false,
+      },
+      {
+        id: 'w4',
+        name: 'NIFTY 25000 CE',
+        exch: 'BSE',
+        price: '1575.40',
+        change: '14.40(0.92%)',
+        isUp: true,
+      },
+      {
+        id: 'w5',
+        name: 'ONGC',
+        exch: 'INDICES',
+        price: '240.03',
+        change: '-3.51(-1.44%)',
+        isUp: false,
+      },
+      {
+        id: 'w6',
+        name: 'TCS',
+        exch: 'NFO',
+        price: '3175.90',
+        change: '41.20(1.31%)',
+        isUp: true,
+      },
+      {
+        id: 'w7',
+        name: 'RELIANCE',
+        exch: 'NFO',
+        price: '359.63',
+        change: '-116.40(-3.35%)',
+        isUp: false,
+      },
+      {
+        id: 'w8',
+        name: 'KOTAKBANK',
+        exch: 'BSE',
+        price: '1575.40',
+        change: '-8.40(-0.97%)',
+        isUp: false,
+      },
+      {
+        id: 'w9',
+        name: 'NIFTY PR LEV',
+        exch: 'INDICES',
+        price: '240.03',
+        change: '-3.51(-1.44%)',
+        isUp: false,
+      },
+      {
+        id: 'w10',
+        name: 'NIFTY 50',
+        exch: 'INDICES',
+        price: '489.65',
+        change: '21.20(1.31%)',
+        isUp: true,
+      },
+    ],
+    [],
+  );
+
+  // ✅ NEW: row UI
+  const renderWatchRow = ({ item }: { item: WatchRow }) => {
+    const arrowImg = item.isUp ? Images.profitUp : Images.lossDown;
+    const color = item.isUp ? mainColors.green : mainColors.red;
+
+    return (
+      <TouchableOpacity activeOpacity={0.85} style={styles.watchRow}>
+        <View style={styles.watchLeft}>
+          <Text style={styles.watchName} numberOfLines={1}>
+            {item.name}
+          </Text>
+          <Text style={styles.watchExch} numberOfLines={1}>
+            {item.exch}
+          </Text>
+        </View>
+
+        <View style={styles.watchRight}>
+          <Text style={[styles.watchPrice, { color }]} numberOfLines={1}>
+            {item.price}
+          </Text>
+          <View style={styles.watchChangeRow}>
+            <Text
+              style={[styles.watchChange, { color: mainColors.white }]}
+              numberOfLines={1}
+            >
+              {item.change}
+            </Text>
+            <Image
+              source={arrowImg}
+              style={styles.watchArrowImg}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
+        <IconButton
+          vectorType="MaterialCommunityIcons"
+          name="dots-vertical"
+          color={mainColors.inputBorder}
+        />
+      </TouchableOpacity>
+    );
+  };
+  return (
+    <View style={styles.container}>
+      <CommonHeader />
+      <View style={styles.mainView}>
+        {/* -------------------- Header Boxes -------------------- */}
+        <View style={styles.flexMainView}>
+          <View style={styles.innerBoxView}>
+            <Text style={styles.textNifty}>NIFTY 50</Text>
+            <Text style={styles.textNiftyValue}>
+              25944.75{' '}
+              <Text style={{ color: mainColors.green }}>87.45(0.34%)</Text>
+            </Text>
+          </View>
+
+          <View style={styles.innerBoxView}>
+            <Text style={styles.textNifty}>SENSEX</Text>
+            <Text style={styles.textNiftyValue}>
+              84977.45{' '}
+              <Text style={{ color: mainColors.red }}>-287.45(0.34%)</Text>
+            </Text>
+          </View>
+        </View>
+        <View style={styles.topTabsWrap}>
+          <FlatList
+            ref={topTabListRef}
+            data={topTabs}
+            keyExtractor={item => item.id}
+            renderItem={renderTopTab}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.topTabsContent}
+            onScrollToIndexFailed={() => {}}
+          />
+        </View>
+        <View style={styles.flexView}>
+          <View style={styles.searchView}>
+            <IconButton
+              vectorType="MaterialIcons"
+              name="search"
+              color={mainColors.white}
+              style={styles.iconButton}
+            />
+          </View>
+          <TouchableOpacity style={styles.settingsTouch}>
+            <Image
+              source={Images.settingsWatchlist}
+              resizeMode="contain"
+              style={styles.settingsImg}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.watchListWrap}>
+          <FlatList
+            data={watchRows}
+            keyExtractor={item => item.id}
+            renderItem={renderWatchRow}
+            showsVerticalScrollIndicator={false}
+            ItemSeparatorComponent={() => (
+              <View style={styles.watchSeparator} />
+            )}
+            contentContainerStyle={{ paddingBottom: scaler(10) }}
+          />
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export default WatchListScreen;
