@@ -61,6 +61,8 @@ export const mainColors = {
   inputBorder: '#4D4D4D',
   inputLabel: '#9B9B9B',
   mainButton: '#0072BC',
+  contactAny: '#7E7F82',
+  transactionTime: '#636466',
   onboardFromYeserdayPositive: '#FEB95A',
   activeDot: '#66AAD7',
   inActiveDot: '#CCE3F2',

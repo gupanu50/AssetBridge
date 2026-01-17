@@ -36,5 +36,6 @@ export const Images = {
   increase: require('./Images/increaseQuantity.png'),
   decrease: require('./Images/decreaseQuantity.png'),
   add: require('./Images/addTrailing.png'),
-  bannerBuy: require('./Images/bannerBuySell.png')
+  bannerBuy: require('./Images/bannerBuySell.png'),
+  bankLogo: require('./Images/bankLogo.png'),
 };

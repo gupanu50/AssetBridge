@@ -107,7 +107,7 @@ const BuySellOrderScreen = () => {
                         onScrollToIndexFailed={() => { }}
                     />
                 </View>
-                <ScrollView style={{ height: scaler(600) }}>
+                <ScrollView style={{ height: scaler(580) }}>
                     <KeyboardAwareScrollView
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ flexGrow: 1 }}

@@ -16,13 +16,15 @@ import SignUpScreen from '../../Screens/SignUpScreen';
 import ChangePasswordScreen from '../../Screens/ChangePassword';
 import NotificationsScreen from '../../Screens/NotificationScreen';
 import BuySellOrderScreen from '../../Screens/BuySellOrderScreen';
+import ContactUsScreen from '../../Screens/ContactUsScreen';
+import TransactionHistoryScreen from '../../Screens/TransactionHistoryScreen';
 export default function AppNavigation() {
   const Stack = createNativeStackNavigator<MainStackParamList>();
   return (
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}
-        initialRouteName="BuySellOrder"
+        initialRouteName="TransactionHistory"
       >
         <Stack.Group>
           <Stack.Screen name="Splash" component={SplashScreen} />
@@ -39,6 +41,8 @@ export default function AppNavigation() {
           <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
           <Stack.Screen name="BuySellOrder" component={BuySellOrderScreen} />
+          <Stack.Screen name="ContactUs" component={ContactUsScreen} />
+          <Stack.Screen name="TransactionHistory" component={TransactionHistoryScreen} />
         </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>

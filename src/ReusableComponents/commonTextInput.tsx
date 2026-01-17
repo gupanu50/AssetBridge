@@ -9,8 +9,10 @@ const CommonTextInput = (props: inputProps) => {
     <View style={[styles.container, props?.containerStyle]}>
       <TextInput
         placeholder={props.placeholder || ''}
+        placeholderTextColor={mainColors.inputLabel}
         keyboardType={props.keyboardType || 'default'}
         returnKeyType="done"
+        multiline={props?.multiline || false}
         style={[styles.inputStyle, props?.style]}
         maxLength={props?.max || 10000}
         secureTextEntry={props?.secure || false}

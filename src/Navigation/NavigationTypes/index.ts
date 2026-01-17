@@ -14,6 +14,8 @@ export type MainStackParamList = {
   ChangePassword: undefined;
   Notifications: undefined;
   BuySellOrder: undefined;
+  ContactUs: undefined;
+  TransactionHistory: undefined;
 };
 export type BottomStackParamList = {
   Home: undefined;

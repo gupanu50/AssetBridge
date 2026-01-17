@@ -41,7 +41,14 @@ export type inputProps = {
   rightImage?: JSX.Element;
   max?: number;
   secure?: boolean;
+  multiline?: boolean;
   keyboardType?: KeyboardTypeOptions;
   value: string;
   setValue: (value: string) => void;
+};
+
+export type DrawerBackHeaderProps = {
+  title: string;
+  isShowInfoIcon?: boolean;
+  isShowDownloadIcon?: boolean;
 };
