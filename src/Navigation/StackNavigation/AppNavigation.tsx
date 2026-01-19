@@ -24,7 +24,7 @@ export default function AppNavigation() {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}
-        initialRouteName="TransactionHistory"
+        initialRouteName="Splash"
       >
         <Stack.Group>
           <Stack.Screen name="Splash" component={SplashScreen} />
@@ -38,11 +38,17 @@ export default function AppNavigation() {
           <Stack.Screen name="OptionsChain" component={OptionsChainScreen} />
           <Stack.Screen name="MarketPlace" component={MarketPlaceScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
-          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+          <Stack.Screen
+            name="ChangePassword"
+            component={ChangePasswordScreen}
+          />
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
           <Stack.Screen name="BuySellOrder" component={BuySellOrderScreen} />
           <Stack.Screen name="ContactUs" component={ContactUsScreen} />
-          <Stack.Screen name="TransactionHistory" component={TransactionHistoryScreen} />
+          <Stack.Screen
+            name="TransactionHistory"
+            component={TransactionHistoryScreen}
+          />
         </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>

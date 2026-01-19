@@ -38,4 +38,6 @@ export const Images = {
   add: require('./Images/addTrailing.png'),
   bannerBuy: require('./Images/bannerBuySell.png'),
   bankLogo: require('./Images/bankLogo.png'),
+  algoMarketChart: require('./Images/alsoMarketPlaceChart.png'),
+  subscribeBtn: require('./Images/subscribreBtn.png'),
 };

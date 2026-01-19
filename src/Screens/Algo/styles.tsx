@@ -73,9 +73,6 @@ export const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'transparent',
   },
-  commonCardView: {
-    marginTop: scaler(10),
-  },
   sliderView: {
     width: scaler(185),
     marginRight: 0,
