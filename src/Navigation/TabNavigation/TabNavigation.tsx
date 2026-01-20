@@ -9,6 +9,7 @@ import AlgoScreen from '../../Screens/Algo';
 import { fontFamily, mainColors } from '../../Utils/helper';
 import WatchListScreen from '../../Screens/WatchListScreen';
 import { Images } from '../../Assets';
+import ProfileScreen from '../../Screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator<BottomStackParamList>();
 
@@ -49,6 +50,8 @@ const BottamTabNavigation = () => {
             imageName = Images.tabAlgo;
           } else if (route.name === 'Watchlist') {
             imageName = Images.tabWatchlist;
+          } else if (route.name === 'Profile') {
+            imageName = Images.tabProfile;
           }
           return (
             <Image
@@ -86,6 +89,10 @@ const BottamTabNavigation = () => {
       <Tab.Screen
         name="Watchlist"
         component={WatchListScreen as React.ComponentType<any>}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen as React.ComponentType<any>}
       />
     </Tab.Navigator>
   );

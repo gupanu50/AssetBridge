@@ -14,10 +14,10 @@ import scaler from '../Utils/scaler';
 type IconButtonProps = {
   type?: 'MaterialCommunityIcons' | 'Image';
   dark?: boolean;
-  name?: string;
+  name: string;
   source?: ImageSourcePropType;
   resizeMode?: ImageResizeMode;
-  vectorType?: string;
+  vectorType: string;
   style?: StyleSheetProperties;
 };
 

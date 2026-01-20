@@ -68,6 +68,7 @@ export const mainColors = {
   redText: '#EA4335',
   greenText: '#0DB14B',
   greenBorder: '#0DB14B',
+  profileConsoleChips: '#1B3E59',
   activeDot: '#66AAD7',
   inActiveDot: '#CCE3F2',
   buyButton: '#0DB14B',
