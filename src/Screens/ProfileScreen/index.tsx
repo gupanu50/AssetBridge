@@ -15,8 +15,9 @@ import { Images } from '../../Assets';
 import IconButton from '../../ReusableComponents/iconButton';
 import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
-
-const ProfileScreen = () => {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+type Props = MainStackScreenProps<'Profile'>;
+const ProfileScreen = ({ navigation }: Props) => {
     return (
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
             {/* Header */}
@@ -84,7 +85,7 @@ const ProfileScreen = () => {
             <View style={[styles.hr, { marginTop: scaler(20) }]} />
 
             {/* Menu */}
-            <MenuItem icon={Images.tabProfile} label="Profile Settings" />
+            <MenuItem icon={Images.tabProfile} label="Profile Settings" onPress={() => navigation.navigate('ProfileSettings')} />
             <View style={styles.hr} />
             <MenuItem icon={Images.profilePayment} label="Payment Methods" />
             <View style={styles.hr} />
@@ -92,7 +93,7 @@ const ProfileScreen = () => {
             <View style={styles.hr} />
             <MenuItem icon={Images.profileStatement} label="Statement (Ledger)" />
             <View style={styles.hr} />
-            <MenuItem icon={Images.profileContact} label="Contact Us" />
+            <MenuItem icon={Images.profileContact} label="Contact Us" onPress={() => navigation.navigate('ContactUs')} />
             <View style={styles.hr} />
             <MenuItem icon={Images.profileLogout} label="Logout" />
             <View style={styles.hr} />
@@ -126,17 +127,15 @@ const ProfileScreen = () => {
 
 const Chip = ({ label, active }: { label: string; active?: boolean }) => {
     return (
-        <TouchableOpacity
-            style={styles.chip}
-        >
+        <TouchableOpacity style={styles.chip} >
             <Text style={styles.chipText}>{label}</Text>
         </TouchableOpacity>
     );
 };
 
-const MenuItem = ({ icon, label }: { icon: ImageSourcePropType; label: string }) => {
+const MenuItem = ({ icon, label, onPress }: { icon: ImageSourcePropType; label: string, onPress?: () => void }) => {
     return (
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity style={styles.menuItem} onPress={onPress}>
             <View style={styles.menuLeft}>
                 <Image source={icon} style={styles.menuIcon} resizeMode='contain' tintColor={mainColors.white} />
                 <Text style={styles.menuLabel}>{label}</Text>

@@ -3,8 +3,11 @@ import React, { useMemo } from 'react';
 import CommonCard from '../../ReusableComponents/commonCard';
 import { Images } from '../../Assets';
 import { styles } from './styles';
-
-const MyAlgoComponent = () => {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+type MyAlgoProps = {
+  navigation?: MainStackScreenProps<'Algo'>['navigation'];
+}
+const MyAlgoComponent = ({ navigation }: MyAlgoProps) => {
   const featureCards = useMemo(
     () => [
       {
@@ -60,6 +63,7 @@ const MyAlgoComponent = () => {
       <View style={styles.commonCardView}>
         <CommonCard
           logo={item.logo}
+          onPress={() => navigation?.navigate('AlgoMain')}
           name={item.name}
           sub={item.sub}
           tagLeft={item.tagLeft}

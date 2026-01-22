@@ -75,10 +75,50 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
   },
-    subHeadingText: {
+  subHeadingText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.headingTextColor,
     fontSize: scaler(15),
     marginTop: scaler(5),
+  },
+  modalContainer: {
+    height: scaler(605),
+    marginLeft: scaler(25),
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: scaler(300),
+    padding: scaler(20),
+    backgroundColor: mainColors.mainButton,
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: 'black',
+    shadowOpacity: 0.3,
+  },
+  modalText: {
+    fontFamily: fontFamily.poppinsRegular,
+    fontSize: scaler(14),
+    color: mainColors.white,
+    lineHeight: scaler(22),
+  },
+  modalCloseBtn: {
+    marginTop: scaler(15),
+    backgroundColor: mainColors.white,
+    paddingVertical: scaler(8),
+    paddingHorizontal: scaler(20),
+    borderRadius: 5,
+  },
+  modalCloseText: {
+    fontFamily: fontFamily.poppinsRegular,
+    fontSize: scaler(14),
+    color: 'black',
+    textAlign: 'center',
+  },
+  upArrowContainer: {
+    position: 'absolute',
+    alignSelf: 'flex-end',
+    bottom: scaler(318),
+    right: scaler(10)
   },
 });

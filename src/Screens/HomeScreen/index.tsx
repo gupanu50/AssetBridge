@@ -1,7 +1,6 @@
-import { View, ScrollView, FlatList, Text } from 'react-native';
+import { View, ScrollView, FlatList } from 'react-native';
 import React, { useMemo, useRef, useState } from 'react';
 import CommonHeader from '../../ReusableComponents/commonHeader';
-import { mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import { styles } from './styles';
@@ -10,6 +9,7 @@ import { TopTab } from './types';
 import ExploreComponent from '../../ReusableScreenComponents/ExploreComponent';
 import PositionsOpenComponent from '../../ReusableScreenComponents/PositionsOpenComponent';
 import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsClosedComponent';
+import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
 
 type Props = MainStackScreenProps<'HomeTab'>;
 const HomeScreen = ({ navigation }: Props) => {
@@ -29,7 +29,6 @@ const HomeScreen = ({ navigation }: Props) => {
     ],
     [],
   );
-
   // -------------------- RENDERERS --------------------
   const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
     const isActive = activeTopTab === item.label;
@@ -54,26 +53,7 @@ const HomeScreen = ({ navigation }: Props) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: scaler(30) }}
       >
-        <View style={styles.mainView}>
-          {/* -------------------- Header Boxes -------------------- */}
-          <View style={styles.flexMainView}>
-            <View style={styles.innerBoxView}>
-              <Text style={styles.textNifty}>NIFTY 50</Text>
-              <Text style={styles.textNiftyValue}>
-                25944.75{' '}
-                <Text style={{ color: mainColors.green }}>87.45(0.34%)</Text>
-              </Text>
-            </View>
-
-            <View style={styles.innerBoxView}>
-              <Text style={styles.textNifty}>SENSEX</Text>
-              <Text style={styles.textNiftyValue}>
-                84977.45{' '}
-                <Text style={{ color: mainColors.red }}>-287.45(0.34%)</Text>
-              </Text>
-            </View>
-          </View>
-        </View>
+        <CommonTopBtnSlider />
 
         {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}
         <View style={styles.topTabsWrap}>
@@ -88,7 +68,9 @@ const HomeScreen = ({ navigation }: Props) => {
             onScrollToIndexFailed={() => { }}
           />
         </View>
-        {activeTopTab === 'Explore' && <ExploreComponent />}
+        {activeTopTab === 'Explore' && (
+          <ExploreComponent navigation={navigation} />
+        )}
         {activeTopTab === 'Positions Open(23)' && <PositionsOpenComponent />}
         {activeTopTab === 'Positions Closed' && <PositionsClosedComponent />}
       </ScrollView>

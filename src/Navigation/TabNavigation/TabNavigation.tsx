@@ -10,6 +10,7 @@ import { fontFamily, mainColors } from '../../Utils/helper';
 import WatchListScreen from '../../Screens/WatchListScreen';
 import { Images } from '../../Assets';
 import ProfileScreen from '../../Screens/ProfileScreen';
+import ProfileStackNavigator from '../StackNavigation/ProfileNavigator';
 
 const Tab = createBottomTabNavigator<BottomStackParamList>();
 
@@ -92,7 +93,7 @@ const BottamTabNavigation = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen as React.ComponentType<any>}
+        component={ProfileStackNavigator as React.ComponentType<any>}
       />
     </Tab.Navigator>
   );

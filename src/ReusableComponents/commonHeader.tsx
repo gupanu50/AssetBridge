@@ -1,4 +1,4 @@
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import scaler from '../Utils/scaler';
 import { Images } from '../Assets';
@@ -17,20 +17,12 @@ const CommonHeader = (props: CommonHeaderProps) => {
         resizeMode="contain"
       />
       <View style={styles.innerView}>
-        <IconButton
-          name={'search'}
-          size={scaler(28)}
-          color="#AFAFAF"
-          vectorType="MaterialIcons"
-        />
-        <IconButton
-          onPress={() => props?.navigation?.navigate('Notifications')}
-          name={'bell-outline'}
-          size={scaler(28)}
-          style={styles.bellIcon}
-          color="#AFAFAF"
-          vectorType="MaterialCommunityIcons"
-        />
+        <TouchableOpacity>
+          <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => props?.navigation?.navigate('Notifications')}>
+          <Image source={Images.notification} resizeMode='contain' style={styles.notiLogo} />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -57,8 +49,15 @@ const styles = StyleSheet.create({
   },
   innerView: {
     flexDirection: 'row',
+    alignItems: 'center'
   },
-  bellIcon: {
-    marginLeft: scaler(10),
+  searchLogo: {
+    height: scaler(20),
+    width: scaler(20),
   },
+  notiLogo: {
+    height: scaler(25),
+    width: scaler(25),
+    marginLeft: scaler(10)
+  }
 });

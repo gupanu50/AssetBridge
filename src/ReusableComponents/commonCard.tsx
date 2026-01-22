@@ -35,7 +35,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
     : mainColors.green;
 
   return (
-    <View style={styles.featureCardWrapper}>
+    <TouchableOpacity style={styles.featureCardWrapper} onPress={props?.onPress}>
       <View style={styles.featureCard}>
         <View style={styles.featureTopRow}>
           <View style={styles.featureLeft}>
@@ -60,7 +60,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               styles.moverDayMonthSegment,
               {
                 width:
-                  activeDayMonthMoverTab === 'Month' ? scaler(83) : scaler(86),
+                  activeDayMonthMoverTab === 'Month' ? scaler(90) : scaler(93),
               },
             ]}
           >
@@ -70,14 +70,14 @@ const CommonCard = (props: PropCommonCardTypes) => {
               style={[
                 styles.moverDaySegmentBtn,
                 activeDayMonthMoverTab === 'Day' &&
-                  styles.moverDayMonthSegmentBtnActive,
+                styles.moverDayMonthSegmentBtnActive,
               ]}
             >
               <Text
                 style={[
                   styles.moverDaySegmentText,
                   activeDayMonthMoverTab === 'Day' &&
-                    styles.moverDayMonthSegmentTextActive,
+                  styles.moverDayMonthSegmentTextActive,
                 ]}
               >
                 Day
@@ -90,14 +90,14 @@ const CommonCard = (props: PropCommonCardTypes) => {
               style={[
                 styles.moverDayMonthSegmentBtn,
                 activeDayMonthMoverTab === 'Month' &&
-                  styles.moverDayMonthSegmentBtnActive,
+                styles.moverDayMonthSegmentBtnActive,
               ]}
             >
               <Text
                 style={[
                   styles.moverDayMonthSegmentText,
                   activeDayMonthMoverTab === 'Month' &&
-                    styles.moverDayMonthSegmentTextActive,
+                  styles.moverDayMonthSegmentTextActive,
                 ]}
               >
                 Month
@@ -204,7 +204,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -212,7 +212,7 @@ export default CommonCard;
 
 const styles = StyleSheet.create({
   featureCardWrapper: {
-    width: SCREEN_WIDTH - scaler(20),
+    width: SCREEN_WIDTH - scaler(30),
   },
   featureCard: {
     marginTop: scaler(10),
@@ -350,6 +350,7 @@ const styles = StyleSheet.create({
   moverDaySegmentBtn: {
     borderRadius: 999,
     justifyContent: 'center',
+    paddingLeft: scaler(5),
     marginRight: scaler(10),
   },
   moverDaySegmentText: {

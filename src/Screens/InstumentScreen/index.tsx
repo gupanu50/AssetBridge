@@ -17,7 +17,9 @@ import { styles } from './styles';
 import OrderComponent from '../../ReusableScreenComponents/OrdersComponent';
 import PositionsOpenComponent from '../../ReusableScreenComponents/PositionsOpenComponent';
 import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsClosedComponent';
-const InstumentScreen = () => {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+type Props = MainStackScreenProps<'Instrument'>;
+const InstumentScreen = ({ navigation }: Props) => {
   const [selectedLabel, setSelectedLabel] = useState<string>('1D');
   const topTabListRef: any = useRef(null);
   const [activeTopTab, setActiveTopTab] = useState('Opened Positions');
@@ -51,7 +53,7 @@ const InstumentScreen = () => {
         animated: true,
         viewPosition: 0.5,
       });
-    } catch (e) {}
+    } catch (e) { }
   };
   // -------------------- RENDERERS --------------------
   const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
@@ -99,7 +101,7 @@ const InstumentScreen = () => {
   };
   return (
     <View style={styles.conatiner}>
-      <CommonBackHeader />
+      <CommonBackHeader navigation={navigation} />
       <ScrollView>
         <View style={styles.main}>
           <View style={styles.flexView}>
@@ -193,7 +195,7 @@ const InstumentScreen = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.topTabsContent}
-            onScrollToIndexFailed={() => {}}
+            onScrollToIndexFailed={() => { }}
           />
         </View>
         {activeTopTab === 'Orders' && <OrderComponent />}

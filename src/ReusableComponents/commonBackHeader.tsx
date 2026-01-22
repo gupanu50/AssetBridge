@@ -3,14 +3,18 @@ import React from 'react';
 import IconButton from './iconButton';
 import { mainColors } from '../Utils/helper';
 import scaler from '../Utils/scaler';
-
-const CommonBackHeader = () => {
+import { MainStackScreenProps } from '../Navigation/NavigationTypes/screenTypes';
+type CommonBackHeaderProps = {
+  navigation?: MainStackScreenProps<'Instrument'>['navigation'];
+}
+const CommonBackHeader = (props: CommonBackHeaderProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.main}>
         <IconButton
           vectorType="MaterialCommunityIcons"
           name="keyboard-backspace"
+          onPress={() => props.navigation?.goBack()}
           backgroundColor={mainColors.black}
           color={mainColors.white}
         />

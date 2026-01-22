@@ -18,6 +18,7 @@ import NotificationsScreen from '../../Screens/NotificationScreen';
 import BuySellOrderScreen from '../../Screens/BuySellOrderScreen';
 import ContactUsScreen from '../../Screens/ContactUsScreen';
 import TransactionHistoryScreen from '../../Screens/TransactionHistoryScreen';
+import AlgoMainScreen from '../../Screens/AlgoMainScreen';
 export default function AppNavigation() {
   const Stack = createNativeStackNavigator<MainStackParamList>();
   return (
@@ -48,6 +49,10 @@ export default function AppNavigation() {
           <Stack.Screen
             name="TransactionHistory"
             component={TransactionHistoryScreen}
+          />
+          <Stack.Screen
+            name="AlgoMain"
+            component={AlgoMainScreen}
           />
         </Stack.Group>
       </Stack.Navigator>

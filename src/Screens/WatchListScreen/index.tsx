@@ -9,8 +9,9 @@ import { Images } from '../../Assets';
 import { TopTab, WatchRow } from './type';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import { styles } from './styles';
-
-const WatchListScreen = () => {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+type Props = MainStackScreenProps<'WatchList'>;
+const WatchListScreen = ({ navigation }: Props) => {
   const topTabListRef = useRef<FlatList<TopTab>>(null);
   const [activeTopTab, setActiveTopTab] = useState('Watchlist');
   const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
@@ -29,7 +30,7 @@ const WatchListScreen = () => {
     () => [
       { id: 't1', label: 'Watchlist' },
       { id: 't2', label: 'WatchList 1' },
-      { id: 't3', label: 'WatcList 2' },
+      { id: 't3', label: 'WatchList 2' },
       // if later you want more tabs, add here (it will remain slidable)
       // {id:'t4', label:'Watchlist'}
     ],
@@ -127,7 +128,7 @@ const WatchListScreen = () => {
     const color = item.isUp ? mainColors.green : mainColors.red;
 
     return (
-      <TouchableOpacity activeOpacity={0.85} style={styles.watchRow}>
+      <TouchableOpacity activeOpacity={0.85} style={styles.watchRow} onPress={() => navigation.navigate('Instrument')}>
         <View style={styles.watchLeft}>
           <Text style={styles.watchName} numberOfLines={1}>
             {item.name}
@@ -194,7 +195,7 @@ const WatchListScreen = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.topTabsContent}
-            onScrollToIndexFailed={() => {}}
+            onScrollToIndexFailed={() => { }}
           />
         </View>
         <View style={styles.flexView}>

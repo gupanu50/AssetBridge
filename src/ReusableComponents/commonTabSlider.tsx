@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   topTabBtn: {
     marginRight: scaler(18),
     alignItems: 'center',
-    paddingTop: scaler(3),
+    paddingTop: scaler(6),
   },
   topTabText: {
     fontFamily: fontFamily.poppinsMedium,

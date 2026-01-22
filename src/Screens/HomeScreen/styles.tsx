@@ -17,12 +17,12 @@ export const styles = StyleSheet.create({
     marginTop: scaler(10),
   },
   innerBoxView: {
-    paddingHorizontal: scaler(10),
+    paddingHorizontal: scaler(20),
     paddingVertical: scaler(10),
     borderRadius: 10,
     borderColor: mainColors.inputBorder,
     borderWidth: 1,
-    width: '48%',
+    marginRight: scaler(10)
   },
   textNifty: {
     fontFamily: fontFamily.poppinsMedium,

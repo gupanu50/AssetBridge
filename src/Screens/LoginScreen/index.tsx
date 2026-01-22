@@ -45,14 +45,16 @@ const LoginScreen = ({ navigation }: Props) => {
               <CommonTextInput
                 value={email}
                 setValue={setEmail}
-                righImage={
+                keyboardType='numeric'
+                max={10}
+                rightImage={
                   <TouchableOpacity
                     testID="togglePasswordIcon"
                     style={styles.eyeIcon}
                   >
                     <IconButton
-                      onPress={() => {}}
-                      name={'email-outline'}
+                      onPress={() => { }}
+                      name={email ? 'close' : 'phone'}
                       vectorType="MaterialCommunityIcons"
                       size={scaler(28)}
                       color="#999"
@@ -75,7 +77,7 @@ const LoginScreen = ({ navigation }: Props) => {
                 value={password}
                 setValue={setPassword}
                 secure={secureText}
-                righImage={
+                rightImage={
                   <TouchableOpacity
                     testID="togglePasswordIcon"
                     style={styles.eyeIcon}
@@ -110,7 +112,7 @@ const LoginScreen = ({ navigation }: Props) => {
             backgroundColor={mainColors.googleButton}
           />
           <TouchableOpacity
-          onPress={() => navigation.navigate('SignUp')}>
+            onPress={() => navigation.navigate('SignUp')}>
             <Text style={styles.signUpText}>
               Don't Have an Account{'   '}
               <Text style={{ color: mainColors.mainButton }}>Sign Up</Text>

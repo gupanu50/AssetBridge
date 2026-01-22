@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
     color: mainColors.descText,
   },
   headingText1: {
-    fontFamily: fontFamily.poppinsBold,
+    fontFamily: fontFamily.poppinsMedium,
     color: mainColors.headingTextColor,
     fontSize: scaler(14),
     marginVertical: scaler(10),
@@ -45,12 +45,22 @@ export const styles = StyleSheet.create({
     paddingHorizontal: scaler(15),
     width: scaler(340),
   },
+  shadowOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)', // Black shadow color with some opacity
+    borderRadius: scaler(10), // Optional, to round the corners of the shadow
+  },
   flexView: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   innerFlexView: {},
   img: {
+    marginTop: scaler(50),
     height: scaler(110),
     width: scaler(110),
   },
@@ -73,6 +83,7 @@ export const styles = StyleSheet.create({
   },
   dotPagination: {
     left: 0,
+    top: scaler(490),
     justifyContent: 'flex-start',
   },
   dotPaginationStyle: {
@@ -80,12 +91,12 @@ export const styles = StyleSheet.create({
     width: scaler(25),
   },
   heightView: {
-    height: scaler(50),
+    height: scaler(70),
   },
   skipLogin: {
     position: 'absolute',
     marginRight: scaler(15),
-    top: scaler(605),
+    top: scaler(640),
     alignSelf: 'flex-end',
   },
   loginBtn: { width: scaler(100) },

@@ -7,8 +7,10 @@ import { styles } from './styles';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import MyAlgoComponent from '../../ReusableScreenComponents/MyAlgoComponent';
 import AlgoMarketPlaceComponent from '../../ReusableScreenComponents/AlgoMarketPlaceComponent';
-
-const AlgoScreen = () => {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
+type Props = MainStackScreenProps<'Algo'>;
+const AlgoScreen = ({ navigation }: Props) => {
   const topTabListRef: any = useRef(null);
   const [activeTopTab, setActiveTopTab] = useState('My Algo');
   // -------------------- DATA --------------------
@@ -43,26 +45,7 @@ const AlgoScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: scaler(30) }}
       >
-        <View style={styles.mainView}>
-          {/* -------------------- Header Boxes -------------------- */}
-          <View style={styles.flexMainView}>
-            <View style={styles.innerBoxView}>
-              <Text style={styles.textNifty}>NIFTY 50</Text>
-              <Text style={styles.textNiftyValue}>
-                25944.75{' '}
-                <Text style={{ color: mainColors.green }}>87.45(0.34%)</Text>
-              </Text>
-            </View>
-
-            <View style={styles.innerBoxView}>
-              <Text style={styles.textNifty}>SENSEX</Text>
-              <Text style={styles.textNiftyValue}>
-                84977.45{' '}
-                <Text style={{ color: mainColors.red }}>-287.45(0.34%)</Text>
-              </Text>
-            </View>
-          </View>
-        </View>
+        <CommonTopBtnSlider />
         {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}
         <View style={styles.topTabsWrap}>
           <FlatList
@@ -73,10 +56,10 @@ const AlgoScreen = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.topTabsContent}
-            onScrollToIndexFailed={() => {}}
+            onScrollToIndexFailed={() => { }}
           />
         </View>
-        {activeTopTab === 'My Algo' && <MyAlgoComponent />}
+        {activeTopTab === 'My Algo' && <MyAlgoComponent navigation={navigation} />}
         {activeTopTab === 'Market Place' && <AlgoMarketPlaceComponent />}
       </ScrollView>
     </View>

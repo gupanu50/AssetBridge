@@ -14,6 +14,7 @@ export type PropCommonCardTypes = {
   pAndL: string;
   pAndLChange: string;
   status: string;
+  onPress?: () => void;
 };
 
 export type NewsItemProps = {

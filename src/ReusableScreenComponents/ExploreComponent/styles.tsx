@@ -110,7 +110,8 @@ export const styles = StyleSheet.create({
     fontSize: scaler(10),
   },
   viewAllCard: {
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
     minHeight: scaler(110),
   },
   viewAllText: {
@@ -120,9 +121,9 @@ export const styles = StyleSheet.create({
     opacity: 0.85,
   },
   viewAllCircle: {
-    alignSelf: 'flex-start',
     width: scaler(36),
     height: scaler(36),
+    marginTop: scaler(10),
     borderRadius: scaler(18),
     backgroundColor: mainColors.mainButton,
     alignItems: 'center',
@@ -133,7 +134,7 @@ export const styles = StyleSheet.create({
   viewAllArrow: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(14),
+    fontSize: scaler(20),
     opacity: 0.9,
   },
 
@@ -152,7 +153,6 @@ export const styles = StyleSheet.create({
 
   // -------------------- FOOTER --------------------
   footer: {
-    marginTop: scaler(16),
     alignItems: 'center',
     paddingBottom: scaler(10),
   },
@@ -173,4 +173,5 @@ export const styles = StyleSheet.create({
     width: scaler(20),
     marginRight: scaler(5),
   },
+  line: { alignSelf: 'center', height: scaler(30), width: scaler(80) }
 });

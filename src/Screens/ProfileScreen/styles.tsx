@@ -176,7 +176,7 @@ export const styles = StyleSheet.create({
         borderRadius: 15,
         paddingHorizontal: scaler(14),
         paddingVertical: scaler(12),
-        backgroundColor: mainColors.profileConsoleChips,
+        backgroundColor: mainColors.profileRefer,
         borderWidth: 1,
         flexDirection: 'row',
         alignItems: 'center',

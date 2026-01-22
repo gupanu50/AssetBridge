@@ -20,8 +20,14 @@ import scaler from '../../Utils/scaler';
 import CommonNews from '../../ReusableComponents/commonNews';
 import { MoverData } from './types';
 import { styles } from './styles';
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-export default function ExploreComponent() {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+const { width: SCREEN_WIDTH } = Dimensions.get('screen');
+type ExploreProps = {
+  navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
+}
+export default function ExploreComponent(props: ExploreProps) {
+  const CARD_WIDTH = SCREEN_WIDTH - scaler(30);
+  const CARD_GAP = scaler(12); // space between cards
   const [activeMoverTab, setActiveMoverTab] = useState('Gainers');
   const [activeIndex, setActiveIndex] = useState('Today');
   // Top Movers section (keep as-is from previous code)
@@ -189,7 +195,8 @@ export default function ExploreComponent() {
     }
 
     return (
-      <TouchableOpacity activeOpacity={0.85} style={styles.moverCard}>
+      <TouchableOpacity activeOpacity={0.85} style={styles.moverCard}
+        onPress={() => props.navigation?.navigate('Instrument')}>
         <Image source={item.logo} resizeMode="contain" style={styles.logoImg} />
         <Text style={styles.moverName} numberOfLines={1}>
           {item.name}
@@ -227,12 +234,14 @@ export default function ExploreComponent() {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        snapToInterval={SCREEN_WIDTH - scaler(20)} // same as wrapper width
+        snapToInterval={CARD_WIDTH + CARD_GAP}
+        snapToAlignment="start" // same as wrapper width
         decelerationRate="fast"
-        contentContainerStyle={{ paddingRight: scaler(10) }}
+        contentContainerStyle={{ paddingHorizontal: scaler(10) }}
+        ItemSeparatorComponent={() => <View style={{ width: CARD_GAP }} />}
         getItemLayout={(_, index) => ({
-          length: SCREEN_WIDTH - scaler(20),
-          offset: (SCREEN_WIDTH - scaler(20)) * index,
+          length: CARD_WIDTH + CARD_GAP,
+          offset: (CARD_WIDTH + CARD_GAP) * index,
           index,
         })}
       />
@@ -334,13 +343,17 @@ export default function ExploreComponent() {
           ItemSeparatorComponent={() => <View style={styles.newsSeparator} />}
         />
       </View>
-
+      <Image source={Images.line} resizeMode='contain' style={styles.line} />
       {/* Footer (kept simple like image) */}
       <View style={styles.footer}>
         <Text style={styles.footerText}>
           Terms and Privacy Policy {' | '} Trust &amp; Security {' | '} Careers
         </Text>
-        <Text style={[styles.footerText, { marginTop: scaler(8) }]}>
+        <Text style={styles.footerText}>
+          Investor {' | '}  Lorem Ipsum1  &amp;  Lorem Ipsum1  {' | '}  Lorem Ipsum1
+        </Text>
+        <Image source={Images.line} resizeMode='contain' style={styles.line} />
+        <Text style={[styles.footerText, {}]}>
           Made with <Text style={{ color: mainColors.red }}>♥</Text> India{' '}
           {' | '}
           Copyright © 2025 •{' '}

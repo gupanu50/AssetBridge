@@ -5,12 +5,12 @@ import {
   Pressable,
   StyleSheetProperties,
 } from 'react-native';
-import { IconProps } from 'react-native-vector-icons/Icon';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import scaler from '../Utils/scaler';
-
+import IonIcons from 'react-native-vector-icons/Ionicons'
+import Feather from 'react-native-vector-icons/Feather'
 type IconButtonProps = {
   type?: 'MaterialCommunityIcons' | 'Image';
   dark?: boolean;
@@ -66,6 +66,12 @@ function IconButton(
           size={size}
           color={color ? color : iconVariant}
         />
+      )}
+      {name && vectorType === 'Feather' && (
+        <Feather
+          name={name}
+          size={size}
+          color={color ? color : iconVariant} />
       )}
     </Pressable>
   );

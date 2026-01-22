@@ -8,6 +8,7 @@ import CommonButton from '../../ReusableComponents/commonButton';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import { renderProps } from './type';
 import { styles } from './styles';
+import LinearGradient from 'react-native-linear-gradient';
 
 type Props = MainStackScreenProps<'Onboard'>;
 const OnboardScreen = ({ navigation }: Props) => {
@@ -48,6 +49,10 @@ const OnboardScreen = ({ navigation }: Props) => {
     const { perAmt, descText, incText, img } = item;
     return (
       <View style={styles.renderBoxView}>
+        <LinearGradient
+          colors={['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']}
+          style={styles.shadowOverlay}
+        />
         <Text style={styles.swiperCardFirstText}>{perAmt}</Text>
         <View style={styles.flexView}>
           <View style={styles.innerFlexView}>
@@ -76,8 +81,8 @@ const OnboardScreen = ({ navigation }: Props) => {
             industry. Lorem Ipsum has been the industry's standard dummy text
             ever since the 1500.
           </Text>
-          <Text style={styles.headingText1}>Lorem Ipsum is simply dummy</Text>
           <View style={styles.heightView} />
+          <Text style={styles.headingText1}>Lorem Ipsum is simply dummy</Text>
           <SwiperFlatList
             data={swiperData}
             showPagination
