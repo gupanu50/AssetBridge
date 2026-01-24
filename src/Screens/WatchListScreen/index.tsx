@@ -10,6 +10,7 @@ import { TopTab, WatchRow } from './type';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
 type Props = MainStackScreenProps<'WatchList'>;
 const WatchListScreen = ({ navigation }: Props) => {
   const topTabListRef = useRef<FlatList<TopTab>>(null);
@@ -168,44 +169,24 @@ const WatchListScreen = ({ navigation }: Props) => {
     <View style={styles.container}>
       <CommonHeader />
       <View style={styles.mainView}>
-        {/* -------------------- Header Boxes -------------------- */}
-        <View style={styles.flexMainView}>
-          <View style={styles.innerBoxView}>
-            <Text style={styles.textNifty}>NIFTY 50</Text>
-            <Text style={styles.textNiftyValue}>
-              25944.75{' '}
-              <Text style={{ color: mainColors.green }}>87.45(0.34%)</Text>
-            </Text>
-          </View>
-
-          <View style={styles.innerBoxView}>
-            <Text style={styles.textNifty}>SENSEX</Text>
-            <Text style={styles.textNiftyValue}>
-              84977.45{' '}
-              <Text style={{ color: mainColors.red }}>-287.45(0.34%)</Text>
-            </Text>
-          </View>
-        </View>
-        <View style={styles.topTabsWrap}>
-          <FlatList
-            ref={topTabListRef}
-            data={topTabs}
-            keyExtractor={item => item.id}
-            renderItem={renderTopTab}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.topTabsContent}
-            onScrollToIndexFailed={() => { }}
-          />
-        </View>
+        <CommonTopBtnSlider navigation={navigation} />
+      </View>
+      <View style={styles.topTabsWrap}>
+        <FlatList
+          ref={topTabListRef}
+          data={topTabs}
+          keyExtractor={item => item.id}
+          renderItem={renderTopTab}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.topTabsContent}
+          onScrollToIndexFailed={() => { }}
+        />
+      </View>
+      <View style={styles.mainView}>
         <View style={styles.flexView}>
           <View style={styles.searchView}>
-            <IconButton
-              vectorType="MaterialIcons"
-              name="search"
-              color={mainColors.white}
-              style={styles.iconButton}
-            />
+            <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
           </View>
           <TouchableOpacity style={styles.settingsTouch}>
             <Image

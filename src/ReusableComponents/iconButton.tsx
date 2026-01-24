@@ -9,7 +9,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import scaler from '../Utils/scaler';
-import IonIcons from 'react-native-vector-icons/Ionicons'
+import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import Feather from 'react-native-vector-icons/Feather'
 type IconButtonProps = {
   type?: 'MaterialCommunityIcons' | 'Image';
@@ -69,6 +69,12 @@ function IconButton(
       )}
       {name && vectorType === 'Feather' && (
         <Feather
+          name={name}
+          size={size}
+          color={color ? color : iconVariant} />
+      )}
+      {name && vectorType === 'EvilIcons' && (
+        <EvilIcons
           name={name}
           size={size}
           color={color ? color : iconVariant} />

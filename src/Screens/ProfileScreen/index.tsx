@@ -87,11 +87,11 @@ const ProfileScreen = ({ navigation }: Props) => {
             {/* Menu */}
             <MenuItem icon={Images.tabProfile} label="Profile Settings" onPress={() => navigation.navigate('ProfileSettings')} />
             <View style={styles.hr} />
-            <MenuItem icon={Images.profilePayment} label="Payment Methods" />
+            <MenuItem icon={Images.profilePayment} label="Payment Methods" onPress={() => navigation.navigate('PaymentMethod')} />
             <View style={styles.hr} />
-            <MenuItem icon={Images.profileHistory} label="Transaction History" />
+            <MenuItem icon={Images.profileHistory} label="Transaction History" onPress={() => navigation.navigate('TransactionHistory')} />
             <View style={styles.hr} />
-            <MenuItem icon={Images.profileStatement} label="Statement (Ledger)" />
+            <MenuItem icon={Images.profileStatement} label="Statement (Ledger)" onPress={() => navigation.navigate('Statement')} />
             <View style={styles.hr} />
             <MenuItem icon={Images.profileContact} label="Contact Us" onPress={() => navigation.navigate('ContactUs')} />
             <View style={styles.hr} />

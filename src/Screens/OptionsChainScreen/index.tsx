@@ -10,6 +10,7 @@ import {
 import { mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
 import { styles } from './styles';
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 
 type Row = {
   id: string;
@@ -23,8 +24,8 @@ type Row = {
 
 const fmtMoney = (v: number) => `₹${v.toFixed(2)}`;
 const fmtPct = (v: number) => `${v >= 0 ? '' : ''}${v.toFixed(2)}%`;
-
-export default function OptionsChainScreen() {
+type Props = MainStackScreenProps<'OptionsChain'>;
+export default function OptionsChainScreen({ navigation }: Props) {
   const data = useMemo<Row[]>(
     () => [
       {
@@ -75,8 +76,8 @@ export default function OptionsChainScreen() {
               item.midTick === 'green'
                 ? styles.tickGreen
                 : item.midTick === 'red'
-                ? styles.tickRed
-                : styles.tickNone,
+                  ? styles.tickRed
+                  : styles.tickNone,
             ]}
           />
         </View>
@@ -101,10 +102,11 @@ export default function OptionsChainScreen() {
     <View style={styles.container}>
       {/* Top bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => {}}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => { }}>
           <IconButton
             vectorType="MaterialCommunityIcons"
             name="keyboard-backspace"
+            onPress={() => navigation.goBack()}
             color={mainColors.white}
             backgroundColor={mainColors.black}
           />
@@ -112,7 +114,7 @@ export default function OptionsChainScreen() {
 
         <Text style={styles.title}>HDFC</Text>
 
-        <TouchableOpacity style={styles.datePill} onPress={() => {}}>
+        <TouchableOpacity style={styles.datePill} onPress={() => { }}>
           <Text style={styles.dateText}>25 Dec</Text>
           <Text style={styles.caret}>▾</Text>
         </TouchableOpacity>

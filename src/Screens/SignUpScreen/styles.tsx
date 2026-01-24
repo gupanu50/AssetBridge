@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: scaler(15),
   },
   headingText: {
-    fontFamily: fontFamily.poppinsExtraBold,
+    fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.headingTextColor,
     fontSize: scaler(20),
   },
@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
   },
   inputLable: {
     fontFamily: fontFamily.poppinsRegular,
-    fontSize: scaler(15),
+    fontSize: scaler(14),
     color: mainColors.inputLabel,
   },
   inputContainer: {
@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
   subHeadingText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.headingTextColor,
-    fontSize: scaler(15),
+    fontSize: scaler(14),
     marginTop: scaler(5),
   },
   modalContainer: {

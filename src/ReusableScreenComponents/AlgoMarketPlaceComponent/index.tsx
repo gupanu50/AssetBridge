@@ -3,8 +3,11 @@ import React, { useMemo } from 'react';
 import { Images } from '../../Assets';
 import { styles } from './styles';
 import CommonAlgoMarketPlaceCard from '../../ReusableComponents/commonCardsAlgoMarketPlaceCard';
-
-const AlgoMarketPlaceComponent = () => {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+type MyAlgoProps = {
+  navigation?: MainStackScreenProps<'AlgoMain'>['navigation'];
+}
+const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
   const featureCards = useMemo(
     () => [
       {
@@ -61,6 +64,7 @@ const AlgoMarketPlaceComponent = () => {
         <CommonAlgoMarketPlaceCard
           logo={item.logo}
           name={item.name}
+          onPress={() => navigation?.navigate('MarketPlace')}
           sub={item.sub}
           tagLeft={item.tagLeft}
           tagRight={item.tagRight}

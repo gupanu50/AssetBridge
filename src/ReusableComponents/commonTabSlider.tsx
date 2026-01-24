@@ -22,23 +22,36 @@ const CommonTabSlider = (props: TopTabProps) => {
       onPress={() => onPressTopTab(props.label ?? '', props.index ?? 0)}
       style={[styles.topTabBtn, props?.style]}
     >
-      {props?.isRightText ?
+      {props?.isRightText ? (
         <View style={styles.rightView}>
           <Text
-            style={[styles.topTabText, props?.isActive && styles.topTabTextActive]}
+            style={[
+              styles.topTabText,
+              props?.isActive && styles.topTabTextActive,
+            ]}
           >
             {props.label}
           </Text>
-          <View style={styles.buyView}>
-            <Text style={styles.buyText}>Buy 1x</Text>
-          </View>
-        </View> :
+          {props?.isRightNew ? (
+            <View style={styles.newView}>
+              <Text style={styles.newText}>New</Text>
+            </View>
+          ) : (
+            <View style={styles.buyView}>
+              <Text style={styles.buyText}>Buy 1x</Text>
+            </View>
+          )}
+        </View>
+      ) : (
         <Text
-          style={[styles.topTabText, props?.isActive && styles.topTabTextActive]}
+          style={[
+            styles.topTabText,
+            props?.isActive && styles.topTabTextActive,
+          ]}
         >
           {props.label}
         </Text>
-      }
+      )}
       {props?.isActive ? (
         <View style={styles.topTabUnderline} />
       ) : (
@@ -59,12 +72,12 @@ const styles = StyleSheet.create({
   topTabText: {
     fontFamily: fontFamily.poppinsMedium,
     color: mainColors.white,
-    fontSize: scaler(12),
+    fontSize: scaler(13),
     paddingHorizontal: scaler(10),
-    opacity: 0.8,
   },
   topTabTextActive: {
     opacity: 1,
+    fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.blue,
   },
   topTabUnderline: {
@@ -81,18 +94,30 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   rightView: {
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   buyView: {
     borderWidth: 1,
     paddingHorizontal: scaler(7),
     paddingVertical: scaler(1.5),
     borderRadius: 10,
-    backgroundColor: mainColors.inputBorder
+    backgroundColor: mainColors.inputBorder,
+  },
+  newView: {
+    borderWidth: 1,
+    paddingHorizontal: scaler(7),
+    paddingVertical: scaler(1.5),
+    borderRadius: 10,
+    backgroundColor: mainColors.greenBg,
   },
   buyText: {
     fontFamily: fontFamily.poppinsMedium,
     fontSize: scaler(10),
-    color: mainColors.headingTextColor
-  }
+    color: mainColors.headingTextColor,
+  },
+  newText: {
+    fontFamily: fontFamily.poppinsMedium,
+    fontSize: scaler(10),
+    color: mainColors.greenText,
+  },
 });

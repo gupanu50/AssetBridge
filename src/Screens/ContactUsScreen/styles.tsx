@@ -51,6 +51,6 @@ export const styles = StyleSheet.create({
     },
     messageContainerStyle: {
         height: scaler(150),
-        marginBottom: scaler(130)
+        marginBottom: scaler(90)
     }
 })

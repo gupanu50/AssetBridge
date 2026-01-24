@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
   searchText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.descText,
-    fontSize: scaler(13),
+    fontSize: scaler(12),
     alignSelf: 'center',
     paddingRight: scaler(10),
   },
@@ -68,27 +68,28 @@ export const styles = StyleSheet.create({
 
   cardTitle: {
     color: mainColors.white,
-    fontSize: scaler(16),
-    fontFamily: fontFamily.poppinsMedium,
+    fontSize: scaler(14),
+    fontFamily: fontFamily.poppinsRegular,
   },
   exchangeBadge: {
     paddingHorizontal: scaler(8),
     paddingVertical: scaler(3),
-    width: scaler(140),
+    width: scaler(155),
   },
 
   exchangeBadgeText: {
     color: mainColors.white,
-    fontSize: scaler(11),
-    fontFamily: fontFamily.poppinsMedium,
+    fontSize: scaler(10),
+    fontFamily: fontFamily.poppinsRegular,
   },
 
   cardSubRow: {
     borderWidth: 1,
     borderRadius: 20,
+    paddingTop: scaler(1),
     alignItems: 'center',
     backgroundColor: mainColors.inputBorder,
-    width: scaler(75),
+    width: scaler(60),
   },
 
   bsText: {
@@ -99,7 +100,7 @@ export const styles = StyleSheet.create({
 
   dateText: {
     color: mainColors.white,
-    fontSize: scaler(12),
+    fontSize: scaler(10),
     fontFamily: fontFamily.poppinsRegular,
   },
   cardGrid: {
@@ -109,7 +110,10 @@ export const styles = StyleSheet.create({
   },
 
   cardCol: {},
-
+  searchLogo: {
+    height: scaler(15),
+    width: scaler(15),
+  },
   kvRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -125,7 +129,7 @@ export const styles = StyleSheet.create({
   kValue: {
     color: mainColors.white,
     fontSize: scaler(12),
-    fontFamily: fontFamily.poppinsMedium,
+    fontFamily: fontFamily.poppinsRegular,
   },
 
   pill: {
@@ -133,8 +137,8 @@ export const styles = StyleSheet.create({
     borderColor: mainColors.inputBorder,
     borderRadius: scaler(8),
     backgroundColor: mainColors.inputBorder,
-    paddingHorizontal: scaler(10),
-    paddingVertical: scaler(4),
+    paddingHorizontal: scaler(6),
+    paddingVertical: scaler(2),
     marginLeft: scaler(5),
   },
   pillManAut: {
@@ -142,8 +146,8 @@ export const styles = StyleSheet.create({
     borderColor: mainColors.inputBorder,
     borderRadius: scaler(8),
     backgroundColor: mainColors.inputBorder,
-    paddingHorizontal: scaler(10),
-    paddingVertical: scaler(4),
+    paddingHorizontal: scaler(6),
+    paddingVertical: scaler(2),
   },
   pillDirection: {
     borderRadius: scaler(10),
@@ -156,11 +160,11 @@ export const styles = StyleSheet.create({
   pillText: {
     color: mainColors.white,
     fontSize: scaler(12),
-    fontFamily: fontFamily.poppinsMedium,
+    fontFamily: fontFamily.poppinsRegular,
   },
   pillDirectionText: {
     fontSize: scaler(12),
-    fontFamily: fontFamily.poppinsMedium,
+    fontFamily: fontFamily.poppinsRegular,
   },
   itemSeperator: {
     borderWidth: 1,
@@ -176,7 +180,7 @@ export const styles = StyleSheet.create({
   exitText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(13),
+    fontSize: scaler(12),
   },
   totalText: {
     fontFamily: fontFamily.poppinsMedium,
@@ -186,7 +190,7 @@ export const styles = StyleSheet.create({
   },
   totalValueText: {
     fontFamily: fontFamily.poppinsMedium,
-    color: mainColors.green,
+    color: mainColors.greenText,
     fontSize: scaler(14),
     paddingLeft: scaler(10),
   },

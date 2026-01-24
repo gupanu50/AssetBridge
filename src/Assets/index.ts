@@ -59,4 +59,12 @@ export const Images = {
   notification: require('./Images/notification.png'),
   line: require('./Images/line.png'),
   toolTip: require('./Images/toolTip.png'),
+  check: require('./Images/check.png'),
+  gPay: require('./Images/gPay.png'),
+  upiLogo: require('./Images/upi.png'),
+  moneyPuse: require('./Images/moneyPurse.png'),
+  credit: require('./Images/credit.png'),
+  debit: require('./Images/debit.png'),
+  pnl: require('./Images/pnl.png'),
+  trades: require('./Images/trades.png'),
 };

@@ -15,12 +15,13 @@ import {
   NewsItemProps,
   PropCommonCardTypes,
 } from '../../ReusableComponents/commonTypes';
-import { mainColors } from '../../Utils/helper';
+import { fontFamily, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import CommonNews from '../../ReusableComponents/commonNews';
 import { MoverData } from './types';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+import { Dropdown } from 'react-native-element-dropdown';
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 type ExploreProps = {
   navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
@@ -29,6 +30,11 @@ export default function ExploreComponent(props: ExploreProps) {
   const CARD_WIDTH = SCREEN_WIDTH - scaler(30);
   const CARD_GAP = scaler(12); // space between cards
   const [activeMoverTab, setActiveMoverTab] = useState('Gainers');
+  const [selectedValue, setSelectedValue] = useState<string | null>('today');
+  const dropDownData = [
+    { label: 'Today', value: 'today' },
+    { label: 'Yesterday', value: 'yesterday' },
+  ];
   const [activeIndex, setActiveIndex] = useState('Today');
   // Top Movers section (keep as-is from previous code)
   const moversDataGrid = useMemo<MoverData[]>(
@@ -300,15 +306,20 @@ export default function ExploreComponent(props: ExploreProps) {
             Losers
           </Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={() => setActiveIndex('Today')}
-          style={styles.indexDrop}
-        >
-          <Text style={styles.indexDropText}>{activeIndex}</Text>
-          <Text style={styles.indexDropArrow}>{'v'}</Text>
-        </TouchableOpacity>
+        <Dropdown
+          data={dropDownData}
+          labelField="label"
+          valueField="value"
+          placeholder="Select"
+          value={selectedValue}
+          containerStyle={{ borderRadius: 10, borderWidth: 1, borderColor: mainColors.inputBorder, overflow: 'hidden' }}
+          selectedTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(10) }}
+          style={{ borderWidth: 1, borderColor: mainColors.inputBorder, height: scaler(25), width: scaler(80), borderRadius: 15, paddingHorizontal: scaler(10) }}
+          itemTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(8) }}
+          itemContainerStyle={{ backgroundColor: mainColors.black }}
+          onChange={item => setSelectedValue(item.value)}
+          activeColor={mainColors.inputBorder}
+        />
       </View>
 
       <View style={styles.moversGridWrap}>

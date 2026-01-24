@@ -1,14 +1,18 @@
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, TouchableOpacity, View } from 'react-native'
 import React, { useMemo, useRef, useState } from 'react'
 import CommonDrawerBackHeader from '../../ReusableComponents/commonDrawerBackHeader'
-import { fontFamily, mainColors } from '../../Utils/helper'
-import scaler from '../../Utils/scaler'
+import { mainColors } from '../../Utils/helper'
 import { TopTabProps } from '../../ReusableComponents/commonTypes'
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider'
 import IconButton from '../../ReusableComponents/iconButton'
 import { Images } from '../../Assets'
-
-const TransactionHistoryScreen = () => {
+import FundsWithdrawalComponent from '../../ReusableScreenComponents/FundsWithdrawalTransactionHistoryComponent'
+import { styles } from './styles'
+import FundsAddedComponent from '../../ReusableScreenComponents/FundsAddedTransactionHistory'
+import { Text } from 'react-native-gesture-handler'
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
+type Props = MainStackScreenProps<'TransactionHistory'>;
+const TransactionHistoryScreen = ({ navigation }: Props) => {
     const [activeTopTab, setActiveTopTab] = useState('Funds Added');
     const topTabListRef: any = useRef(null);
     const renderTopTab = ({ item, index }: { item: TopTabProps; index: number }) => {
@@ -35,7 +39,7 @@ const TransactionHistoryScreen = () => {
     return (
         <View style={styles.conatiner}>
             <View style={styles.main}>
-                <CommonDrawerBackHeader title='Transaction History' isShowInfoIcon={true} />
+                <CommonDrawerBackHeader title='Transaction History' isShowInfoIcon={true} navigation={navigation} />
                 <View style={styles.topTabsWrap}>
                     <FlatList
                         ref={topTabListRef}
@@ -49,11 +53,8 @@ const TransactionHistoryScreen = () => {
                     />
                 </View>
                 <View style={styles.searchView}>
-                    <IconButton
-                        vectorType="MaterialIcons"
-                        name="search"
-                        color={mainColors.white}
-                    />
+                    <Image source={Images.search} resizeMode='contain' style={styles.searchImg} />
+                    <Text style={styles.searchText}>Search transactions by bank or amount</Text>
                     <TouchableOpacity style={styles.settingsTouch}>
                         <Image
                             source={Images.settingsWatchlist}
@@ -62,78 +63,11 @@ const TransactionHistoryScreen = () => {
                         />
                     </TouchableOpacity>
                 </View>
-                <Text style={styles.timeText}>13 January 2026 at 07 : 03 pm</Text>
-                <View style={styles.flexView}>
-                    <Image source={Images.bankLogo} resizeMode="contain" style={styles.bankLogo} />
-                    <View>
-                        <Text>HDFC Bank LTD</Text>
-                        <Text>**25**6399</Text>
-                    </View>
-                    <View>
-                        <Text>₹10,36,259,44</Text>
-                        <View>
-                            <Text>Approved</Text>
-                        </View>
-                    </View>
-                </View>
+                {activeTopTab === 'Funds Withdrawal' && <FundsWithdrawalComponent />}
+                {activeTopTab === 'Funds Added' && <FundsAddedComponent />}
             </View>
         </View>
     )
 }
 
 export default TransactionHistoryScreen
-const styles = StyleSheet.create({
-    conatiner: {
-        flex: 1,
-        backgroundColor: mainColors.black
-    },
-    main: {
-        marginHorizontal: scaler(10)
-    },
-    sliderView: {
-        width: scaler(185),
-        marginRight: 0,
-    },
-    topTabsWrap: {
-        marginTop: scaler(15),
-        paddingTop: scaler(5),
-        borderBottomWidth: 1,
-        borderColor: mainColors.inputBorder,
-    },
-    topTabsContent: {
-        paddingRight: scaler(10),
-    },
-    searchView: {
-        borderWidth: 1,
-        borderRadius: 20,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: scaler(5),
-        paddingHorizontal: scaler(10),
-        borderColor: mainColors.inputBorder,
-        marginTop: scaler(15),
-    },
-    settingsImg: {
-        height: scaler(20),
-        width: scaler(20),
-        alignSelf: 'center',
-        marginLeft: scaler(10),
-    },
-    settingsTouch: {
-        marginTop: scaler(5),
-    },
-    timeText: {
-        color: mainColors.transactionTime,
-        fontSize: scaler(10),
-        fontFamily: fontFamily.poppinsRegular,
-        marginTop: scaler(20)
-    },
-    flexView: {
-        flexDirection: 'row',
-    },
-    bankLogo: {
-        height: scaler(40),
-        width: scaler(40),
-        marginTop: scaler(10)
-    }
-})

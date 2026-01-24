@@ -18,6 +18,7 @@ import OrderComponent from '../../ReusableScreenComponents/OrdersComponent';
 import PositionsOpenComponent from '../../ReusableScreenComponents/PositionsOpenComponent';
 import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsClosedComponent';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 type Props = MainStackScreenProps<'Instrument'>;
 const InstumentScreen = ({ navigation }: Props) => {
   const [selectedLabel, setSelectedLabel] = useState<string>('1D');
@@ -59,20 +60,13 @@ const InstumentScreen = ({ navigation }: Props) => {
   const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
     const isActive = activeTopTab === item.label;
     return (
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={() => onPressTopTab(item.label, index)}
-        style={styles.topTabBtn}
-      >
-        <Text style={[styles.topTabText, isActive && styles.topTabTextActive]}>
-          {item.label}
-        </Text>
-        {isActive ? (
-          <View style={styles.topTabUnderline} />
-        ) : (
-          <View style={styles.topTabUnderlineOff} />
-        )}
-      </TouchableOpacity>
+      <CommonTabSlider
+        activeTab="Explore"
+        index={index}
+        label={item?.label}
+        isActive={isActive}
+        setIsActive={setActiveTopTab}
+      />
     );
   };
 
@@ -123,20 +117,22 @@ const InstumentScreen = ({ navigation }: Props) => {
                     name="chevron-up"
                     backgroundColor={mainColors.black}
                     color={mainColors.descText}
-                    size={scaler(15)}
+                    size={scaler(10)}
                   />
                   <IconButton
                     vectorType="MaterialCommunityIcons"
                     name="chevron-down"
                     backgroundColor={mainColors.black}
                     color={mainColors.descText}
-                    size={scaler(15)}
+                    size={scaler(10)}
                   />
                 </View>
               </View>
             </View>
             <IconButton
+              onPress={() => navigation.navigate('OptionsChain')}
               vectorType="MaterialCommunityIcons"
+              size={scaler(20)}
               name="link-variant"
               backgroundColor={mainColors.black}
               color={mainColors.white}

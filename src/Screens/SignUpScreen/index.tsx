@@ -19,7 +19,7 @@ const SignUpScreen = () => {
   // const [modalVisible, setModalVisible] = useState(false);
   return (
     <View style={styles.container}>
-      <ImageBackground source={Images.onboardBg} style={styles.backgroundImg}>
+      <ImageBackground source={Images.onboardBg} style={styles.backgroundImg} resizeMode='stretch'>
         <View style={styles.logoView}>
           <Image
             source={Images.logo}

@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
     marginLeft: scaler(10),
   },
   subHeadingText: {
-    fontFamily: fontFamily.poppinsSemiBold,
+    fontFamily: fontFamily.poppinsMedium,
     color: mainColors.inputLabel,
     fontSize: scaler(10),
     marginLeft: scaler(10),
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
   headingPubText: {
     fontFamily: fontFamily.poppinsMedium,
     color: mainColors.descText,
-    fontSize: scaler(14),
+    fontSize: scaler(12),
   },
   subHeadingPubText: {
     fontFamily: fontFamily.poppinsSemiBold,
@@ -85,7 +85,7 @@ export const styles = StyleSheet.create({
   },
   activatedValueView1: {
     borderRadius: 100 / 2,
-    width: scaler(15),
+    width: scaler(18),
     height: scaler(16),
     marginHorizontal: scaler(5),
     backgroundColor: mainColors.descText,
@@ -129,8 +129,7 @@ export const styles = StyleSheet.create({
   actionText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.descText,
-    fontSize: scaler(10),
-    opacity: 0.9,
+    fontSize: scaler(12),
     marginLeft: scaler(4),
   },
   flexView: {
@@ -144,18 +143,19 @@ export const styles = StyleSheet.create({
   recomText: {
     fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.white,
-    fontSize: scaler(14),
+    fontSize: scaler(12),
     marginTop: scaler(10),
   },
   recomDateText: {
     fontFamily: fontFamily.poppinsMedium,
     color: mainColors.headingTextColor,
-    fontSize: scaler(12),
+    fontSize: scaler(10),
   },
   radioBox: {
     borderWidth: 1,
     borderRadius: 20,
     padding: scaler(10),
+    marginTop: scaler(15),
     borderColor: mainColors.inputBorder,
   },
   brokerageText: {
@@ -169,7 +169,7 @@ export const styles = StyleSheet.create({
   },
   whatsText: {
     fontFamily: fontFamily.poppinsMedium,
-    color: mainColors.blue,
+    color: mainColors.mainButton,
     fontSize: scaler(12),
     marginRight: scaler(5),
     alignSelf: 'center',
@@ -179,9 +179,9 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: mainColors.inputBorder,
     borderRadius: 15,
-    marginLeft: scaler(130),
+    marginLeft: scaler(145),
     alignItems: 'center',
-    paddingHorizontal: scaler(10),
+    paddingHorizontal: scaler(5),
     flexDirection: 'row',
   },
   addText: {
@@ -206,9 +206,8 @@ export const styles = StyleSheet.create({
   },
   statLabel: {
     fontFamily: fontFamily.poppinsRegular,
-    color: mainColors.white,
-    fontSize: scaler(9),
-    opacity: 0.65,
+    color: mainColors.headingTextColor,
+    fontSize: scaler(8),
   },
   statValueRow: {
     flexDirection: 'row',
@@ -216,7 +215,7 @@ export const styles = StyleSheet.create({
     marginTop: scaler(4),
   },
   statValue: {
-    fontFamily: fontFamily.poppinsRegular,
+    fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.white,
     fontSize: scaler(12),
     marginRight: scaler(6),
@@ -226,16 +225,12 @@ export const styles = StyleSheet.create({
     fontSize: scaler(9),
   },
   swiperPnlView: {
-    borderRadius: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: mainColors.swiperBgPnl,
-    paddingHorizontal: scaler(6),
-    paddingVertical: scaler(3),
   },
   swiperUpImg: {
-    height: scaler(10),
-    width: scaler(10),
+    height: scaler(15),
+    width: scaler(15),
     marginRight: scaler(2),
   },
   resultsBasedView: {
@@ -252,8 +247,8 @@ export const styles = StyleSheet.create({
   },
   redIconText: {
     fontFamily: fontFamily.poppinsMedium,
-    fontSize: scaler(13),
-    color: mainColors.red,
+    fontSize: scaler(12),
+    color: mainColors.errorRed,
   },
   btnKnow: {
     height: scaler(26),
@@ -261,9 +256,10 @@ export const styles = StyleSheet.create({
   },
   subs: {
     height: scaler(40),
-    marginTop: scaler(15),
+    marginVertical: scaler(15),
+    marginTop: scaler(25),
     overflow: 'scroll',
-    borderRadius: 20,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -287,42 +283,40 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   summaryCol: {
-    width: '68%',
+    width: '66%',
   },
   summaryWinLossCol: {
     flexDirection: 'row',
     width: '68%',
   },
   summaryLabel: {
-    fontFamily: fontFamily.poppinsRegular,
+    fontFamily: fontFamily.poppinsMedium,
     color: mainColors.white,
-    fontSize: scaler(10),
-    opacity: 0.9,
+    fontSize: scaler(12),
   },
   summaryWinLossLabel: {
-    fontFamily: fontFamily.poppinsRegular,
+    fontFamily: fontFamily.poppinsMedium,
     color: mainColors.white,
     alignSelf: 'center',
     marginRight: scaler(15),
     paddingTop: scaler(5),
-    fontSize: scaler(10),
-    opacity: 0.9,
+    fontSize: scaler(12),
   },
   summaryValue: {
     fontFamily: fontFamily.poppinsSemiBold,
-    fontSize: scaler(14),
+    fontSize: scaler(16),
     marginTop: scaler(4),
   },
   summaryValuePlain: {
     fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.descText,
-    fontSize: scaler(13),
+    fontSize: scaler(14),
     marginTop: scaler(4),
   },
   summarySmallValue: {
-    fontFamily: fontFamily.poppinsMedium,
+    fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.descText,
-    fontSize: scaler(12),
+    fontSize: scaler(14),
     marginTop: scaler(4),
   },
   winLossRow: {
@@ -358,7 +352,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.white,
-    fontSize: scaler(13),
+    fontSize: scaler(14),
   },
   bulletRow: {
     flexDirection: 'row',
@@ -373,9 +367,9 @@ export const styles = StyleSheet.create({
   },
   bulletText: {
     flex: 1,
-    fontFamily: fontFamily.poppinsRegular,
+    fontFamily: fontFamily.poppinsMedium,
     color: mainColors.descText,
-    fontSize: scaler(11),
+    fontSize: scaler(12),
     lineHeight: scaler(18),
   },
   viewMoreRow: {
@@ -385,10 +379,12 @@ export const styles = StyleSheet.create({
   },
   viewMoreText: {
     fontFamily: fontFamily.poppinsMedium,
-    color: mainColors.blue,
+    color: mainColors.mainButton,
     fontSize: scaler(11),
   },
   viewMoreIconWrap: {
     marginLeft: scaler(6),
   },
+  pnlDemoImg: { height: scaler(390), width: scaler(390), alignSelf: 'center' },
+  tradesDemoImg: { marginTop: scaler(15), height: scaler(280), width: scaler(330), borderRadius: 15, overflow: 'hidden', alignSelf: 'center' }
 });

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
 import React, { useState } from 'react';
 import { FlatItem } from './types';
 import { mainColors } from '../../Utils/helper';
@@ -7,6 +7,7 @@ import IconButton from '../../ReusableComponents/iconButton';
 import scaler from '../../Utils/scaler';
 import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
+import { Images } from '../../Assets';
 
 const OrderComponent = () => {
   const [isChecked, setIsChecked] = useState(false);
@@ -84,7 +85,7 @@ const OrderComponent = () => {
               vectorType="MaterialCommunityIcons"
               name={checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
               backgroundColor={mainColors.black}
-              color={mainColors.mainButton}
+              color={checked ? mainColors.mainButton : mainColors.transactionTime}
             />
           </TouchableOpacity>
 
@@ -155,19 +156,13 @@ const OrderComponent = () => {
           vectorType="MaterialCommunityIcons"
           name={isChecked ? 'checkbox-marked' : 'checkbox-blank-outline'}
           backgroundColor={mainColors.black}
-          color={mainColors.mainButton}
+          color={isChecked ? mainColors.mainButton : mainColors.transactionTime}
           onPress={() => toggleSelectAll()}
         />
         <Text style={styles.selectText}>Select All</Text>
         <View style={styles.searchBox}>
           <Text style={styles.searchText}>Search</Text>
-          <IconButton
-            vectorType="MaterialIcons"
-            name="search"
-            size={scaler(18)}
-            color={mainColors.white}
-            backgroundColor={mainColors.black}
-          />
+          <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
         </View>
         <IconButton
           vectorType="AntDesign"
@@ -188,13 +183,13 @@ const OrderComponent = () => {
           label="Buy"
           backgroundColor={mainColors.black}
           textColor={mainColors.greenText}
-          extraStyle={[styles.buttonWidth, { borderColor: mainColors.greenBorder }]}
+          extraStyle={[styles.buttonWidth, { borderColor: mainColors.greenText }]}
         />
         <CommonButton
           label="Sell"
           backgroundColor={mainColors.black}
           textColor={mainColors.redText}
-          extraStyle={[styles.buttonWidth, { borderColor: mainColors.redBorder }]}
+          extraStyle={[styles.buttonWidth, { borderColor: mainColors.redText }]}
         />
       </View>
     </View>

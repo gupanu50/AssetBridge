@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
     marginVertical: scaler(10),
   },
   onlyFontSize: {
-    fontSize: scaler(12),
+    fontSize: scaler(8),
   },
   logoImg: {
     height: scaler(50),
@@ -24,33 +24,35 @@ export const styles = StyleSheet.create({
   },
   headingText: {
     fontFamily: fontFamily.poppinsMedium,
-    fontSize: scaler(15),
+    fontSize: scaler(12),
     color: mainColors.white,
   },
   subHeadingText: {
     fontFamily: fontFamily.poppinsMedium,
-    fontSize: scaler(15),
+    fontSize: scaler(12),
     color: mainColors.descText,
   },
   innerFlexView: {
     marginHorizontal: scaler(10),
+    fontSize: scaler(8),
+    alignSelf: 'center'
   },
   innerFlexView1: {
     position: 'absolute',
     alignSelf: 'center',
-    left: scaler(80),
+    left: scaler(60),
   },
   onlyWidth: {
     width: scaler(240),
   },
   amountHeading: {
     fontFamily: fontFamily.poppinsSemiBold,
-    fontSize: scaler(20),
+    fontSize: scaler(18),
     color: mainColors.white,
   },
   amountPosLosHeading: {
     fontFamily: fontFamily.poppinsRegular,
-    fontSize: scaler(16),
+    fontSize: scaler(12),
     color: mainColors.swiperPnl,
   },
   innerText: {
@@ -63,7 +65,7 @@ export const styles = StyleSheet.create({
   eCommerceView: {
     borderWidth: 1,
     borderRadius: 30,
-    height: scaler(30),
+    height: scaler(25),
     paddingHorizontal: scaler(10),
     borderColor: mainColors.inputBorder,
     justifyContent: 'center',
@@ -83,7 +85,7 @@ export const styles = StyleSheet.create({
     height: scaler(50),
   },
   chartExpandView: {
-    height: scaler(40),
+    height: scaler(30),
   },
   touchView: {
     marginLeft: scaler(300),
@@ -95,7 +97,7 @@ export const styles = StyleSheet.create({
   },
   text: {
     color: mainColors.white,
-    fontSize: scaler(11),
+    fontSize: scaler(10),
     fontFamily: fontFamily.poppinsMedium,
   },
   flatExchangeText: {
@@ -116,8 +118,8 @@ export const styles = StyleSheet.create({
   selectedItem: {
     borderWidth: 1,
     borderColor: mainColors.descText,
+    paddingTop: scaler(2),
     paddingHorizontal: scaler(10),
-    paddingVertical: scaler(1),
     borderRadius: 20,
   },
   topTabsWrap: {

@@ -34,12 +34,12 @@ export const styles = StyleSheet.create({
   headingText: {
     fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.headingTextColor,
-    fontSize: scaler(18),
+    fontSize: scaler(20),
   },
   subHeadingText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.headingTextColor,
-    fontSize: scaler(15),
+    fontSize: scaler(14),
     marginTop: scaler(5),
   },
   otpContainerStyle: {

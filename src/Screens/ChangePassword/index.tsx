@@ -43,7 +43,7 @@ const ChangePasswordScreen = () => {
                                 value={password}
                                 setValue={setPassword}
                                 secure={secureText}
-                                righImage={
+                                rightImage={
                                     <TouchableOpacity
                                         testID="togglePasswordIcon"
                                         style={styles.eyeIcon}
@@ -64,7 +64,7 @@ const ChangePasswordScreen = () => {
                                 value={password1}
                                 setValue={setPassword1}
                                 secure={secureText1}
-                                righImage={
+                                rightImage={
                                     <TouchableOpacity
                                         testID="togglePasswordIcon"
                                         style={styles.eyeIcon}

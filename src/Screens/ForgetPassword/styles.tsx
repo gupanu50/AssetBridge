@@ -34,15 +34,22 @@ export const styles = StyleSheet.create({
   headingText: {
     fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.headingTextColor,
-    fontSize: scaler(18),
+    fontSize: scaler(20),
   },
   subHeadingText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.headingTextColor,
-    fontSize: scaler(15),
+    fontSize: scaler(14),
     marginTop: scaler(5),
   },
+  inputLabel: {
+    fontFamily: fontFamily.poppinsRegular,
+    color: mainColors.white,
+    fontSize: scaler(14),
+    marginTop: scaler(25),
+    marginBottom: scaler(5)
+  },
   loginStyle: {
-    marginTop: scaler(15),
+    marginTop: scaler(30),
   },
 });

@@ -53,7 +53,7 @@ const HomeScreen = ({ navigation }: Props) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: scaler(30) }}
       >
-        <CommonTopBtnSlider />
+        <CommonTopBtnSlider navigation={navigation} />
 
         {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}
         <View style={styles.topTabsWrap}>

@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import { mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
@@ -8,6 +8,7 @@ import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
 import scaler from '../../Utils/scaler';
 import { FlatItem } from './types';
+import { Images } from '../../Assets';
 
 const PositionsOpenComponent = () => {
   const [isChecked, setIsChecked] = useState(false);
@@ -83,7 +84,7 @@ const PositionsOpenComponent = () => {
               vectorType="MaterialCommunityIcons"
               name={checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
               backgroundColor={mainColors.black}
-              color={mainColors.mainButton}
+              color={isChecked ? mainColors.mainButton : mainColors.transactionTime}
             />
           </TouchableOpacity>
 
@@ -178,19 +179,13 @@ const PositionsOpenComponent = () => {
           vectorType="MaterialCommunityIcons"
           name={isChecked ? 'checkbox-marked' : 'checkbox-blank-outline'}
           backgroundColor={mainColors.black}
-          color={mainColors.mainButton}
+          color={isChecked ? mainColors.mainButton : mainColors.transactionTime}
           onPress={() => toggleSelectAll()}
         />
         <Text style={styles.selectText}>Select All</Text>
         <View style={styles.searchBox}>
           <Text style={styles.searchText}>Search</Text>
-          <IconButton
-            vectorType="MaterialIcons"
-            name="search"
-            size={scaler(18)}
-            color={mainColors.white}
-            backgroundColor={mainColors.black}
-          />
+          <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
         </View>
         <IconButton
           vectorType="AntDesign"
@@ -225,13 +220,13 @@ const PositionsOpenComponent = () => {
           label="Buy"
           backgroundColor={mainColors.black}
           textColor={mainColors.greenText}
-          extraStyle={[styles.buttonWidth, { borderColor: mainColors.greenBorder }]}
+          extraStyle={[styles.buttonWidth, { borderColor: mainColors.greenText }]}
         />
         <CommonButton
           label="Sell"
           backgroundColor={mainColors.black}
           textColor={mainColors.redText}
-          extraStyle={[styles.buttonWidth, { borderColor: mainColors.redBorder }]}
+          extraStyle={[styles.buttonWidth, { borderColor: mainColors.redText }]}
         />
       </View>
     </View>

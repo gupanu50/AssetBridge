@@ -17,10 +17,9 @@ export const styles = StyleSheet.create({
     marginHorizontal: scaler(10),
   },
   sectionTitle: {
-    fontFamily: fontFamily.poppinsRegular,
-    color: mainColors.white,
-    fontSize: scaler(12),
-    opacity: 0.9,
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.headingTextColor,
+    fontSize: scaler(14),
   },
   // -------------------- GAINERS/LOSERS SEGMENT --------------------
   moverTabsRow: {
@@ -48,7 +47,6 @@ export const styles = StyleSheet.create({
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
     fontSize: scaler(10),
-    opacity: 0.7,
   },
   moverSegmentTextActive: {
     opacity: 1,
@@ -94,19 +92,18 @@ export const styles = StyleSheet.create({
   moverName: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(10),
-    opacity: 0.85,
+    fontSize: scaler(12),
+    paddingTop: scaler(5),
   },
   moverPrice: {
-    marginTop: scaler(8),
-    fontFamily: fontFamily.poppinsRegular,
+    marginTop: scaler(15),
+    fontFamily: fontFamily.poppinsMedium,
     color: mainColors.white,
     fontSize: scaler(12),
-    opacity: 0.95,
   },
   moverChg: {
     marginTop: scaler(4),
-    fontFamily: fontFamily.poppinsRegular,
+    fontFamily: fontFamily.poppinsMedium,
     fontSize: scaler(10),
   },
   viewAllCard: {
@@ -158,19 +155,18 @@ export const styles = StyleSheet.create({
   },
   footerText: {
     fontFamily: fontFamily.poppinsRegular,
-    color: mainColors.white,
-    fontSize: scaler(9),
-    opacity: 0.55,
+    color: mainColors.descText,
+    fontSize: scaler(12),
     textAlign: 'center',
   },
   tMimg: {
-    height: scaler(20),
-    width: scaler(20),
+    height: scaler(22),
+    width: scaler(22),
     marginRight: scaler(5),
   },
   logoImg: {
-    height: scaler(20),
-    width: scaler(20),
+    height: scaler(25),
+    width: scaler(25),
     marginRight: scaler(5),
   },
   line: { alignSelf: 'center', height: scaler(30), width: scaler(80) }

@@ -18,8 +18,10 @@ import CommonButton from '../../ReusableComponents/commonButton';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import { TopTabProps } from '../../ReusableComponents/commonTypes';
 import { styles } from './styles';
-
-const MarketPlaceScreen = () => {
+import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+type Props = MainStackScreenProps<'MarketPlace'>;
+const MarketPlaceScreen = ({ navigation }: Props) => {
   const [activeTopTab, setActiveTopTab] = useState('Overview');
   // refs to keep tab visible while sliding
   const topTabListRef: any = useRef(null);
@@ -77,7 +79,7 @@ const MarketPlaceScreen = () => {
           <IconButton
             vectorType="MaterialCommunityIcons"
             name={expanded ? 'chevron-up' : 'chevron-down'}
-            color={mainColors.blue}
+            color={mainColors.mainButton}
             backgroundColor={mainColors.black}
             onPress={onPress}
           />
@@ -126,23 +128,7 @@ const MarketPlaceScreen = () => {
       >
         <View style={styles.mainView}>
           {/* -------------------- Header Boxes -------------------- */}
-          <View style={styles.flexMainView}>
-            <View style={styles.innerBoxView}>
-              <Text style={styles.textNifty}>NIFTY 50</Text>
-              <Text style={styles.textNiftyValue}>
-                25944.75{' '}
-                <Text style={{ color: mainColors.green }}>87.45(0.34%)</Text>
-              </Text>
-            </View>
-
-            <View style={styles.innerBoxView}>
-              <Text style={styles.textNifty}>SENSEX</Text>
-              <Text style={styles.textNiftyValue}>
-                84977.45{' '}
-                <Text style={{ color: mainColors.red }}>-287.45(0.34%)</Text>
-              </Text>
-            </View>
-          </View>
+          <CommonTopBtnSlider navigation={navigation} />
         </View>
         <View style={styles.boxNameView}>
           <View style={styles.imgView}>
@@ -246,7 +232,8 @@ const MarketPlaceScreen = () => {
               <IconButton
                 vectorType="MaterialCommunityIcons"
                 name="information-outline"
-                color={mainColors.blue}
+                size={scaler(20)}
+                color={mainColors.mainButton}
                 backgroundColor={mainColors.black}
               />
               <View style={styles.addView}>
@@ -281,7 +268,7 @@ const MarketPlaceScreen = () => {
                 Taxes & Charges
               </Text>
               <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-                <Text style={styles.statValue}>1000</Text>
+                <Text style={styles.statValue}>₹100,00,000</Text>
               </View>
             </View>
 
@@ -297,7 +284,7 @@ const MarketPlaceScreen = () => {
                 Slippage
               </Text>
               <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-                <Text style={styles.statValue}>20%</Text>
+                <Text style={styles.statValue}>30%</Text>
               </View>
             </View>
           </View>
@@ -306,19 +293,18 @@ const MarketPlaceScreen = () => {
               <IconButton
                 vectorType="MaterialCommunityIcons"
                 name="information-outline"
-                color={mainColors.red}
+                color={mainColors.errorRed}
                 backgroundColor={mainColors.black}
               />
             </View>
             <View>
               <Text style={styles.redIconText}>
-                The results are bssed on past data. Historical data does not
-                guarantee future results.
+                {`The results are bssed on past data. Historical${'\n'} data does not guarantee future results.`}
               </Text>
               <CommonButton
                 label="Know more"
                 backgroundColor="transparent"
-                textColor={mainColors.blue}
+                textColor={mainColors.mainButton}
                 extraStyle={styles.btnKnow}
               />
             </View>
@@ -335,7 +321,7 @@ const MarketPlaceScreen = () => {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.topTabsContent}
-              onScrollToIndexFailed={() => {}}
+              onScrollToIndexFailed={() => { }}
             />
           </View>
           {/* -------------------- Remaining UI (Overview Section) -------------------- */}
@@ -418,18 +404,18 @@ const MarketPlaceScreen = () => {
                 {/* Row 4 */}
                 <View style={styles.summaryRow}>
                   <View style={styles.summaryCol}>
-                    <Text style={styles.summaryLabel}>Maximum Profit</Text>
+                    <Text style={[styles.summaryLabel, { color: mainColors.headingTextColor }]}>Maximum Profit</Text>
                     <Text
-                      style={[styles.summaryValue, { color: mainColors.green }]}
+                      style={[styles.summaryValue, { color: mainColors.greenText }]}
                     >
                       ₹ 99,000
                     </Text>
                   </View>
 
                   <View style={styles.summaryCol}>
-                    <Text style={styles.summaryLabel}>Maximum Loss</Text>
+                    <Text style={[styles.summaryLabel, { color: mainColors.headingTextColor }]}>Maximum Loss</Text>
                     <Text
-                      style={[styles.summaryValue, { color: mainColors.red }]}
+                      style={[styles.summaryValue, { color: mainColors.redText }]}
                     >
                       ₹ -54,000
                     </Text>
@@ -460,6 +446,8 @@ const MarketPlaceScreen = () => {
               </View>
             </>
           ) : null}
+          {activeTopTab === 'PnL Calender' && <Image source={Images.pnl} resizeMode='contain' style={styles.pnlDemoImg} />}
+          {activeTopTab === 'Trades' && <Image source={Images.trades} resizeMode='contain' style={styles.tradesDemoImg} />}
         </View>
       </ScrollView>
     </View>

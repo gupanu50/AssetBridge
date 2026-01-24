@@ -31,31 +31,29 @@ const styles = StyleSheet.create({
     paddingBottom: scaler(12),
   },
   newsLeft: {
-    width: scaler(85),
+    width: scaler(95),
     paddingRight: scaler(10),
     flexDirection: 'row',
   },
   newsImg: {
     height: scaler(50),
-    width: scaler(50),
+    width: scaler(80),
   },
   newsTime: {
     fontFamily: fontFamily.poppinsRegular,
-    color: mainColors.white,
-    fontSize: scaler(9),
+    color: mainColors.headingTextColor,
+    fontSize: scaler(12),
     marginLeft: scaler(5),
     alignSelf: 'center',
-    opacity: 0.65,
   },
   newsRight: {
     flex: 1,
     justifyContent: 'center',
   },
   newsTitle: {
-    fontFamily: fontFamily.poppinsRegular,
+    fontFamily: fontFamily.poppinsMedium,
     color: mainColors.white,
-    fontSize: scaler(11),
-    opacity: 0.9,
+    fontSize: scaler(12),
     lineHeight: scaler(16),
   },
 });

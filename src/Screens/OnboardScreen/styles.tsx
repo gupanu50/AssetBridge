@@ -20,10 +20,10 @@ export const styles = StyleSheet.create({
     width: scaler(200),
   },
   headingText: {
-    fontFamily: fontFamily.poppinsExtraBold,
+    fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.headingTextColor,
-    fontSize: scaler(22),
-    marginVertical: scaler(10),
+    fontSize: scaler(20),
+    marginVertical: scaler(8),
   },
   mainView: {
     marginHorizontal: scaler(10),
@@ -32,12 +32,6 @@ export const styles = StyleSheet.create({
     fontFamily: fontFamily.poppinsRegular,
     fontSize: scaler(14),
     color: mainColors.descText,
-  },
-  headingText1: {
-    fontFamily: fontFamily.poppinsMedium,
-    color: mainColors.headingTextColor,
-    fontSize: scaler(14),
-    marginVertical: scaler(10),
   },
   renderBoxView: {
     marginRight: scaler(5),
@@ -73,7 +67,7 @@ export const styles = StyleSheet.create({
     fontFamily: fontFamily.poppinsMedium,
     color: mainColors.inputLabel,
     marginTop: scaler(10),
-    fontSize: scaler(14),
+    fontSize: scaler(16),
   },
   swiperCardFirstText2: {
     fontFamily: fontFamily.poppinsMedium,
@@ -83,21 +77,27 @@ export const styles = StyleSheet.create({
   },
   dotPagination: {
     left: 0,
-    top: scaler(490),
+    top: scaler(475),
     justifyContent: 'flex-start',
   },
   dotPaginationStyle: {
     height: scaler(8),
     width: scaler(25),
   },
+  headingText1: {
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.headingTextColor,
+    fontSize: scaler(16),
+    marginVertical: scaler(5),
+  },
   heightView: {
-    height: scaler(70),
+    height: scaler(35),
   },
   skipLogin: {
     position: 'absolute',
     marginRight: scaler(15),
-    top: scaler(640),
+    top: scaler(625),
     alignSelf: 'flex-end',
   },
-  loginBtn: { width: scaler(100) },
+  loginBtn: { width: scaler(80), height: scaler(40) },
 });

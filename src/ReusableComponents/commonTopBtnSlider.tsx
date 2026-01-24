@@ -1,9 +1,12 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { fontFamily, mainColors } from '../Utils/helper';
 import scaler from '../Utils/scaler';
-
-const CommonTopBtnSlider = () => {
+import { MainStackScreenProps } from '../Navigation/NavigationTypes/screenTypes';
+type CommonTopBtnSliderProps = {
+    navigation?: MainStackScreenProps<'HomeTab' | 'Algo' | 'WatchList' | 'MarketPlace'>['navigation'];
+}
+const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
     const horidata = [
         {
             label: 'NIFTY 50',
@@ -31,13 +34,13 @@ const CommonTopBtnSlider = () => {
                 data={horidata}
                 keyExtractor={(item, index) => item.label + index}
                 renderItem={({ item }) => (
-                    <View style={styles.innerBoxView}>
+                    <TouchableOpacity style={styles.innerBoxView} onPress={() => navigation?.navigate('Instrument')}>
                         <Text style={styles.textNifty}>{item.label}</Text>
                         <Text style={styles.textNiftyValue}>
                             {item.value}{'  '}
                             <Text style={{ color: item.color }}>{item.percent}</Text>
                         </Text>
-                    </View>
+                    </TouchableOpacity>
                 )}
                 showsHorizontalScrollIndicator={false}
             />

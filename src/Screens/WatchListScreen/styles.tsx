@@ -3,6 +3,13 @@ import { fontFamily, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 
 export const styles = StyleSheet.create({
+  searchLogo: {
+    height: scaler(15),
+    width: scaler(15),
+    alignSelf: 'flex-start',
+    paddingHorizontal: scaler(14),
+    tintColor: mainColors.white
+  },
   container: {
     flex: 1,
     backgroundColor: mainColors.black,
@@ -46,12 +53,11 @@ export const styles = StyleSheet.create({
   searchView: {
     borderWidth: 1,
     borderRadius: 20,
-    paddingVertical: scaler(5),
+    paddingVertical: scaler(8),
     borderColor: mainColors.inputBorder,
     marginTop: scaler(15),
     width: '85%',
   },
-  iconButton: { alignSelf: 'flex-start', paddingHorizontal: scaler(14) },
   flexView: {
     flexDirection: 'row',
   },
@@ -66,7 +72,7 @@ export const styles = StyleSheet.create({
     marginTop: scaler(5),
   },
   watchListWrap: {
-    height: '67%',
+    height: '75%',
     marginTop: scaler(10),
     borderTopWidth: 1,
   },
@@ -86,10 +92,9 @@ export const styles = StyleSheet.create({
   },
   watchExch: {
     marginTop: scaler(2),
-    fontFamily: fontFamily.poppinsMedium,
-    color: mainColors.white,
-    fontSize: scaler(9),
-    opacity: 0.45,
+    fontFamily: fontFamily.poppinsRegular,
+    color: mainColors.headingTextColor,
+    fontSize: scaler(10),
   },
   watchRight: {
     alignItems: 'flex-end',
@@ -105,8 +110,7 @@ export const styles = StyleSheet.create({
   },
   watchChange: {
     fontFamily: fontFamily.poppinsMedium,
-    fontSize: scaler(9),
-    opacity: 0.85,
+    fontSize: scaler(10),
   },
   watchArrow: {
     marginLeft: scaler(6),

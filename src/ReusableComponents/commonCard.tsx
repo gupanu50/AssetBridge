@@ -59,8 +59,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
             style={[
               styles.moverDayMonthSegment,
               {
-                width:
-                  activeDayMonthMoverTab === 'Month' ? scaler(90) : scaler(93),
+                width: scaler(105),
               },
             ]}
           >
@@ -184,7 +183,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
             />
             <Text style={styles.actionText}>Intraday</Text>
           </View>
-          <View style={styles.actionPill}>
+          <View style={[styles.actionPill, { marginRight: scaler(20) }]}>
             <Image
               source={Images.swiperInstument}
               resizeMode="contain"
@@ -242,8 +241,7 @@ const styles = StyleSheet.create({
     marginTop: scaler(2),
     fontFamily: fontFamily.poppinsMedium,
     color: mainColors.white,
-    fontSize: scaler(10),
-    opacity: 0.7,
+    fontSize: scaler(12),
   },
   featureStatsRow: {
     flexDirection: 'row',
@@ -262,7 +260,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(9),
+    fontSize: scaler(8),
     opacity: 0.65,
   },
   statValueRow: {
@@ -271,14 +269,14 @@ const styles = StyleSheet.create({
     marginTop: scaler(4),
   },
   statValue: {
-    fontFamily: fontFamily.poppinsRegular,
+    fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.white,
     fontSize: scaler(12),
     marginRight: scaler(6),
   },
   statChange: {
     fontFamily: fontFamily.poppinsRegular,
-    fontSize: scaler(9),
+    fontSize: scaler(10),
   },
   featureActionsRow: {
     flexDirection: 'row',
@@ -286,7 +284,7 @@ const styles = StyleSheet.create({
     marginTop: scaler(12),
   },
   actionPill: {
-    paddingRight: scaler(15),
+    paddingRight: scaler(5),
     paddingVertical: scaler(5),
     flexDirection: 'row',
     borderRadius: 999,
@@ -306,9 +304,8 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontFamily: fontFamily.poppinsRegular,
-    color: mainColors.white,
-    fontSize: scaler(10),
-    opacity: 0.9,
+    color: mainColors.descText,
+    fontSize: scaler(12),
     marginLeft: scaler(4),
   },
   flexView: {
@@ -331,17 +328,18 @@ const styles = StyleSheet.create({
   moverDayMonthSegmentBtn: {
     justifyContent: 'center',
     borderRadius: 999,
+    width: scaler(55),
+    alignItems: 'center'
   },
   moverDayMonthSegmentText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(10),
+    fontSize: scaler(12),
     opacity: 0.7,
   },
   moverDayMonthSegmentBtnActive: {
     borderWidth: 1,
     borderColor: mainColors.inputBorder,
-    paddingHorizontal: scaler(7),
     backgroundColor: mainColors.mainButton,
   },
   moverDayMonthSegmentTextActive: {
@@ -350,13 +348,13 @@ const styles = StyleSheet.create({
   moverDaySegmentBtn: {
     borderRadius: 999,
     justifyContent: 'center',
-    paddingLeft: scaler(5),
-    marginRight: scaler(10),
+    width: scaler(40),
+    alignItems: 'center'
   },
   moverDaySegmentText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(10),
+    fontSize: scaler(12),
     opacity: 0.7,
   },
   swiperPnlView: {
@@ -373,8 +371,8 @@ const styles = StyleSheet.create({
     width: scaler(26),
   },
   swiperUpImg: {
-    height: scaler(10),
-    width: scaler(10),
+    height: scaler(7),
+    width: scaler(7),
     marginRight: scaler(2),
   },
   swiperMaxDDView: {

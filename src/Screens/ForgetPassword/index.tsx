@@ -11,7 +11,7 @@ const ForgetPassword = ({ navigation }: Props) => {
   const [value, setValue] = useState('');
   return (
     <View style={styles.container}>
-      <ImageBackground source={Images.onboardBg} style={styles.backgroundImg}>
+      <ImageBackground source={Images.onboardBg} style={styles.backgroundImg} resizeMode='stretch'>
         <View style={styles.logoView}>
           <Image
             source={Images.logo}
@@ -26,7 +26,7 @@ const ForgetPassword = ({ navigation }: Props) => {
             Just enter your Mobile Number and we’ll send you a OTP to your
             Mobile Number.
           </Text>
-          <Text style={[styles.subHeadingText, { marginTop: scaler(20) }]}>
+          <Text style={[styles.inputLabel]}>
             Enter Your Mobile Number
           </Text>
           <CommonTextInput value={value} setValue={setValue} />

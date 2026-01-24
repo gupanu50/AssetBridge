@@ -1,4 +1,4 @@
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, Image } from 'react-native';
 import React from 'react';
 import CommonButton from '../../ReusableComponents/commonButton';
 import { mainColors } from '../../Utils/helper';
@@ -6,6 +6,7 @@ import IconButton from '../../ReusableComponents/iconButton';
 import scaler from '../../Utils/scaler';
 import { styles } from './styles';
 import { FlatItem } from './types';
+import { Images } from '../../Assets';
 
 const PositionsClosedComponent = () => {
   const flatData = [
@@ -144,13 +145,7 @@ const PositionsClosedComponent = () => {
       <View style={[styles.flexView, styles.lineView]}>
         <View style={styles.searchBox}>
           <Text style={styles.searchText}>Search</Text>
-          <IconButton
-            vectorType="MaterialIcons"
-            name="search"
-            size={scaler(18)}
-            color={mainColors.white}
-            backgroundColor={mainColors.black}
-          />
+          <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
         </View>
         <IconButton
           vectorType="AntDesign"

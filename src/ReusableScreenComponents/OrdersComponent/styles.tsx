@@ -15,10 +15,14 @@ export const styles = StyleSheet.create({
     paddingBottom: scaler(10),
     borderBlockColor: mainColors.inputBorder,
   },
+  searchLogo: {
+    height: scaler(15),
+    width: scaler(15),
+  },
   selectText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(15),
+    fontSize: scaler(14),
     alignSelf: 'center',
     width: scaler(180),
     paddingLeft: scaler(10),
@@ -37,7 +41,7 @@ export const styles = StyleSheet.create({
   searchText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.descText,
-    fontSize: scaler(13),
+    fontSize: scaler(12),
     alignSelf: 'center',
     paddingRight: scaler(10),
   },
@@ -66,18 +70,19 @@ export const styles = StyleSheet.create({
 
   cardTitle: {
     color: mainColors.white,
-    fontSize: scaler(16),
-    fontFamily: fontFamily.poppinsMedium,
+    fontSize: scaler(14),
+    fontFamily: fontFamily.poppinsRegular,
   },
   exchangeBadge: {
     paddingHorizontal: scaler(8),
     paddingVertical: scaler(3),
+    width: scaler(125),
   },
 
   exchangeBadgeText: {
     color: mainColors.white,
-    fontSize: scaler(11),
-    fontFamily: fontFamily.poppinsMedium,
+    fontSize: scaler(10),
+    fontFamily: fontFamily.poppinsRegular,
   },
 
   cardSubRow: {
@@ -88,14 +93,14 @@ export const styles = StyleSheet.create({
   },
 
   bsText: {
-    fontSize: scaler(12),
-    fontFamily: fontFamily.poppinsMedium,
+    fontSize: scaler(10),
+    fontFamily: fontFamily.poppinsRegular,
     marginRight: scaler(10),
   },
 
   dateText: {
     color: mainColors.descText,
-    fontSize: scaler(12),
+    fontSize: scaler(10),
     fontFamily: fontFamily.poppinsRegular,
   },
   cardGrid: {
@@ -124,7 +129,7 @@ export const styles = StyleSheet.create({
   kValue: {
     color: mainColors.white,
     fontSize: scaler(12),
-    fontFamily: fontFamily.poppinsMedium,
+    fontFamily: fontFamily.poppinsRegular,
   },
 
   pill: {
@@ -132,15 +137,15 @@ export const styles = StyleSheet.create({
     borderColor: mainColors.inputBorder,
     borderRadius: scaler(8),
     backgroundColor: mainColors.inputBorder,
-    paddingHorizontal: scaler(10),
-    paddingVertical: scaler(4),
+    paddingHorizontal: scaler(6),
+    paddingVertical: scaler(2),
     marginLeft: scaler(5),
   },
 
   pillText: {
     color: mainColors.white,
     fontSize: scaler(12),
-    fontFamily: fontFamily.poppinsMedium,
+    fontFamily: fontFamily.poppinsRegular,
   },
   itemSeperator: {
     borderWidth: 1,

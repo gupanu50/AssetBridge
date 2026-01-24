@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     },
     moverName: {
         fontFamily: fontFamily.poppinsRegular,
-        color: mainColors.white,
+        color: mainColors.headingTextColor,
         paddingTop: scaler(8),
         fontSize: scaler(12),
     },
@@ -125,7 +125,8 @@ const styles = StyleSheet.create({
         height: scaler(40),
         width: scaler(40),
         marginRight: scaler(5),
-        marginTop: scaler(5)
+        marginTop: scaler(5),
+        tintColor: mainColors.headingTextColor
     },
     arrowIcon: {
         position: 'absolute',

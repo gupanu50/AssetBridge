@@ -1,7 +1,6 @@
 import { FlatList, ScrollView, Text, View } from 'react-native';
 import React, { useMemo, useRef, useState } from 'react';
 import CommonHeader from '../../ReusableComponents/commonHeader';
-import { mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import { styles } from './styles';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
@@ -9,9 +8,9 @@ import MyAlgoComponent from '../../ReusableScreenComponents/MyAlgoComponent';
 import AlgoMarketPlaceComponent from '../../ReusableScreenComponents/AlgoMarketPlaceComponent';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
-type Props = MainStackScreenProps<'Algo'>;
+type Props = MainStackScreenProps<'Algo' | 'AlgoMain'>;
 const AlgoScreen = ({ navigation }: Props) => {
-  const topTabListRef: any = useRef(null);
+  const topTabListRef = useRef(null);
   const [activeTopTab, setActiveTopTab] = useState('My Algo');
   // -------------------- DATA --------------------
   // Tabs exactly like image (slidable) + counts
@@ -45,7 +44,7 @@ const AlgoScreen = ({ navigation }: Props) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: scaler(30) }}
       >
-        <CommonTopBtnSlider />
+        <CommonTopBtnSlider navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />
         {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}
         <View style={styles.topTabsWrap}>
           <FlatList
@@ -59,8 +58,8 @@ const AlgoScreen = ({ navigation }: Props) => {
             onScrollToIndexFailed={() => { }}
           />
         </View>
-        {activeTopTab === 'My Algo' && <MyAlgoComponent navigation={navigation} />}
-        {activeTopTab === 'Market Place' && <AlgoMarketPlaceComponent />}
+        {activeTopTab === 'My Algo' && <MyAlgoComponent navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />}
+        {activeTopTab === 'Market Place' && <AlgoMarketPlaceComponent navigation={navigation as MainStackScreenProps<'AlgoMain'>['navigation']} />}
       </ScrollView>
     </View>
   );

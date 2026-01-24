@@ -19,6 +19,8 @@ export type MainStackParamList = {
   AlgoMain: undefined;
   Profile: undefined;
   ProfileSettings: undefined;
+  Statement: undefined;
+  PaymentMethod: undefined;
 };
 export type BottomStackParamList = {
   Home: undefined;

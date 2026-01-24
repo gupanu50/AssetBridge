@@ -5,14 +5,15 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import CommonButton from '../../ReusableComponents/commonButton'
 import CommonDrawerBackHeader from '../../ReusableComponents/commonDrawerBackHeader'
 import { styles } from './styles'
-
-const ContactUsScreen = () => {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
+type Props = MainStackScreenProps<'ContactUs'>;
+const ContactUsScreen = ({ navigation }: Props) => {
     const [value, setValue] = React.useState('');
     const [message, setMessage] = React.useState('');
     return (
         <View style={styles.conatiner}>
             <View style={styles.main}>
-                <CommonDrawerBackHeader title='Contact US' />
+                <CommonDrawerBackHeader title='Contact US' navigation={navigation} />
                 <KeyboardAwareScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ flexGrow: 1 }}

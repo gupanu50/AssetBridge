@@ -9,12 +9,13 @@ const CommonDrawerBackHeader = (props: DrawerBackHeaderProps) => {
     return (
         <View style={styles.flexView}>
             <IconButton
+                onPress={() => props?.navigation?.goBack()}
                 vectorType="MaterialCommunityIcons"
                 name="keyboard-backspace"
                 backgroundColor={mainColors.black}
                 color={mainColors.white}
             />
-            <Text style={props.isShowInfoIcon ? styles.contactUsTextWithInfo : styles.contactUsText}>{props.title}</Text>
+            <Text style={props.isShowDownloadIcon ? styles.contactUsTextWithInfo : styles.contactUsText}>{props.title}</Text>
             {props.isShowInfoIcon && <IconButton
                 vectorType="MaterialCommunityIcons"
                 name="information-outline"
@@ -23,13 +24,13 @@ const CommonDrawerBackHeader = (props: DrawerBackHeaderProps) => {
                 backgroundColor={mainColors.black}
                 color={mainColors.white}
             />}
-            <IconButton
-                vectorType="MaterialCommunityIcons"
-                name="close"
+            {props?.isShowDownloadIcon && <IconButton
+                vectorType="AntDesign"
+                name="download"
                 size={scaler(18)}
                 backgroundColor={mainColors.black}
                 color={mainColors.white}
-            />
+            />}
         </View>
     )
 }
@@ -39,7 +40,7 @@ export default CommonDrawerBackHeader
 const styles = StyleSheet.create({
     flexView: {
         flexDirection: 'row',
-        marginTop: scaler(5)
+        marginTop: scaler(10)
     },
     contactUsText: {
         color: mainColors.white,

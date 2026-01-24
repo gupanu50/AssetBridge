@@ -1,5 +1,6 @@
 import { JSX } from 'react';
 import { ImageSourcePropType, KeyboardTypeOptions, ViewStyle } from 'react-native';
+import { MainStackScreenProps } from '../Navigation/NavigationTypes/screenTypes';
 
 export type PropCommonCardTypes = {
   logo: ImageSourcePropType;
@@ -33,6 +34,7 @@ export type TopTabProps = {
   setIsActive?: any;
   style?: ViewStyle;
   isRightText?: boolean;
+  isRightNew?: boolean;
 };
 
 export type inputProps = {
@@ -52,4 +54,5 @@ export type DrawerBackHeaderProps = {
   title: string;
   isShowInfoIcon?: boolean;
   isShowDownloadIcon?: boolean;
+  navigation?: MainStackScreenProps<'Profile' | 'ProfileSettings' | 'ContactUs' | 'TransactionHistory' | 'Statement' | 'PaymentMethod'>['navigation'];
 };

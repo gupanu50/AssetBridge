@@ -36,7 +36,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
     : mainColors.green;
 
   return (
-    <View style={styles.featureCardWrapper}>
+    <TouchableOpacity style={styles.featureCardWrapper} onPress={props?.onPress}>
       <View style={styles.featureCard}>
         <View style={styles.featureTopRow}>
           <View style={styles.featureLeft}>
@@ -205,7 +205,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -243,8 +243,7 @@ const styles = StyleSheet.create({
     marginTop: scaler(2),
     fontFamily: fontFamily.poppinsMedium,
     color: mainColors.white,
-    fontSize: scaler(10),
-    opacity: 0.7,
+    fontSize: scaler(12),
   },
   featureStatsRow: {
     flexDirection: 'row',
@@ -263,7 +262,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(9),
+    fontSize: scaler(8),
     opacity: 0.65,
   },
   statValueRow: {
@@ -272,14 +271,14 @@ const styles = StyleSheet.create({
     marginTop: scaler(4),
   },
   statValue: {
-    fontFamily: fontFamily.poppinsRegular,
+    fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.white,
     fontSize: scaler(12),
     marginRight: scaler(6),
   },
   statChange: {
     fontFamily: fontFamily.poppinsRegular,
-    fontSize: scaler(9),
+    fontSize: scaler(10),
   },
   featureActionsRow: {
     flexDirection: 'row',
@@ -287,7 +286,7 @@ const styles = StyleSheet.create({
     marginTop: scaler(12),
   },
   actionPill: {
-    paddingRight: scaler(15),
+    paddingRight: scaler(5),
     paddingVertical: scaler(5),
     flexDirection: 'row',
     marginHorizontal: scaler(5),
@@ -303,13 +302,12 @@ const styles = StyleSheet.create({
   },
   actionPillGreen: {
     height: scaler(30),
-    width: scaler(150),
+    width: scaler(140),
   },
   actionText: {
     fontFamily: fontFamily.poppinsRegular,
-    color: mainColors.white,
-    fontSize: scaler(10),
-    opacity: 0.9,
+    color: mainColors.descText,
+    fontSize: scaler(12),
     marginLeft: scaler(4),
   },
   flexView: {
@@ -363,7 +361,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: mainColors.swiperBgPnl,
     paddingHorizontal: scaler(6),
-    paddingVertical: scaler(3),
+    paddingVertical: scaler(1),
   },
   swiperViewImg: {
     height: scaler(26),
@@ -371,8 +369,8 @@ const styles = StyleSheet.create({
     width: scaler(26),
   },
   swiperUpImg: {
-    height: scaler(10),
-    width: scaler(10),
+    height: scaler(7),
+    width: scaler(7),
     marginRight: scaler(2),
   },
   swiperMaxDDView: {
@@ -380,13 +378,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: mainColors.swiperMaxDDbg,
-    paddingHorizontal: scaler(6),
-    paddingVertical: scaler(3),
+    paddingHorizontal: scaler(4),
+    paddingVertical: scaler(1),
   },
   monthText: {
     color: mainColors.white,
     fontFamily: fontFamily.poppinsMedium,
-    fontSize: scaler(14),
+    fontSize: scaler(12),
     alignSelf: 'center',
   },
 });
