@@ -45,6 +45,7 @@ const LoginScreen = ({ navigation }: Props) => {
               <CommonTextInput
                 value={email}
                 setValue={setEmail}
+                placeholder='* * * * *   * * * * *'
                 keyboardType='numeric'
                 max={10}
                 rightImage={
@@ -76,6 +77,7 @@ const LoginScreen = ({ navigation }: Props) => {
               <CommonTextInput
                 value={password}
                 setValue={setPassword}
+                placeholder='Enter Your Password'
                 secure={secureText}
                 rightImage={
                   <TouchableOpacity

@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
 import React, { useState } from 'react';
-import { FlatItem } from './types';
+import { FlatItem, OrdersProps } from './types';
 import { mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
 import scaler from '../../Utils/scaler';
@@ -9,7 +9,7 @@ import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
 import { Images } from '../../Assets';
 
-const OrderComponent = () => {
+const OrderComponent = (props: OrdersProps) => {
   const [isChecked, setIsChecked] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
@@ -178,7 +178,7 @@ const OrderComponent = () => {
         ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
         scrollEnabled={false}
       />
-      <View style={styles.buttonFlexView}>
+      {props?.isShow && <View style={styles.buttonFlexView}>
         <CommonButton
           label="Buy"
           backgroundColor={mainColors.black}
@@ -191,7 +191,7 @@ const OrderComponent = () => {
           textColor={mainColors.redText}
           extraStyle={[styles.buttonWidth, { borderColor: mainColors.redText }]}
         />
-      </View>
+      </View>}
     </View>
   );
 };

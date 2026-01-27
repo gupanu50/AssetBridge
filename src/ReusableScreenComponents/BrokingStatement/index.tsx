@@ -103,7 +103,7 @@ const BrokingStatement = () => {
         )
     }
     return (
-        <View style={{ height: scaler(550) }}>
+        <View style={{ height: scaler(580) }}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.container}>
                     {/* Header Section */}

@@ -7,10 +7,10 @@ import IconButton from '../../ReusableComponents/iconButton';
 import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
 import scaler from '../../Utils/scaler';
-import { FlatItem } from './types';
+import { FlatItem, PositionOpenProps } from './types';
 import { Images } from '../../Assets';
 
-const PositionsOpenComponent = () => {
+const PositionsOpenComponent = (props: PositionOpenProps) => {
   const [isChecked, setIsChecked] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
@@ -215,7 +215,7 @@ const PositionsOpenComponent = () => {
         <Text style={styles.totalValueText}>12,58,593.00</Text>
       </View>
       <View style={styles.itemSeperator} />
-      <View style={styles.buttonFlexView}>
+      {props?.isShow && <View style={styles.buttonFlexView}>
         <CommonButton
           label="Buy"
           backgroundColor={mainColors.black}
@@ -228,7 +228,7 @@ const PositionsOpenComponent = () => {
           textColor={mainColors.redText}
           extraStyle={[styles.buttonWidth, { borderColor: mainColors.redText }]}
         />
-      </View>
+      </View>}
     </View>
   );
 };

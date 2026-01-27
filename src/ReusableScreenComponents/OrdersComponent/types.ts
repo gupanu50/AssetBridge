@@ -18,3 +18,6 @@ export type FlatItem = {
   Price: string;
   Source: string;
 };
+export type OrdersProps = {
+  isShow: boolean;
+}

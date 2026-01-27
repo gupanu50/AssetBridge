@@ -174,6 +174,8 @@ const CommonCard = (props: PropCommonCardTypes) => {
           </View>
         </View>
 
+        <View style={styles.divider} />
+
         <View style={styles.featureActionsRow}>
           <View style={styles.actionPill}>
             <Image
@@ -216,10 +218,8 @@ const styles = StyleSheet.create({
   featureCard: {
     marginTop: scaler(10),
     borderRadius: scaler(12),
-    borderWidth: 1,
-    borderColor: mainColors.inputBorder,
     padding: scaler(12),
-    backgroundColor: mainColors.moversCards,
+    backgroundColor: mainColors.googleButton,
   },
   featureTopRow: {
     flexDirection: 'row',
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: scaler(12),
     paddingLeft: scaler(12),
-    borderRadius: 20,
+    borderRadius: 5,
     paddingVertical: scaler(5),
     backgroundColor: mainColors.pnlCard,
   },
@@ -256,6 +256,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRightWidth: 1,
     borderRightColor: mainColors.inputBorder,
+    marginRight: scaler(3),
   },
   statLabel: {
     fontFamily: fontFamily.poppinsRegular,
@@ -382,5 +383,11 @@ const styles = StyleSheet.create({
     backgroundColor: mainColors.swiperMaxDDbg,
     paddingHorizontal: scaler(6),
     paddingVertical: scaler(3),
+  },
+  divider: {
+    height: 1,
+    backgroundColor: mainColors.inputBorder, // subtle line
+    marginTop: scaler(12),
+    opacity: 0.6,
   },
 });

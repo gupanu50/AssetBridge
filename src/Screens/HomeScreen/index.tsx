@@ -71,8 +71,8 @@ const HomeScreen = ({ navigation }: Props) => {
         {activeTopTab === 'Explore' && (
           <ExploreComponent navigation={navigation} />
         )}
-        {activeTopTab === 'Positions Open(23)' && <PositionsOpenComponent />}
-        {activeTopTab === 'Positions Closed' && <PositionsClosedComponent />}
+        {activeTopTab === 'Positions Open(23)' && <PositionsOpenComponent isShow={false} />}
+        {activeTopTab === 'Positions Closed' && <PositionsClosedComponent isShow={false} />}
       </ScrollView>
     </View>
   );

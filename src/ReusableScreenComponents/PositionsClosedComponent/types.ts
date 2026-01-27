@@ -18,3 +18,7 @@ export type FlatItem = {
   Price: string;
   Source: string;
 };
+
+export type PositionClosedProps = {
+  isShow: boolean;
+}

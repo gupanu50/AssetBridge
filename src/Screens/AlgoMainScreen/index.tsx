@@ -111,9 +111,9 @@ const AlgoMainScreen = ({ navigation }: Props) => {
             onScrollToIndexFailed={() => { }}
           />
         </View>
-        {activeTopTab === 'Orders' && <OrderComponent />}
-        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent />}
-        {activeTopTab === 'Closed Positions' && <PositionsClosedComponent />}
+        {activeTopTab === 'Orders' && <OrderComponent isShow={false} />}
+        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent isShow={false} />}
+        {activeTopTab === 'Closed Positions' && <PositionsClosedComponent isShow={false} />}
         {activeTopTab === 'Overview' && <OverviewComponent />}
       </ScrollView>
     </View>

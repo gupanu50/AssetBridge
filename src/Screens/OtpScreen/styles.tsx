@@ -19,6 +19,7 @@ export const styles = StyleSheet.create({
     height: scaler(160),
     width: scaler(200),
     marginHorizontal: scaler(15),
+    paddingLeft: scaler(20),
   },
   main: {
     marginHorizontal: scaler(12),

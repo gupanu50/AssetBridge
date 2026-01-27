@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, Text } from 'react-native';
@@ -11,6 +10,7 @@ import WatchListScreen from '../../Screens/WatchListScreen';
 import { Images } from '../../Assets';
 import ProfileScreen from '../../Screens/ProfileScreen';
 import ProfileStackNavigator from '../StackNavigation/ProfileNavigator';
+import PortfolioScreen from '../../Screens/PortfolioScreen';
 
 const Tab = createBottomTabNavigator<BottomStackParamList>();
 
@@ -22,8 +22,9 @@ const BottamTabNavigation = () => {
         tabBarActiveTintColor: mainColors.mainButton,
         tabBarInactiveTintColor: '#999',
         tabBarStyle: {
-          backgroundColor: mainColors.inputBorder,
-          height: scaler(50),
+          backgroundColor: mainColors.googleButton,
+          height: scaler(60),
+          paddingTop: scaler(5),
           paddingBottom: 0,
         },
         tabBarItemStyle: {
@@ -53,6 +54,8 @@ const BottamTabNavigation = () => {
             imageName = Images.tabWatchlist;
           } else if (route.name === 'Profile') {
             imageName = Images.tabProfile;
+          } else if (route.name === 'Portfolio') {
+            imageName = Images.portfolio;
           }
           return (
             <Image
@@ -86,6 +89,10 @@ const BottamTabNavigation = () => {
       <Tab.Screen
         name="Algo"
         component={AlgoScreen as React.ComponentType<any>}
+      />
+      <Tab.Screen
+        name="Portfolio"
+        component={PortfolioScreen as React.ComponentType<any>}
       />
       <Tab.Screen
         name="Watchlist"

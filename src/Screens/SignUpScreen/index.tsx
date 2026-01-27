@@ -44,6 +44,7 @@ const SignUpScreen = () => {
               <Text style={styles.inputLable}>Enter mobile number</Text>
               <CommonTextInput
                 value={email}
+                placeholder='* * * * *  * * * * *'
                 setValue={setEmail}
                 keyboardType='numeric'
                 max={10}
@@ -81,6 +82,7 @@ const SignUpScreen = () => {
               <CommonTextInput
                 value={password}
                 setValue={setPassword}
+                placeholder='Enter Password'
                 secure={secureText}
                 rightImage={
                   <TouchableOpacity
@@ -103,6 +105,7 @@ const SignUpScreen = () => {
                 value={password1}
                 setValue={setPassword1}
                 secure={secureText1}
+                placeholder='Confirm Password'
                 rightImage={
                   <TouchableOpacity
                     testID="togglePasswordIcon"

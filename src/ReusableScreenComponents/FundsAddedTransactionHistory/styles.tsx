@@ -5,7 +5,7 @@ import scaler from "../../Utils/scaler";
 export const styles = StyleSheet.create({
     container: {
         backgroundColor: mainColors.black,
-        height: scaler(550),
+        height: scaler(570),
     },
     transactionContainer: {
         marginTop: scaler(10),
@@ -79,7 +79,8 @@ export const styles = StyleSheet.create({
     transactionMessageView: {
         marginTop: scaler(10),
         paddingVertical: scaler(10),
-        paddingHorizontal: scaler(10),
+        paddingHorizontal: scaler(20),
+        justifyContent: 'center',
         flexDirection: 'row',
         backgroundColor: mainColors.redBg,
         borderRadius: 15

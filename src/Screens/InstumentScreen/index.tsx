@@ -194,9 +194,9 @@ const InstumentScreen = ({ navigation }: Props) => {
             onScrollToIndexFailed={() => { }}
           />
         </View>
-        {activeTopTab === 'Orders' && <OrderComponent />}
-        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent />}
-        {activeTopTab === 'Closed Positions' && <PositionsClosedComponent />}
+        {activeTopTab === 'Orders' && <OrderComponent isShow={true} />}
+        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent isShow={true} />}
+        {activeTopTab === 'Closed Positions' && <PositionsClosedComponent isShow={true} />}
       </ScrollView>
     </View>
   );

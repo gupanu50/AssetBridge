@@ -5,10 +5,10 @@ import { mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
 import scaler from '../../Utils/scaler';
 import { styles } from './styles';
-import { FlatItem } from './types';
+import { FlatItem, PositionClosedProps } from './types';
 import { Images } from '../../Assets';
 
-const PositionsClosedComponent = () => {
+const PositionsClosedComponent = (props: PositionClosedProps) => {
   const flatData = [
     {
       id: 1,
@@ -172,7 +172,7 @@ const PositionsClosedComponent = () => {
         <Text style={styles.totalValueText}>12,58,593.00</Text>
       </View>
       <View style={styles.itemSeperator} />
-      <View style={styles.buttonFlexView}>
+      {props?.isShow && <View style={styles.buttonFlexView}>
         <CommonButton
           label="Buy"
           backgroundColor={mainColors.black}
@@ -185,7 +185,7 @@ const PositionsClosedComponent = () => {
           textColor={mainColors.redText}
           extraStyle={[styles.buttonWidth, { borderColor: mainColors.redBorder }]}
         />
-      </View>
+      </View>}
     </View>
   );
 };

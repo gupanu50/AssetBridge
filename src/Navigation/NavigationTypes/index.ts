@@ -21,6 +21,7 @@ export type MainStackParamList = {
   ProfileSettings: undefined;
   Statement: undefined;
   PaymentMethod: undefined;
+  Portfolio: undefined;
 };
 export type BottomStackParamList = {
   Home: undefined;

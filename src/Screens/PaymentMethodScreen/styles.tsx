@@ -4,7 +4,7 @@ import scaler from "../../Utils/scaler"
 const { width } = Dimensions.get('window')
 export const styles = StyleSheet.create({
     conatiner: {
-        height: scaler(700),
+        height: scaler(720),
         backgroundColor: mainColors.black
     },
     main: {

@@ -67,4 +67,6 @@ export const Images = {
   debit: require('./Images/debit.png'),
   pnl: require('./Images/pnl.png'),
   trades: require('./Images/trades.png'),
+  portfolio: require('./Images/portfolio.png'),
+  portfolioCard: require('./Images/portfolioCard.png'),
 };

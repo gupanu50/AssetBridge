@@ -18,12 +18,14 @@ export const styles = StyleSheet.create({
     marginHorizontal: scaler(10),
     height: scaler(160),
     width: scaler(200),
+    paddingLeft: scaler(20),
   },
   headingText: {
     fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.headingTextColor,
     fontSize: scaler(20),
     marginVertical: scaler(8),
+    paddingLeft: scaler(20),
   },
   mainView: {
     marginHorizontal: scaler(10),
@@ -32,11 +34,15 @@ export const styles = StyleSheet.create({
     fontFamily: fontFamily.poppinsRegular,
     fontSize: scaler(14),
     color: mainColors.descText,
+    paddingLeft: scaler(20),
   },
   renderBoxView: {
     marginRight: scaler(5),
     height: scaler(250),
-    paddingHorizontal: scaler(15),
+    paddingTop: scaler(20),
+    paddingHorizontal: scaler(20),
+    paddingRight: scaler(15),
+    paddingLeft: scaler(25),
     width: scaler(340),
   },
   shadowOverlay: {
@@ -89,6 +95,7 @@ export const styles = StyleSheet.create({
     color: mainColors.headingTextColor,
     fontSize: scaler(16),
     marginVertical: scaler(5),
+    paddingLeft: scaler(20),
   },
   heightView: {
     height: scaler(35),
@@ -99,5 +106,9 @@ export const styles = StyleSheet.create({
     top: scaler(625),
     alignSelf: 'flex-end',
   },
-  loginBtn: { width: scaler(80), height: scaler(40) },
+  loginBtn: {
+    width: scaler(115),
+    height: scaler(45),
+    borderRadius: scaler(10),
+  },
 });

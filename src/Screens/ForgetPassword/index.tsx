@@ -29,7 +29,7 @@ const ForgetPassword = ({ navigation }: Props) => {
           <Text style={[styles.inputLabel]}>
             Enter Your Mobile Number
           </Text>
-          <CommonTextInput value={value} setValue={setValue} />
+          <CommonTextInput value={value} setValue={setValue} placeholder='Enter Your Mobile Number' />
           <CommonButton label="Send Otp" extraStyle={styles.loginStyle} onPress={() => navigation.navigate('Otp')} />
         </View>
       </ImageBackground>
