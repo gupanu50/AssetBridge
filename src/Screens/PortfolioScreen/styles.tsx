@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     },
     boxView: {
         borderWidth: 1,
-        backgroundColor: mainColors.moversCards,
+        backgroundColor: mainColors.googleButton,
         borderRadius: 15,
         marginTop: scaler(15)
     },
@@ -74,8 +74,6 @@ export const styles = StyleSheet.create({
         color: mainColors.greenText,
     },
     pnlView: {
-        borderWidth: 1,
-        borderColor: mainColors.inputBorder,
         borderRadius: 10,
         backgroundColor: mainColors.pnlCard,
         paddingHorizontal: scaler(10),
@@ -89,7 +87,6 @@ export const styles = StyleSheet.create({
         marginTop: scaler(10),
         paddingVertical: scaler(10),
         paddingHorizontal: scaler(20),
-        borderBlockColor: mainColors.inputBorder,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
     },

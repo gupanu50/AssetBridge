@@ -218,6 +218,7 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
       {props?.isShow && <View style={styles.buttonFlexView}>
         <CommonButton
           label="Buy"
+          onPress={() => props?.nav?.navigate('BuySellOrder')}
           backgroundColor={mainColors.black}
           textColor={mainColors.greenText}
           extraStyle={[styles.buttonWidth, { borderColor: mainColors.greenText }]}
@@ -226,6 +227,7 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
           label="Sell"
           backgroundColor={mainColors.black}
           textColor={mainColors.redText}
+          onPress={() => props?.nav?.navigate('BuySellOrder')}
           extraStyle={[styles.buttonWidth, { borderColor: mainColors.redText }]}
         />
       </View>}

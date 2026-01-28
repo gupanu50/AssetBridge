@@ -1,7 +1,7 @@
 import { JSX } from 'react';
-import { ImageSourcePropType, KeyboardTypeOptions, ViewStyle } from 'react-native';
+import { ImageSourcePropType, KeyboardTypeOptions, TextStyle, ViewStyle } from 'react-native';
 import { MainStackScreenProps } from '../Navigation/NavigationTypes/screenTypes';
-
+export type AnchorRect = { x: number; y: number; width: number; height: number };
 export type PropCommonCardTypes = {
   logo: ImageSourcePropType;
   name: string;
@@ -39,8 +39,9 @@ export type TopTabProps = {
 
 export type inputProps = {
   placeholder?: string;
-  style?: ViewStyle;
+  style?: ViewStyle | TextStyle;
   containerStyle?: ViewStyle;
+  leftImage?: JSX.Element;
   rightImage?: JSX.Element;
   max?: number;
   secure?: boolean;
@@ -56,3 +57,9 @@ export type DrawerBackHeaderProps = {
   isShowDownloadIcon?: boolean;
   navigation?: MainStackScreenProps<'Profile' | 'ProfileSettings' | 'ContactUs' | 'TransactionHistory' | 'Statement' | 'PaymentMethod'>['navigation'];
 };
+
+export type KababProps = {
+  visible: boolean,
+  setVisible: (value: boolean) => void;
+  anchor?: AnchorRect | null;
+}

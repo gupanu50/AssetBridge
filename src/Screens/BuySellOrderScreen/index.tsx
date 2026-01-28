@@ -13,7 +13,7 @@ import { horizontalFlatDataType } from './types'
 import CommonButton from '../../ReusableComponents/commonButton'
 import { styles } from './styles'
 const BuySellOrderScreen = () => {
-    const [activeTopTab, setActiveTopTab] = useState('Delivery');
+    const [activeTopTab, setActiveTopTab] = useState('Carry Forward');
     const [valueShares, setValueShares] = useState('');
     const [marketPrice, setMarketPrice] = useState('200');
     const [isEnabled, setIsEnabled] = useState(false);
@@ -33,7 +33,7 @@ const BuySellOrderScreen = () => {
         const isActive = activeTopTab === item.label;
         return (
             <CommonTabSlider
-                activeTab="Delivery"
+                activeTab="Carry Forward"
                 index={index}
                 label={item?.label}
                 style={styles.sliderView}
@@ -49,7 +49,7 @@ const BuySellOrderScreen = () => {
     // Tabs exactly like image (slidable) + counts
     const topTabs = useMemo(
         () => [
-            { id: 't1', label: 'Delivery', isRightText: false },
+            { id: 't1', label: 'Carry Forward', isRightText: false },
             { id: 't2', label: 'Intraday', isRightText: true },
         ],
         [],
@@ -88,6 +88,7 @@ const BuySellOrderScreen = () => {
                             vectorType="MaterialCommunityIcons"
                             name="information-outline"
                             color={mainColors.red}
+                            size={scaler(18)}
                             backgroundColor={mainColors.swiperMaxDDbg}
                         />
                     </View>
@@ -268,7 +269,7 @@ const BuySellOrderScreen = () => {
                                 </View>
                             </View>
                         </View>
-                        <CommonButton label='Place Buy Order' />
+                        <CommonButton label='Place Buy Order' extraStyle={{ marginBottom: scaler(15) }} />
                     </KeyboardAwareScrollView>
                 </ScrollView>
             </View>

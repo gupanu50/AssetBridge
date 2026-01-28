@@ -11,10 +11,17 @@ import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
+import CommonKababMenu from '../../ReusableComponents/commonKababMenu';
+import CommonTextInput from '../../ReusableComponents/commonTextInput';
+import WatchRowItem from './watchRowItem';
 type Props = MainStackScreenProps<'WatchList'>;
+type AnchorRect = { x: number; y: number; width: number; height: number };
 const WatchListScreen = ({ navigation }: Props) => {
   const topTabListRef = useRef<FlatList<TopTab>>(null);
   const [activeTopTab, setActiveTopTab] = useState('Watchlist');
+  const [input, setInput] = useState('');
+  const [visible, setVisible] = useState(false);
+  const [anchor, setAnchor] = useState<AnchorRect | null>(null);
   const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
     const isActive = activeTopTab === item.label;
     return (
@@ -122,47 +129,18 @@ const WatchListScreen = ({ navigation }: Props) => {
     ],
     [],
   );
-
+  const openMenuAt = (rect: AnchorRect) => {
+    setAnchor(rect);
+    setVisible(true);
+  };
   // ✅ NEW: row UI
   const renderWatchRow = ({ item }: { item: WatchRow }) => {
-    const arrowImg = item.isUp ? Images.profitUp : Images.lossDown;
-    const color = item.isUp ? mainColors.green : mainColors.red;
-
     return (
-      <TouchableOpacity activeOpacity={0.85} style={styles.watchRow} onPress={() => navigation.navigate('Instrument')}>
-        <View style={styles.watchLeft}>
-          <Text style={styles.watchName} numberOfLines={1}>
-            {item.name}
-          </Text>
-          <Text style={styles.watchExch} numberOfLines={1}>
-            {item.exch}
-          </Text>
-        </View>
-
-        <View style={styles.watchRight}>
-          <Text style={[styles.watchPrice, { color }]} numberOfLines={1}>
-            {item.price}
-          </Text>
-          <View style={styles.watchChangeRow}>
-            <Text
-              style={[styles.watchChange, { color: mainColors.white }]}
-              numberOfLines={1}
-            >
-              {item.change}
-            </Text>
-            <Image
-              source={arrowImg}
-              style={styles.watchArrowImg}
-              resizeMode="contain"
-            />
-          </View>
-        </View>
-        <IconButton
-          vectorType="MaterialCommunityIcons"
-          name="dots-vertical"
-          color={mainColors.inputBorder}
-        />
-      </TouchableOpacity>
+      <WatchRowItem
+        item={item}
+        onPressRow={() => navigation.navigate('Instrument')}
+        onOpenMenu={openMenuAt}
+      />
     );
   };
   return (
@@ -185,9 +163,17 @@ const WatchListScreen = ({ navigation }: Props) => {
       </View>
       <View style={styles.mainView}>
         <View style={styles.flexView}>
-          <View style={styles.searchView}>
-            <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
-          </View>
+          <CommonTextInput
+            value={input}
+            setValue={setInput}
+            leftImage={
+              <View style={styles.searchView}>
+                <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
+              </View>
+            }
+            containerStyle={{ height: scaler(38), marginTop: scaler(15), borderRadius: 25 }}
+            style={{ fontSize: scaler(11) }}
+          />
           <TouchableOpacity style={styles.settingsTouch}>
             <Image
               source={Images.settingsWatchlist}
@@ -209,6 +195,7 @@ const WatchListScreen = ({ navigation }: Props) => {
           />
         </View>
       </View>
+      <CommonKababMenu visible={visible} setVisible={setVisible} anchor={anchor} />
     </View>
   );
 };

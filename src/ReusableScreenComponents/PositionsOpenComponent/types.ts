@@ -1,3 +1,8 @@
+import { MainStackScreenProps } from "../../Navigation/NavigationTypes/screenTypes";
+
+type InnerPositionOpenProps = {
+  navigation?: MainStackScreenProps<'Instrument'>['navigation'];
+}
 export interface LabelItem {
   label: string;
 }
@@ -21,4 +26,5 @@ export type FlatItem = {
 
 export type PositionOpenProps = {
   isShow: boolean;
+  nav?: MainStackScreenProps<'Instrument'>['navigation'];
 }

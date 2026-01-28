@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
         fontFamily: fontFamily.poppinsSemiBold,
         fontSize: scaler(14),
         marginLeft: scaler(15),
-        color: mainColors.red
+        color: mainColors.redText
     },
     niftyChangeText: {
         fontFamily: fontFamily.poppinsMedium,
@@ -75,7 +75,7 @@ export const styles = StyleSheet.create({
     },
     redIconText: {
         fontFamily: fontFamily.poppinsRegular,
-        fontSize: scaler(13),
+        fontSize: scaler(12),
         paddingLeft: scaler(5),
         color: mainColors.white,
     },
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
         borderTopLeftRadius: 10,
         borderBottomLeftRadius: 10,
         paddingHorizontal: scaler(15),
-        backgroundColor: mainColors.inputBorder,
+        backgroundColor: mainColors.googleButton,
     },
     limitText: {
         fontFamily: fontFamily.poppinsMedium,
@@ -167,14 +167,14 @@ export const styles = StyleSheet.create({
         color: mainColors.inputLabel,
     },
     stopLossText: {
-        fontFamily: fontFamily.poppinsRegular,
+        fontFamily: fontFamily.poppinsMedium,
         fontSize: scaler(12),
         marginRight: scaler(5),
         alignSelf: 'center',
         color: mainColors.white,
     },
     lotText: {
-        fontFamily: fontFamily.poppinsRegular,
+        fontFamily: fontFamily.poppinsMedium,
         fontSize: scaler(10),
         alignSelf: 'center',
         marginRight: scaler(7),
@@ -182,11 +182,9 @@ export const styles = StyleSheet.create({
     },
     flatItem: {
         justifyContent: 'center',
-        backgroundColor: mainColors.inputBorder,
+        backgroundColor: mainColors.googleButton,
         alignItems: 'center',
-        borderWidth: 1,
         marginTop: scaler(10),
-        borderColor: mainColors.inputBorder,
         borderRadius: 10,
         paddingHorizontal: scaler(10),
         paddingVertical: scaler(5),

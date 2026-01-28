@@ -219,9 +219,8 @@ const styles = StyleSheet.create({
     marginTop: scaler(10),
     borderRadius: scaler(12),
     borderWidth: 1,
-    borderColor: mainColors.inputBorder,
     padding: scaler(12),
-    backgroundColor: mainColors.moversCards,
+    backgroundColor: mainColors.googleButton,
   },
   featureTopRow: {
     flexDirection: 'row',

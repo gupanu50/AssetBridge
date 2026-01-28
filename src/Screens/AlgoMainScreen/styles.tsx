@@ -50,8 +50,7 @@ export const styles = StyleSheet.create({
     boxView: {
         borderWidth: 1,
         borderRadius: 15,
-        backgroundColor: mainColors.moversCards,
-        borderColor: mainColors.inputBorder,
+        backgroundColor: mainColors.googleButton,
         marginTop: scaler(15),
         paddingHorizontal: scaler(10),
         paddingVertical: scaler(10),
@@ -69,8 +68,7 @@ export const styles = StyleSheet.create({
     innerBoxView2: {
         borderWidth: 1,
         borderRadius: 15,
-        backgroundColor: mainColors.moversCards,
-        borderColor: mainColors.inputBorder,
+        backgroundColor: mainColors.googleButton,
         marginTop: scaler(15),
         paddingHorizontal: scaler(10),
         paddingVertical: scaler(10),
@@ -107,8 +105,6 @@ export const styles = StyleSheet.create({
         color: mainColors.greenText,
     },
     pnlView: {
-        borderWidth: 1,
-        borderColor: mainColors.inputBorder,
         borderRadius: 10,
         backgroundColor: mainColors.pnlCard,
         paddingHorizontal: scaler(10),

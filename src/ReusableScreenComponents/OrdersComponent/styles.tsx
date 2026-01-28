@@ -133,10 +133,8 @@ export const styles = StyleSheet.create({
   },
 
   pill: {
-    borderWidth: 1,
-    borderColor: mainColors.inputBorder,
     borderRadius: scaler(8),
-    backgroundColor: mainColors.inputBorder,
+    backgroundColor: mainColors.manualBg,
     paddingHorizontal: scaler(6),
     paddingVertical: scaler(2),
     marginLeft: scaler(5),

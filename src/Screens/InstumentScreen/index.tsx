@@ -195,7 +195,7 @@ const InstumentScreen = ({ navigation }: Props) => {
           />
         </View>
         {activeTopTab === 'Orders' && <OrderComponent isShow={true} />}
-        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent isShow={true} />}
+        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent isShow={true} nav={navigation} />}
         {activeTopTab === 'Closed Positions' && <PositionsClosedComponent isShow={true} />}
       </ScrollView>
     </View>

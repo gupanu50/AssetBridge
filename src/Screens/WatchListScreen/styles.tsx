@@ -3,6 +3,11 @@ import { fontFamily, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 
 export const styles = StyleSheet.create({
+  kebabTouch: {
+    paddingLeft: scaler(6),
+    paddingVertical: scaler(4),
+    alignSelf: 'center',
+  },
   searchLogo: {
     height: scaler(15),
     width: scaler(15),
@@ -51,12 +56,7 @@ export const styles = StyleSheet.create({
     paddingRight: scaler(10),
   },
   searchView: {
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingVertical: scaler(8),
-    borderColor: mainColors.inputBorder,
-    marginTop: scaler(15),
-    width: '85%',
+    justifyContent: 'center'
   },
   flexView: {
     flexDirection: 'row',
@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
     marginLeft: scaler(10),
   },
   settingsTouch: {
-    marginTop: scaler(5),
+    justifyContent: 'center'
   },
   watchListWrap: {
     height: '75%',

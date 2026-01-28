@@ -59,7 +59,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
             style={[
               styles.moverDayMonthSegment,
               {
-                width: scaler(105),
+                width: scaler(95),
               },
             ]}
           >
@@ -129,7 +129,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               </View>
             </View>
           </View>
-
+          <Image source={Images.horiLine} resizeMode='contain' style={styles.line} />
           <View style={styles.statBox}>
             <Text style={[styles.statLabel, { paddingLeft: 5 }]}>
               Reward/Risk Ratio
@@ -148,7 +148,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               </View>
             </View>
           </View>
-
+          <Image source={Images.horiLine} resizeMode='contain' style={styles.line} />
           <View
             style={[
               styles.statBox,
@@ -247,16 +247,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: scaler(12),
-    paddingLeft: scaler(12),
+    width: scaler(310),
+    paddingHorizontal: scaler(10),
     borderRadius: 5,
     paddingVertical: scaler(5),
     backgroundColor: mainColors.pnlCard,
   },
   statBox: {
-    flex: 1,
-    borderRightWidth: 1,
-    borderRightColor: mainColors.inputBorder,
-    marginRight: scaler(3),
   },
   statLabel: {
     fontFamily: fontFamily.poppinsRegular,
@@ -311,7 +308,7 @@ const styles = StyleSheet.create({
   },
   flexView: {
     flexDirection: 'row',
-    height: scaler(30),
+    height: scaler(26),
     alignSelf: 'flex-end',
   },
   swiperLogo: {
@@ -321,15 +318,16 @@ const styles = StyleSheet.create({
   moverDayMonthSegment: {
     flexDirection: 'row',
     borderWidth: 1,
-    borderColor: mainColors.inputBorder,
+    backgroundColor: mainColors.dayMonthBg,
     borderRadius: 999,
-    padding: scaler(4),
+    paddingHorizontal: scaler(4),
+    paddingVertical: scaler(2),
     width: scaler(86),
   },
   moverDayMonthSegmentBtn: {
     justifyContent: 'center',
     borderRadius: 999,
-    width: scaler(55),
+    width: scaler(50),
     alignItems: 'center'
   },
   moverDayMonthSegmentText: {
@@ -349,7 +347,7 @@ const styles = StyleSheet.create({
   moverDaySegmentBtn: {
     borderRadius: 999,
     justifyContent: 'center',
-    width: scaler(40),
+    width: scaler(35),
     alignItems: 'center'
   },
   moverDaySegmentText: {
@@ -362,9 +360,9 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     flexDirection: 'row',
     alignItems: 'center',
+    height: scaler(18),
     backgroundColor: mainColors.swiperBgPnl,
-    paddingHorizontal: scaler(6),
-    paddingVertical: scaler(3),
+    paddingHorizontal: scaler(5),
   },
   swiperViewImg: {
     height: scaler(26),
@@ -379,10 +377,10 @@ const styles = StyleSheet.create({
   swiperMaxDDView: {
     borderRadius: 15,
     flexDirection: 'row',
+    height: scaler(18),
     alignItems: 'center',
     backgroundColor: mainColors.swiperMaxDDbg,
-    paddingHorizontal: scaler(6),
-    paddingVertical: scaler(3),
+    paddingHorizontal: scaler(5),
   },
   divider: {
     height: 1,
@@ -390,4 +388,5 @@ const styles = StyleSheet.create({
     marginTop: scaler(12),
     opacity: 0.6,
   },
+  line: { height: scaler(20), width: scaler(20), alignSelf: 'center' }
 });

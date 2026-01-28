@@ -7,6 +7,7 @@ import { inputProps } from './commonTypes';
 const CommonTextInput = (props: inputProps) => {
   return (
     <View style={[styles.container, props?.containerStyle]}>
+      {props?.leftImage && props?.leftImage}
       <TextInput
         placeholder={props.placeholder || ''}
         placeholderTextColor={mainColors.inputLabel}

@@ -82,8 +82,7 @@ export const styles = StyleSheet.create({
     width: '48.5%',
     borderRadius: scaler(12),
     borderWidth: 1,
-    backgroundColor: mainColors.moversCards,
-    borderColor: mainColors.inputBorder,
+    backgroundColor: mainColors.googleButton,
     padding: scaler(12),
     alignSelf: 'center',
     justifyContent: 'center',
@@ -109,7 +108,7 @@ export const styles = StyleSheet.create({
   viewAllCard: {
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: scaler(110),
+    height: scaler(130),
   },
   viewAllText: {
     fontFamily: fontFamily.poppinsRegular,
@@ -131,8 +130,7 @@ export const styles = StyleSheet.create({
   viewAllArrow: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(20),
-    opacity: 0.9,
+    fontSize: scaler(22),
   },
 
   // -------------------- NEWS --------------------
@@ -141,7 +139,6 @@ export const styles = StyleSheet.create({
     borderRadius: scaler(12),
     borderWidth: 1,
     overflow: 'hidden',
-    borderColor: mainColors.inputBorder,
   },
   newsSeparator: {
     height: 1,

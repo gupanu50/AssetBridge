@@ -26,7 +26,7 @@ export default CommonNews;
 const styles = StyleSheet.create({
   newsItem: {
     paddingVertical: scaler(10),
-    backgroundColor: '#202020',
+    backgroundColor: mainColors.googleButton,
     paddingHorizontal: scaler(12),
     paddingBottom: scaler(12),
   },

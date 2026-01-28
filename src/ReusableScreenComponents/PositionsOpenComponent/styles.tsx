@@ -86,11 +86,10 @@ export const styles = StyleSheet.create({
   },
 
   cardSubRow: {
-    borderWidth: 1,
     borderRadius: 20,
     alignItems: 'center',
     paddingTop: scaler(1),
-    backgroundColor: mainColors.inputBorder,
+    backgroundColor: mainColors.dateBg,
     width: scaler(60),
     marginLeft: scaler(30),
   },
@@ -134,19 +133,16 @@ export const styles = StyleSheet.create({
   },
 
   pill: {
-    borderWidth: 1,
-    borderColor: mainColors.inputBorder,
     borderRadius: scaler(8),
-    backgroundColor: mainColors.inputBorder,
+    backgroundColor: mainColors.manualBg,
     paddingHorizontal: scaler(6),
     paddingVertical: scaler(2),
     marginLeft: scaler(5),
   },
   pillManAut: {
     borderWidth: 1,
-    borderColor: mainColors.inputBorder,
     borderRadius: scaler(8),
-    backgroundColor: mainColors.inputBorder,
+    backgroundColor: mainColors.manualBg,
     paddingHorizontal: scaler(6),
     paddingVertical: scaler(2),
   },
