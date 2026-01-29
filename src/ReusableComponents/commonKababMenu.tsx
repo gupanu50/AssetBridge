@@ -5,7 +5,7 @@ import scaler from '../Utils/scaler';
 import { KababProps } from './commonTypes';
 
 const CommonKababMenu = (props: KababProps) => {
-    const MENU_W = scaler(80);
+    const MENU_W = scaler(90);
     const MENU_H = scaler(190); // approx height of menu
     const GAP = scaler(2);
     const close = () => props?.setVisible(false);
@@ -69,11 +69,10 @@ export default CommonKababMenu;
 const styles = StyleSheet.create({
     backdrop: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.55)',
     },
     menuCard: {
         position: 'absolute',
-        width: scaler(110),
+        // width: scaler(50),
         borderRadius: scaler(10),
         backgroundColor: '#1F2329',
         paddingVertical: scaler(8),
