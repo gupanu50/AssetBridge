@@ -8,7 +8,7 @@ import snackbarHandler from './snackbarHandler';
 // export const NEW_BASE_URL = 'http://172.16.8.17:8083';
 // Dev Server
 // export const NEW_BASE_URL = 'http://10.10.10.17:8083';
-export const NEW_BASE_URL = 'https://uatservices.margcompusoft.com/';
+export const NEW_BASE_URL = 'http://13.201.49.145:8000';
 export const API_KEY_GOOGLE = 'AIzaSyAufrejjrpoYVAw7MJL-rBAevjechTCMzE';
 export const GOOGLE_PLACES_API_BASE_URL =
   'https://maps.googleapis.com/maps/api';
@@ -18,7 +18,6 @@ export const fetcher = async (config: AxiosRequestConfig) => {
   const { url, method, data, headers, baseURL } = config;
   const token = store.getState().auth?.userData?.Token;
   // const API_URL = 'http://65.0.155.230/';
-  console.log(token);
   return await axios.request({
     baseURL: baseURL ?? NEW_BASE_URL,
     url,
@@ -114,7 +113,6 @@ export const mainColors = {
   uploadButton: '#348FBA',
   transparentTab: 'rgba(151,151,151,0)',
   greenDark: '#489289',
-  // greenDark: "#57BB8A",
   green: '#57BB8A',
   greenLight: '#8CE1A4',
   fintechButton: '#61669D',
@@ -128,7 +126,7 @@ export const mainColors = {
   orangeChart: '#FA9917',
   yellowChart: '#F3CA3E',
   blueWioletChart: '#5F6AE3',
-
+  loaderBg: 'rgba(255, 255, 255, 0.2)',
   homeSelected: '#1339A8',
   homeUnSelected: '#4E73DF',
   todaySelection: '#E7493B',

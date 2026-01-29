@@ -7,7 +7,6 @@ import { mainColors } from '../../../Utils/helper'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import CommonTextInput from '../../../ReusableComponents/commonTextInput'
 import CommonButton from '../../../ReusableComponents/commonButton'
-import PasswordInfoTooltip from '../../../ReusableComponents/toolkitComponent'
 import { styles } from './styles'
 import CommonDrawerBackHeader from '../../../ReusableComponents/commonDrawerBackHeader'
 import { MainStackScreenProps } from '../../../Navigation/NavigationTypes/screenTypes'
@@ -128,7 +127,6 @@ const ProfileSettingsScreen = ({ navigation }: Props) => {
                 />
                 <View style={styles.flexView}>
                     <Text style={styles.inputLable}>Confirm Password</Text>
-                    <PasswordInfoTooltip />
                 </View>
                 <CommonTextInput
                     value={rePass}

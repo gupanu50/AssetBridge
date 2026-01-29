@@ -15,11 +15,52 @@ import IconButton from '../../ReusableComponents/iconButton';
 import CommonButton from '../../ReusableComponents/commonButton';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import { styles } from './styles';
+import CommonLoader from '../../ReusableComponents/commonLoader';
+import useLoginMutation from './Hooks/useLoginMutation';
+import snackbarHandler from '../../Utils/snackbarHandler';
 type Props = MainStackScreenProps<'Login'>;
 const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('');
-  const [secureText, setSecureText] = useState(false);
+  const [secureText, setSecureText] = useState(true);
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const { mutate } = useLoginMutation();
+  const [loader, setLoader] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const onBtnPressed = () => {
+    setLoader(true);
+    if (!email) {
+      setEmailError('Please enter mobile number');
+      return;
+    } else if (email.length < 10) {
+      setEmailError('Please enter 10 digit mobile number');
+      return;
+    } else if (!password) {
+      setPasswordError('Please enter password');
+      return;
+    }
+    mutate({
+      contact: `+91${email}`,
+      password: password
+    },
+      {
+        onSuccess: response => {
+          console.log('LoginSuccessResponse', response)
+          snackbarHandler.successToast('Login Successful')
+          setLoader(false)
+          navigation.navigate('Otp')
+        },
+        onError: er => {
+          setLoader(false);
+          snackbarHandler.errorToast('Invalid mobile number or Password');
+        },
+      },)
+  }
+  const crossPress = () => {
+    if (email) {
+      setEmail('')
+    }
+  }
   return (
     <View style={styles.container}>
       <ImageBackground source={Images.onboardBg} style={styles.backgroundImg} resizeMode='stretch'>
@@ -44,7 +85,8 @@ const LoginScreen = ({ navigation }: Props) => {
               <Text style={styles.inputLable}>Enter mobile number</Text>
               <CommonTextInput
                 value={email}
-                setValue={setEmail}
+                setValue={(text) => { setEmailError(''), setEmail(text) }}
+                errorMessage={emailError}
                 placeholder='* * * * *   * * * * *'
                 keyboardType='numeric'
                 max={10}
@@ -54,11 +96,11 @@ const LoginScreen = ({ navigation }: Props) => {
                     style={styles.eyeIcon}
                   >
                     <IconButton
-                      onPress={() => { }}
+                      onPress={() => crossPress()}
                       name={email ? 'close' : 'phone'}
                       vectorType="MaterialCommunityIcons"
                       size={scaler(28)}
-                      color="#999"
+                      color={emailError ? mainColors.sellButton : mainColors.inputLabel}
                     />
                   </TouchableOpacity>
                 }
@@ -76,8 +118,9 @@ const LoginScreen = ({ navigation }: Props) => {
               </View>
               <CommonTextInput
                 value={password}
-                setValue={setPassword}
+                setValue={(text) => { setPasswordError(''), setPassword(text) }}
                 placeholder='Enter Your Password'
+                errorMessage={passwordError}
                 secure={secureText}
                 rightImage={
                   <TouchableOpacity
@@ -89,7 +132,7 @@ const LoginScreen = ({ navigation }: Props) => {
                       name={secureText ? 'eye-off-outline' : 'eye'}
                       vectorType="MaterialCommunityIcons"
                       size={scaler(28)}
-                      color="#999"
+                      color={passwordError ? mainColors.sellButton : mainColors.inputLabel}
                     />
                   </TouchableOpacity>
                 }
@@ -99,7 +142,7 @@ const LoginScreen = ({ navigation }: Props) => {
           <CommonButton
             label="Login"
             extraStyle={styles.buttonStyle}
-            onPress={() => navigation.navigate('Otp')}
+            onPress={() => onBtnPressed()}
           />
           <Text style={styles.orText}>Or</Text>
           <CommonButton
@@ -122,6 +165,7 @@ const LoginScreen = ({ navigation }: Props) => {
           </TouchableOpacity>
         </View>
       </ImageBackground>
+      {loader && <CommonLoader />}
     </View>
   );
 };

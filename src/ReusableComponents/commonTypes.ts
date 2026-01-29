@@ -49,6 +49,7 @@ export type inputProps = {
   keyboardType?: KeyboardTypeOptions;
   value: string;
   setValue: (value: string) => void;
+  errorMessage?: string;
 };
 
 export type DrawerBackHeaderProps = {

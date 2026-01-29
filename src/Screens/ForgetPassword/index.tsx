@@ -6,9 +6,39 @@ import { Images } from '../../Assets';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+import CommonLoader from '../../ReusableComponents/commonLoader';
+import useForgetMutation from './Hooks/useForgetMutation';
+import snackbarHandler from '../../Utils/snackbarHandler';
 type Props = MainStackScreenProps<'Forget'>;
 const ForgetPassword = ({ navigation }: Props) => {
   const [value, setValue] = useState('');
+  const [valueError, setValueError] = useState('');
+  const { mutate } = useForgetMutation();
+  const [loader, setLoader] = useState(false);
+  const onBtnPressed = () => {
+    setLoader(true);
+    if (!value) {
+      setValueError('Please enter mobile number');
+      return;
+    } else if (value.length < 10) {
+      setValueError('Please enter 10 digit mobile number');
+      return;
+    }
+    mutate({
+      contact: `+91${value}`,
+    },
+      {
+        onSuccess: response => {
+          snackbarHandler.successToast('Register')
+          setLoader(false)
+          navigation.navigate('Otp')
+        },
+        onError: er => {
+          setLoader(false);
+          snackbarHandler.errorToast('Invalid mobile number or Password');
+        },
+      },)
+  }
   return (
     <View style={styles.container}>
       <ImageBackground source={Images.onboardBg} style={styles.backgroundImg} resizeMode='stretch'>
@@ -29,10 +59,16 @@ const ForgetPassword = ({ navigation }: Props) => {
           <Text style={[styles.inputLabel]}>
             Enter Your Mobile Number
           </Text>
-          <CommonTextInput value={value} setValue={setValue} placeholder='Enter Your Mobile Number' />
-          <CommonButton label="Send Otp" extraStyle={styles.loginStyle} onPress={() => navigation.navigate('Otp')} />
+          <CommonTextInput
+            value={value}
+            setValue={(text) => { setValueError(''), setValue(text) }}
+            placeholder='Enter Your Mobile Number'
+            errorMessage={valueError}
+          />
+          <CommonButton label="Send Otp" extraStyle={styles.loginStyle} onPress={() => onBtnPressed()} />
         </View>
       </ImageBackground>
+      {loader && <CommonLoader />}
     </View>
   );
 };

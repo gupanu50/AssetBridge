@@ -9,11 +9,41 @@ import CommonButton from '../../ReusableComponents/commonButton'
 import { styles } from './styles'
 
 const ChangePasswordScreen = () => {
-    const [email, setEmail] = useState('');
     const [secureText, setSecureText] = useState(false);
     const [secureText1, setSecureText1] = useState(false);
     const [password, setPassword] = useState('');
     const [password1, setPassword1] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
+    const [loader, setLoader] = useState(false);
+    const onBtnPressed = () => {
+        setLoader(true);
+        if (!password) {
+            setPasswordError('Please enter password');
+            return;
+        } else if (!password1) {
+            setConfirmPasswordError('Please enter confirm password');
+            return;
+        } else if (password1 !== password) {
+            setConfirmPasswordError('Confirm Password does not match with password');
+            return;
+        }
+        //   mutate({
+        //     contact: `+91${email}`,
+        //     country_code: "+91",
+        //     password: password
+        //   },
+        //     {
+        //       onSuccess: response => {
+        //         snackbarHandler.successToast('Register')
+        //         setLoader(false)
+        //       },
+        //       onError: er => {
+        //         setLoader(false);
+        //         snackbarHandler.errorToast('Invalid mobile number or Password');
+        //       },
+        //     },)
+    }
     return (
         <View style={styles.container}>
             <ImageBackground source={Images.onboardBg} style={styles.backgroundImg}>
@@ -41,7 +71,8 @@ const ChangePasswordScreen = () => {
                             <Text style={styles.inputLable}>Enter your password</Text>
                             <CommonTextInput
                                 value={password}
-                                setValue={setPassword}
+                                setValue={(text) => { setPasswordError(''), setPassword(text) }}
+                                errorMessage={passwordError}
                                 secure={secureText}
                                 rightImage={
                                     <TouchableOpacity
@@ -62,7 +93,8 @@ const ChangePasswordScreen = () => {
                             <Text style={styles.inputLable}>Confirm password</Text>
                             <CommonTextInput
                                 value={password1}
-                                setValue={setPassword1}
+                                errorMessage={confirmPasswordError}
+                                setValue={(text) => { setConfirmPasswordError(''), setPassword1(text) }}
                                 secure={secureText1}
                                 rightImage={
                                     <TouchableOpacity
@@ -84,6 +116,7 @@ const ChangePasswordScreen = () => {
                     <CommonButton
                         label="Change Password"
                         extraStyle={styles.buttonStyle}
+                        onPress={() => onBtnPressed()}
                     />
                 </View>
             </ImageBackground>
