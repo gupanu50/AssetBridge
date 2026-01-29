@@ -15,16 +15,12 @@ type RowProps = {
 };
 
 const WatchRowItem = ({ item, onOpenMenu, onPressRow }: RowProps) => {
-    const dotsWrapRef = useRef<View>(null);
+    const dotsRef = useRef<View>(null);
 
-    const handleDotsPress = () => {
-        if (!dotsWrapRef.current) return;
-
-        dotsWrapRef.current.measureInWindow(
-            (x: number, y: number, width: number, height: number) => {
-                onOpenMenu({ x, y, width, height });
-            },
-        );
+    const openMenu = () => {
+        dotsRef.current?.measureInWindow((x, y, width, height) => {
+            onOpenMenu({ x, y, width, height });
+        });
     };
 
     const arrowImg = item.isUp ? Images.profitUp : Images.lossDown;
@@ -55,11 +51,11 @@ const WatchRowItem = ({ item, onOpenMenu, onPressRow }: RowProps) => {
             </View>
 
             {/* measure wrapper */}
-            <View ref={dotsWrapRef} collapsable={false}>
+            <View ref={dotsRef} collapsable={false} style={{}}>
                 <IconButton
                     vectorType="MaterialCommunityIcons"
                     name="dots-vertical"
-                    onPress={handleDotsPress}
+                    onPress={openMenu}
                     color={mainColors.inputBorder}
                 />
             </View>
