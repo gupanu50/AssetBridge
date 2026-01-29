@@ -145,7 +145,7 @@ const WatchListScreen = ({ navigation }: Props) => {
   };
   return (
     <View style={styles.container}>
-      <CommonHeader />
+      <CommonHeader navigation={navigation} />
       <View style={styles.mainView}>
         <CommonTopBtnSlider navigation={navigation} />
       </View>

@@ -1,29 +1,55 @@
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import scaler from '../Utils/scaler';
 import { Images } from '../Assets';
 import { mainColors } from '../Utils/helper';
 import IconButton from './iconButton';
 import { MainStackScreenProps } from '../Navigation/NavigationTypes/screenTypes';
+import CommonTextInput from './commonTextInput';
 type CommonHeaderProps = {
-  navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
-}
+  navigation?: MainStackScreenProps<
+    'HomeTab' | 'Algo' | 'WatchList'
+  >['navigation'];
+};
 const CommonHeader = (props: CommonHeaderProps) => {
+  const [showSearch, setShowSearch] = useState(false);
+  const [value, setValue] = useState('');
   return (
-    <View style={styles.container}>
-      <Image
-        source={Images.singleLogo}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-      <View style={styles.innerView}>
-        <TouchableOpacity>
-          <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => props?.navigation?.navigate('Notifications')}>
-          <Image source={Images.notification} resizeMode='contain' style={styles.notiLogo} />
-        </TouchableOpacity>
+    <View>
+      <View style={styles.container}>
+        <Image
+          source={Images.singleLogo}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <View style={styles.innerView}>
+          <TouchableOpacity onPress={() => setShowSearch(!showSearch)}>
+            <Image
+              source={Images.search}
+              resizeMode="contain"
+              style={styles.searchLogo}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => props?.navigation?.navigate('Notifications')}
+          >
+            <Image
+              source={Images.notification}
+              resizeMode="contain"
+              style={styles.notiLogo}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
+      {showSearch && (
+        <CommonTextInput
+          value={value}
+          setValue={setValue}
+          placeholder="Search here"
+          containerStyle={styles.containerStyle}
+          style={styles.input}
+        />
+      )}
     </View>
   );
 };
@@ -49,7 +75,7 @@ const styles = StyleSheet.create({
   },
   innerView: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   searchLogo: {
     height: scaler(20),
@@ -58,6 +84,13 @@ const styles = StyleSheet.create({
   notiLogo: {
     height: scaler(25),
     width: scaler(25),
-    marginLeft: scaler(10)
-  }
+    marginLeft: scaler(10),
+  },
+  containerStyle: {
+    marginHorizontal: scaler(10),
+    marginBottom: scaler(10)
+  },
+  input: {
+    width: '98%'
+  },
 });

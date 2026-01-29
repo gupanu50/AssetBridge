@@ -138,6 +138,7 @@ export default function ExploreComponent(props: ExploreProps) {
     return (
       <CommonCard
         logo={item.logo}
+        onPress={() => props?.navigation?.navigate('AlgoMain')}
         name={item.name}
         sub={item.sub}
         tagLeft={item.tagLeft}

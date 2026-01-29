@@ -38,7 +38,7 @@ const AlgoScreen = ({ navigation }: Props) => {
   };
   return (
     <View style={styles.container}>
-      <CommonHeader />
+      <CommonHeader navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
