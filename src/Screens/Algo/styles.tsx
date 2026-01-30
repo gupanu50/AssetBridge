@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     paddingTop: scaler(5),
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: mainColors.inputBorder,
+    borderColor: mainColors.lineColor,
   },
   topTabsContent: {
     paddingRight: scaler(10),

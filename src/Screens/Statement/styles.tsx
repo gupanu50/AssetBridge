@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
         marginTop: scaler(15),
         paddingTop: scaler(5),
         borderBottomWidth: 1,
-        borderColor: mainColors.inputBorder,
+        borderColor: mainColors.lineColor,
     },
     topTabsContent: {
         paddingRight: scaler(10),
@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
     },
     lineView: {
         height: scaler(10),
-        borderBottomWidth: 1,
+        borderBottomWidth: 0.6,
         borderColor: mainColors.inputBorder
     }
 })

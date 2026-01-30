@@ -96,7 +96,7 @@ export const styles = StyleSheet.create({
     },
     lineView: {
         height: scaler(2),
-        borderBottomWidth: 1,
+        borderBottomWidth: 0.6,
         borderColor: mainColors.inputBorder
     }
 })

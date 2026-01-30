@@ -78,14 +78,14 @@ const styles = StyleSheet.create({
   topTabTextActive: {
     opacity: 1,
     fontFamily: fontFamily.poppinsSemiBold,
-    color: mainColors.blue,
+    color: mainColors.mainButton,
   },
   topTabUnderline: {
     marginTop: scaler(6),
-    height: scaler(3),
+    height: scaler(2),
     width: '100%',
     borderRadius: 10,
-    backgroundColor: mainColors.blue,
+    backgroundColor: mainColors.mainButton,
   },
   topTabUnderlineOff: {
     marginTop: scaler(6),

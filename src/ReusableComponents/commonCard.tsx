@@ -199,7 +199,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               resizeMode="contain"
               style={styles.inInsRunImg}
             />
-            <Text style={[styles.actionText, { color: mainColors.white }]}>
+            <Text style={styles.runningText}>
               {props.status}
             </Text>
           </View>
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: mainColors.inputBorder,
+    borderColor: mainColors.intraday,
     alignItems: 'center',
   },
   inInsRunImg: {
@@ -297,6 +297,9 @@ const styles = StyleSheet.create({
   },
   actionPillGreen: {
     marginRight: 0,
+    paddingHorizontal: scaler(5),
+    paddingRight: scaler(8),
+    height: scaler(35),
     backgroundColor: mainColors.swiperPnl,
     borderColor: 'transparent',
   },
@@ -306,9 +309,16 @@ const styles = StyleSheet.create({
     fontSize: scaler(12),
     marginLeft: scaler(4),
   },
+  runningText: {
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.white,
+    fontSize: scaler(10),
+    // paddingTop: scaler(4),
+    marginLeft: scaler(4),
+  },
   flexView: {
     flexDirection: 'row',
-    height: scaler(26),
+    height: scaler(24),
     alignSelf: 'flex-end',
   },
   swiperLogo: {
@@ -317,7 +327,6 @@ const styles = StyleSheet.create({
   },
   moverDayMonthSegment: {
     flexDirection: 'row',
-    borderWidth: 1,
     backgroundColor: mainColors.dayMonthBg,
     borderRadius: 999,
     paddingHorizontal: scaler(4),
@@ -384,7 +393,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: mainColors.inputBorder, // subtle line
+    backgroundColor: mainColors.commonCardLine, // subtle line
     marginTop: scaler(12),
     opacity: 0.6,
   },

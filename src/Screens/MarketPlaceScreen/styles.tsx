@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     marginTop: scaler(14),
     paddingVertical: scaler(10),
     borderTopWidth: 1,
-    borderTopColor: mainColors.descText,
+    borderTopColor: mainColors.lineColor,
   },
   logoImg: {
     height: '100%',
@@ -64,7 +64,7 @@ export const styles = StyleSheet.create({
   },
   lineView: {
     borderBottomWidth: 1,
-    borderBlockColor: mainColors.inputBorder,
+    borderBlockColor: mainColors.commonCardLine,
     paddingBottom: scaler(20),
   },
   publishedView: {
@@ -266,9 +266,8 @@ export const styles = StyleSheet.create({
   topTabsWrap: {
     marginTop: scaler(15),
     paddingTop: scaler(5),
-    borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: mainColors.inputBorder,
+    borderColor: mainColors.dateBg,
   },
   topTabsContent: {
     paddingRight: scaler(10),
@@ -338,7 +337,7 @@ export const styles = StyleSheet.create({
   },
   summaryDivider: {
     height: 1,
-    backgroundColor: mainColors.inputBorder,
+    backgroundColor: mainColors.dateBg,
     marginVertical: scaler(12),
     opacity: 0.7,
   },
@@ -346,7 +345,7 @@ export const styles = StyleSheet.create({
   sectionCard: {
     marginTop: scaler(14),
     borderTopWidth: 1,
-    borderTopColor: mainColors.inputBorder,
+    borderTopColor: mainColors.dateBg,
     paddingTop: scaler(14),
   },
   sectionTitle: {

@@ -71,7 +71,7 @@ export const styles = StyleSheet.create({
         width: '100%',
     },
     lineHeight: {
-        borderBottomWidth: 1,
+        borderBottomWidth: 0.6,
         height: scaler(20),
         borderColor: mainColors.inputBorder,
     },

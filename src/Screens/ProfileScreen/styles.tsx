@@ -153,7 +153,7 @@ export const styles = StyleSheet.create({
     hr: {
         height: scaler(1),
         borderColor: mainColors.inputBorder,
-        borderWidth: 1,
+        borderWidth: 0.5,
         marginBottom: scaler(10),
     },
 

@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
         marginTop: scaler(15),
         paddingTop: scaler(5),
         borderBottomWidth: 1,
-        borderColor: mainColors.inputBorder,
+        borderColor: mainColors.lineColor,
     },
     topTabsContent: {
         paddingRight: scaler(10),
@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: scaler(5),
         paddingHorizontal: scaler(10),
-        borderColor: mainColors.inputBorder,
+        borderColor: mainColors.instrument,
         marginTop: scaler(15),
     },
     settingsImg: {

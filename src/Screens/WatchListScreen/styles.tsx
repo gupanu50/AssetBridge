@@ -50,7 +50,7 @@ export const styles = StyleSheet.create({
     paddingTop: scaler(5),
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: mainColors.inputBorder,
+    borderColor: mainColors.lineColor,
   },
   topTabsContent: {
     paddingRight: scaler(10),
@@ -118,8 +118,8 @@ export const styles = StyleSheet.create({
     fontSize: scaler(10),
   },
   watchSeparator: {
-    height: 1,
-    backgroundColor: mainColors.inputBorder,
+    height: 0.5,
+    backgroundColor: mainColors.lineColor,
   },
   watchArrowImg: {
     height: scaler(7),
