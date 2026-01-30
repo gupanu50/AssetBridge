@@ -1,15 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
+import React, { JSX } from 'react';
 import { fontFamily, mainColors } from '../Utils/helper';
 import scaler from '../Utils/scaler';
 type buttonProps = {
   label: string;
   backgroundColor?: string;
-  leftImage?: any;
+  leftImage?: JSX.Element;
   textColor?: string;
-  extraStyle?: any;
-  onPress?: any;
+  extraStyle?: ViewStyle | TextStyle;
+  onPress?: () => void;
+  disabled?: boolean;
 };
 const CommonButton = (props: buttonProps) => {
   return (
@@ -20,6 +21,7 @@ const CommonButton = (props: buttonProps) => {
         props?.extraStyle,
       ]}
       onPress={props?.onPress}
+      disabled={props?.disabled || false}
     >
       {props?.leftImage && props?.leftImage}
       <Text

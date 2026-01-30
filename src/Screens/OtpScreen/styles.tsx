@@ -50,6 +50,9 @@ export const styles = StyleSheet.create({
   focusedContainerStyle: {
     borderColor: mainColors.mainButton,
   },
+  wrongContainerStyle: {
+    borderColor: mainColors.redText,
+  },
   pinCodeStyle: {
     color: mainColors.white,
   },
@@ -57,6 +60,10 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: scaler(5),
+  },
+  flexView: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   timerText: {
     fontFamily: fontFamily.poppinsRegular,
@@ -68,5 +75,11 @@ export const styles = StyleSheet.create({
   },
   loginStyle: {
     marginTop: scaler(15),
+  },
+  errorText: {
+    fontFamily: fontFamily.poppinsRegular,
+    color: mainColors.redText,
+    fontSize: scaler(11),
+    marginLeft: scaler(55)
   },
 });

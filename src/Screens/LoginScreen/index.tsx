@@ -31,12 +31,15 @@ const LoginScreen = ({ navigation }: Props) => {
     setLoader(true);
     if (!email) {
       setEmailError('Please enter mobile number');
+      setLoader(false);
       return;
     } else if (email.length < 10) {
       setEmailError('Please enter 10 digit mobile number');
+      setLoader(false);
       return;
     } else if (!password) {
       setPasswordError('Please enter password');
+      setLoader(false);
       return;
     }
     mutate({
@@ -45,13 +48,13 @@ const LoginScreen = ({ navigation }: Props) => {
     },
       {
         onSuccess: response => {
-          console.log('LoginSuccessResponse', response)
-          snackbarHandler.successToast('Login Successful')
+          snackbarHandler.successToast(response?.data?.data?.message)
           setLoader(false)
           navigation.navigate('Otp')
         },
         onError: er => {
           setLoader(false);
+          console.log('ErrorLogin', er)
           snackbarHandler.errorToast('Invalid mobile number or Password');
         },
       },)

@@ -1,9 +1,8 @@
 import { AxiosResponse } from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { fetcher } from '../../../Utils/helper';
-import { apiData } from './types';
-
-const loginUser = async (data: apiData): Promise<AxiosResponse<apiData>> => {
+import { apiData, apiResponse } from './types';
+const loginUser = async (data: apiData): Promise<AxiosResponse<apiResponse>> => {
     return fetcher
         ({
             url: '/api/v1/accounts/auth/verify-login/',
