@@ -44,7 +44,7 @@ export const styles = StyleSheet.create({
     },
     bottomLine: {
         height: 1,
-        backgroundColor: mainColors.inputBorder,
+        backgroundColor: mainColors.lineColor,
     },
     statementContent: {
         marginTop: scaler(15),
@@ -92,8 +92,7 @@ export const styles = StyleSheet.create({
         color: mainColors.white,
     },
     doneView: {
-        backgroundColor: mainColors.inputBorder,
-        borderWidth: 1,
+        backgroundColor: mainColors.googleButton,
         borderRadius: 15,
         alignItems: 'center',
         paddingHorizontal: scaler(15),
@@ -184,7 +183,7 @@ export const styles = StyleSheet.create({
     },
     lineHeight: {
         height: scaler(10),
-        borderBottomWidth: 1,
+        borderBottomWidth: 0.4,
         borderBottomColor: mainColors.inputBorder
     },
 
@@ -259,7 +258,7 @@ export const styles = StyleSheet.create({
     },
 
     itemDivider: {
-        height: 1,
+        height: 0.5,
         backgroundColor: mainColors.inputBorder,
     },
 })

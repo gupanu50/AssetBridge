@@ -28,14 +28,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   moverSegmentBtn: {
-    paddingVertical: scaler(5),
+    paddingVertical: scaler(3),
     paddingHorizontal: scaler(12),
     borderRadius: 999,
     marginRight: scaler(10),
   },
   moverSegmentBtnActive: {
-    borderWidth: 1,
-    borderColor: mainColors.inputBorder,
     backgroundColor: mainColors.mainButton,
   },
   moverSegmentBtnInActive: {

@@ -98,7 +98,7 @@ export default function ExploreComponent(props: ExploreProps) {
         intradayChange: '+1.3%',
         pAndL: '3.11',
         pAndLChange: '-0.37%',
-        status: 'Running',
+        status: 'RUNNING',
       },
       // add more cards here (it will automatically become swipe-able)
       {
@@ -114,7 +114,7 @@ export default function ExploreComponent(props: ExploreProps) {
         intradayChange: '+0.6%',
         pAndL: '2.01',
         pAndLChange: '+0.22%',
-        status: 'Running',
+        status: 'RUNNING',
       },
       {
         id: 'f3',
@@ -129,7 +129,7 @@ export default function ExploreComponent(props: ExploreProps) {
         intradayChange: '-0.2%',
         pAndL: '1.55',
         pAndLChange: '-0.11%',
-        status: 'Running',
+        status: 'RUNNING',
       },
     ],
     [], // no dependencies

@@ -171,7 +171,7 @@ const WatchListScreen = ({ navigation }: Props) => {
                 <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
               </View>
             }
-            containerStyle={{ height: scaler(38), marginTop: scaler(15), borderRadius: 25 }}
+            containerStyle={{ height: scaler(38), marginTop: scaler(15), borderRadius: 25, borderColor: '#202020' }}
             style={{ fontSize: scaler(11) }}
           />
           <TouchableOpacity style={styles.settingsTouch}>

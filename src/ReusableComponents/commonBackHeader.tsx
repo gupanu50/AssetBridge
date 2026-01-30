@@ -43,7 +43,7 @@ export default CommonBackHeader;
 const styles = StyleSheet.create({
   container: {
     borderBottomWidth: 1,
-    borderBlockColor: mainColors.inputBorder,
+    borderBlockColor: mainColors.instrument,
   },
   main: {
     marginVertical: scaler(18),

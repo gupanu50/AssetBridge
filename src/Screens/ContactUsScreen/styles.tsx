@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
         marginTop: scaler(10)
     },
     lineView: {
-        borderBottomWidth: 1,
+        borderBottomWidth: 0.6,
         borderBottomColor: mainColors.inputBorder,
         marginTop: scaler(15),
         marginBottom: scaler(8)

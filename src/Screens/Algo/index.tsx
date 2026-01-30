@@ -39,25 +39,24 @@ const AlgoScreen = ({ navigation }: Props) => {
   return (
     <View style={styles.container}>
       <CommonHeader navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />
-
+      <CommonTopBtnSlider navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />
+      {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}
+      <View style={styles.topTabsWrap}>
+        <FlatList
+          ref={topTabListRef}
+          data={topTabs}
+          keyExtractor={item => item.id}
+          renderItem={renderTopTab}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.topTabsContent}
+          onScrollToIndexFailed={() => { }}
+        />
+      </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: scaler(30) }}
       >
-        <CommonTopBtnSlider navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />
-        {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}
-        <View style={styles.topTabsWrap}>
-          <FlatList
-            ref={topTabListRef}
-            data={topTabs}
-            keyExtractor={item => item.id}
-            renderItem={renderTopTab}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.topTabsContent}
-            onScrollToIndexFailed={() => { }}
-          />
-        </View>
         {activeTopTab === 'My Algo' && <MyAlgoComponent navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />}
         {activeTopTab === 'Market Place' && <AlgoMarketPlaceComponent navigation={navigation as MainStackScreenProps<'AlgoMain'>['navigation']} />}
       </ScrollView>

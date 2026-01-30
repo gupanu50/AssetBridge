@@ -23,8 +23,6 @@ export const styles = StyleSheet.create({
     },
     moverDayMonthSegment: {
         flexDirection: 'row',
-        borderWidth: 1,
-        borderColor: mainColors.inputBorder,
         backgroundColor: mainColors.lastUpdatedBg,
         borderRadius: 999,
         padding: scaler(4),
@@ -72,7 +70,7 @@ export const styles = StyleSheet.create({
         width: width * 0.85
     },
     lineHeight: {
-        borderBottomWidth: 1,
+        borderBottomWidth: 0.5,
         borderBlockColor: mainColors.inputBorder,
         height: scaler(15)
     },

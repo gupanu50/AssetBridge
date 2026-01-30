@@ -116,6 +116,7 @@ export const styles = StyleSheet.create({
     fontFamily: fontFamily.poppinsRegular,
   },
   selectedItem: {
+
     borderWidth: 1,
     borderColor: mainColors.descText,
     paddingTop: scaler(2),
@@ -127,7 +128,7 @@ export const styles = StyleSheet.create({
     paddingTop: scaler(5),
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: mainColors.inputBorder,
+    borderColor: mainColors.lineColor,
   },
   topTabsContent: {
     paddingRight: scaler(10),

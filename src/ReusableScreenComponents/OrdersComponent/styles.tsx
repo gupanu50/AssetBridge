@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   lineView: {
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.7,
     paddingBottom: scaler(10),
     borderBlockColor: mainColors.inputBorder,
   },
@@ -146,7 +146,7 @@ export const styles = StyleSheet.create({
     fontFamily: fontFamily.poppinsRegular,
   },
   itemSeperator: {
-    borderWidth: 1,
+    borderBottomWidth: 0.5,
     borderColor: mainColors.inputBorder,
   },
 });

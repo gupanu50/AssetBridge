@@ -48,26 +48,25 @@ const HomeScreen = ({ navigation }: Props) => {
   return (
     <View style={styles.container}>
       <CommonHeader navigation={navigation} />
+      <CommonTopBtnSlider navigation={navigation} />
 
+      {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}
+      <View style={styles.topTabsWrap}>
+        <FlatList
+          ref={topTabListRef}
+          data={topTabs}
+          keyExtractor={item => item.id}
+          renderItem={renderTopTab}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.topTabsContent}
+          onScrollToIndexFailed={() => { }}
+        />
+      </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: scaler(30) }}
       >
-        <CommonTopBtnSlider navigation={navigation} />
-
-        {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}
-        <View style={styles.topTabsWrap}>
-          <FlatList
-            ref={topTabListRef}
-            data={topTabs}
-            keyExtractor={item => item.id}
-            renderItem={renderTopTab}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.topTabsContent}
-            onScrollToIndexFailed={() => { }}
-          />
-        </View>
         {activeTopTab === 'Explore' && (
           <ExploreComponent navigation={navigation} />
         )}

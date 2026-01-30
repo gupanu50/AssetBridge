@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: scaler(20),
         paddingVertical: scaler(10),
         borderRadius: 10,
-        borderColor: mainColors.inputBorder,
+        borderColor: mainColors.niftyBorder,
         borderWidth: 1,
         marginRight: scaler(10)
     },

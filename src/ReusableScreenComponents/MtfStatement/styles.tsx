@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
         marginRight: scaler(10)
     },
     lineView: {
-        borderBottomWidth: 1,
+        borderBottomWidth: 0.6,
         borderBlockColor: mainColors.inputBorder,
         height: scaler(5)
     },
