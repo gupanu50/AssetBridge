@@ -50,7 +50,7 @@ const LoginScreen = ({ navigation }: Props) => {
         onSuccess: response => {
           snackbarHandler.successToast(response?.data?.data?.message)
           setLoader(false)
-          navigation.navigate('Otp')
+          navigation.navigate('Otp', { mobile: email, navScr: 'login' });
         },
         onError: er => {
           setLoader(false);

@@ -4,7 +4,7 @@ export type MainStackParamList = {
   Login: undefined;
   HomeTab: undefined;
   WatchList: undefined;
-  Otp: undefined;
+  Otp: { mobile?: string, navScr?: string };
   Forget: undefined;
   Algo: undefined;
   Instrument: undefined;

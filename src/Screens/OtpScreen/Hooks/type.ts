@@ -3,3 +3,7 @@ export type apiData = {
     purpose: string;
     otp: string;
 }
+export type resendApiData = {
+    contact: string;
+    purpose: string;
+}

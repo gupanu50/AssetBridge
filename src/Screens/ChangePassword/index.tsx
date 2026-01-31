@@ -7,11 +7,14 @@ import IconButton from '../../ReusableComponents/iconButton'
 import scaler from '../../Utils/scaler'
 import CommonButton from '../../ReusableComponents/commonButton'
 import { styles } from './styles'
+import useChangePasswordMutation from './Hooks/useChangePassword'
+import snackbarHandler from '../../Utils/snackbarHandler'
 
 const ChangePasswordScreen = () => {
     const [secureText, setSecureText] = useState(false);
     const [secureText1, setSecureText1] = useState(false);
     const [password, setPassword] = useState('');
+    const { mutate } = useChangePasswordMutation();
     const [password1, setPassword1] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
@@ -28,21 +31,19 @@ const ChangePasswordScreen = () => {
             setConfirmPasswordError('Confirm Password does not match with password');
             return;
         }
-        //   mutate({
-        //     contact: `+91${email}`,
-        //     country_code: "+91",
-        //     password: password
-        //   },
-        //     {
-        //       onSuccess: response => {
-        //         snackbarHandler.successToast('Register')
-        //         setLoader(false)
-        //       },
-        //       onError: er => {
-        //         setLoader(false);
-        //         snackbarHandler.errorToast('Invalid mobile number or Password');
-        //       },
-        //     },)
+        mutate({
+            new_password: password,
+        },
+            {
+                onSuccess: response => {
+                    snackbarHandler.successToast('Register')
+                    setLoader(false)
+                },
+                onError: er => {
+                    setLoader(false);
+                    snackbarHandler.errorToast('Invalid mobile number or Password');
+                },
+            },)
     }
     return (
         <View style={styles.container}>

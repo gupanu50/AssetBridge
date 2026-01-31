@@ -9,10 +9,17 @@ import CommonButton from '../../ReusableComponents/commonButton';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import { styles } from './styles';
 import IconButton from '../../ReusableComponents/iconButton';
+import useOtpMutation from './Hooks/useOtpMutation';
+import snackbarHandler from '../../Utils/snackbarHandler';
+import useResendMutation from './Hooks/useResendMutation';
 type Props = MainStackScreenProps<'Otp'>;
-const OtpScreen = ({ navigation }: Props) => {
+const OtpScreen = ({ navigation, route }: Props) => {
+  const mobile = route.params?.mobile;
+  const nav = route?.params?.navScr || 'login';
   const [input, setInput] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(59);
+  const { mutate } = useOtpMutation();
+  const { mutate: resendMutation } = useResendMutation();
   const [errorInput, setErrorInput] = useState('');
   // const [canResend, setCanResend] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -32,17 +39,53 @@ const OtpScreen = ({ navigation }: Props) => {
       });
     }, 1000);
   };
-
+  const navFunc = () => {
+    navigation.reset({
+      index: 0,
+      routes: [
+        {
+          name: nav === 'register' ? 'Login' : nav === 'forgot_password' ? 'Forget' : 'HomeTab',
+        },
+      ],
+    });
+  }
   useEffect(() => {
     startTimer();
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+  const resendBtn = () => {
+    resendMutation({
+      contact: `+91${mobile}`,
+      purpose: nav,
+    },
+      {
+        onSuccess: response => {
+          snackbarHandler.successToast('OTP Resend')
+          console.log('Response', response)
+        },
+        onError: er => {
+          snackbarHandler.errorToast('Invalid OTP or OTP is expired');
+          setErrorInput('Wrong OTP Entered');
+        },
+      },)
+  }
   const triggeredMethod = (text: string) => {
-    if (text === '1234') {
-      setErrorInput('Wrong OTP Entered');
-    }
+    mutate({
+      contact: `+91${mobile}`,
+      purpose: nav,
+      otp: text
+    },
+      {
+        onSuccess: response => {
+          console.log('Response', response)
+        },
+        onError: er => {
+          snackbarHandler.errorToast('Invalid OTP or OTP is expired');
+          setErrorInput('Wrong OTP Entered');
+        },
+      },)
   }
   const formatTime = (sec: number) => {
     const s = sec < 10 ? `0${sec}` : `${sec}`;
@@ -92,6 +135,7 @@ const OtpScreen = ({ navigation }: Props) => {
             <CommonButton
               label="Resend"
               backgroundColor="transparent"
+              onPress={() => resendBtn()}
               disabled={secondsLeft === 0 ? false : true}
               extraStyle={styles.btnStyle}
               textColor={secondsLeft === 0 ? mainColors.mainButton : mainColors.inputLabel}
@@ -103,7 +147,7 @@ const OtpScreen = ({ navigation }: Props) => {
             backgroundColor={(errorInput || input.length < 4) ? mainColors.inputBorder : mainColors.mainButton}
             disabled={(errorInput || input.length < 4) ? true : false}
             extraStyle={styles.loginStyle}
-            onPress={() => navigation.navigate('HomeTab')}
+            onPress={() => navFunc()}
           />
         </View>
       </ImageBackground>

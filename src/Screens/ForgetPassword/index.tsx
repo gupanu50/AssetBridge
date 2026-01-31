@@ -31,7 +31,7 @@ const ForgetPassword = ({ navigation }: Props) => {
         onSuccess: response => {
           snackbarHandler.successToast('Register')
           setLoader(false)
-          navigation.navigate('Otp')
+          navigation.navigate('Otp', { mobile: value, navScr: 'forgot_password' })
         },
         onError: er => {
           setLoader(false);

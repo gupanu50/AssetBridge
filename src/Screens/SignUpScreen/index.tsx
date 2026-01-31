@@ -12,8 +12,9 @@ import useRegisterMutation from './Hooks/useRegisterMutation'
 import snackbarHandler from '../../Utils/snackbarHandler'
 import CommonLoader from '../../ReusableComponents/commonLoader'
 import { mainColors } from '../../Utils/helper'
-
-const SignUpScreen = () => {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
+type Props = MainStackScreenProps<'SignUp'>;
+const SignUpScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('');
   const [secureText, setSecureText] = useState(true);
   const [secureText1, setSecureText1] = useState(true);
@@ -50,11 +51,12 @@ const SignUpScreen = () => {
       {
         onSuccess: response => {
           snackbarHandler.successToast('Register')
-          setLoader(false)
+          setLoader(false);
+          navigation.navigate('Otp', { mobile: email, navScr: 'register' });
         },
         onError: er => {
           setLoader(false);
-          snackbarHandler.errorToast('Invalid mobile number or Password');
+          snackbarHandler.errorToast('Something went wrong please try again later');
         },
       },)
   }
