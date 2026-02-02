@@ -8,7 +8,7 @@ import { MainStackScreenProps } from '../Navigation/NavigationTypes/screenTypes'
 import CommonTextInput from './commonTextInput';
 type CommonHeaderProps = {
   navigation?: MainStackScreenProps<
-    'HomeTab' | 'Algo' | 'WatchList'
+    'HomeTab' | 'Algo' | 'WatchList' | 'NoData'
   >['navigation'];
 };
 const CommonHeader = (props: CommonHeaderProps) => {
@@ -31,7 +31,13 @@ const CommonHeader = (props: CommonHeaderProps) => {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => props?.navigation?.navigate('Notifications')}
+            onPress={() => props?.navigation?.navigate('NoData', {
+              image: Images.noNoti,
+              heading: 'No Notifications',
+              descText: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's`,
+              redText: 'Notification Inbox Empty',
+              btnLable: 'Go to Dashboard',
+            })}
           >
             <Image
               source={Images.notification}

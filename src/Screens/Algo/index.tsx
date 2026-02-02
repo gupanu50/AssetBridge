@@ -8,6 +8,7 @@ import MyAlgoComponent from '../../ReusableScreenComponents/MyAlgoComponent';
 import AlgoMarketPlaceComponent from '../../ReusableScreenComponents/AlgoMarketPlaceComponent';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
+import NoAlgoData from '../../ReusableScreenComponents/MyAlgoComponent/NoAlgoData';
 type Props = MainStackScreenProps<'Algo' | 'AlgoMain'>;
 const AlgoScreen = ({ navigation }: Props) => {
   const topTabListRef = useRef(null);
@@ -57,7 +58,7 @@ const AlgoScreen = ({ navigation }: Props) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: scaler(30) }}
       >
-        {activeTopTab === 'My Algo' && <MyAlgoComponent navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />}
+        {activeTopTab === 'My Algo' && <NoAlgoData navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />}
         {activeTopTab === 'Market Place' && <AlgoMarketPlaceComponent navigation={navigation as MainStackScreenProps<'AlgoMain'>['navigation']} />}
       </ScrollView>
     </View>

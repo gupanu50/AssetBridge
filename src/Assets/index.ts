@@ -69,5 +69,7 @@ export const Images = {
   trades: require('./Images/trades.png'),
   portfolio: require('./Images/portfolio.png'),
   portfolioCard: require('./Images/portfolioCard.png'),
-  horiLine: require('./Images/horiLine.png')
+  horiLine: require('./Images/horiLine.png'),
+  noAlgoData: require('./Images/noAlgoData.png'),
+  noNoti: require('./Images/noNoti.png'),
 };

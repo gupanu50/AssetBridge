@@ -12,6 +12,8 @@ import IconButton from '../../ReusableComponents/iconButton';
 import useOtpMutation from './Hooks/useOtpMutation';
 import snackbarHandler from '../../Utils/snackbarHandler';
 import useResendMutation from './Hooks/useResendMutation';
+import { useDispatch } from 'react-redux';
+import { login } from '../../Redux/authSlice';
 type Props = MainStackScreenProps<'Otp'>;
 const OtpScreen = ({ navigation, route }: Props) => {
   const mobile = route.params?.mobile;
@@ -19,6 +21,7 @@ const OtpScreen = ({ navigation, route }: Props) => {
   const [input, setInput] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(59);
   const { mutate } = useOtpMutation();
+  const dispatch = useDispatch();
   const { mutate: resendMutation } = useResendMutation();
   const [errorInput, setErrorInput] = useState('');
   // const [canResend, setCanResend] = useState(false);
@@ -79,7 +82,8 @@ const OtpScreen = ({ navigation, route }: Props) => {
     },
       {
         onSuccess: response => {
-          console.log('Response', response)
+          console.log('Response', response?.data?.data)
+          dispatch(login(response?.data?.data))
         },
         onError: er => {
           snackbarHandler.errorToast('Invalid OTP or OTP is expired');

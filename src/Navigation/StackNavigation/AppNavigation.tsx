@@ -19,6 +19,7 @@ import BuySellOrderScreen from '../../Screens/BuySellOrderScreen';
 import ContactUsScreen from '../../Screens/ContactUsScreen';
 import TransactionHistoryScreen from '../../Screens/TransactionHistoryScreen';
 import AlgoMainScreen from '../../Screens/AlgoMainScreen';
+import NoDataFoundComponent from '../../ReusableScreenComponents/NoDataFoundComponent';
 export default function AppNavigation() {
   const Stack = createNativeStackNavigator<MainStackParamList>();
   return (
@@ -54,6 +55,7 @@ export default function AppNavigation() {
             name="AlgoMain"
             component={AlgoMainScreen}
           />
+          <Stack.Screen name="NoData" component={NoDataFoundComponent} />
         </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>

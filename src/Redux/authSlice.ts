@@ -1,7 +1,29 @@
 const initialAuthState = {
   isLogin: false,
   userData: {
-    userId: '',
+    access: '',
+    refresh: '',
+    user: {
+      id: 0,
+      last_login: null,
+      username: '',
+      first_name: '',
+      last_name: '',
+      date_joined: '',
+      created_at: '',
+      updated_at: '',
+      email: null,
+      country_code: +91,
+      contact: '',
+      auth_provider: '',
+      is_active_trader: true,
+      is_verified: true,
+      kyc_status: '',
+      portfolio_balance: '',
+      available_balance: '',
+      invested_amount: '',
+      user_permissions: []
+    }
   },
 };
 

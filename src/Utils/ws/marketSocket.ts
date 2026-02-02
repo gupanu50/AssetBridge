@@ -1,6 +1,5 @@
+import { NEW_WEB_SOCKET_URL } from "../helper";
 import { WsClient, WsState } from "./wsClient";
-
-const WS_URL = "ws://13.201.49.145:8001/price/ws";
 
 type Tick = {
     symbol: string;
@@ -16,15 +15,28 @@ type StateListener = (s: WsState) => void;
 
 const activeSymbols = new Set<string>();
 const tickListeners = new Set<TickListener>();
-const stateListeners = new Set<StateListener>();
+
+let currentState: WsState = "idle";
+const stateListeners = new Set<(s: WsState) => void>();
+
+export function getWsState() {
+    return currentState;
+}
+
 
 export const marketWs = new WsClient({
-    url: WS_URL,
+    url: NEW_WEB_SOCKET_URL,
     onStateChange: (s) => {
+        currentState = s;
         stateListeners.forEach((fn) => fn(s));
         if (s === "open") {
+            console.log("🟢 WebSocket CONNECTED");
             const syms = Array.from(activeSymbols);
             if (syms.length) marketWs.sendJson({ type: "subscribe", symbols: syms });
+        } else if (s === "connecting") {
+            console.log("🟡 WebSocket CONNECTING...");
+        } else {
+            console.log("🔴 WebSocket CLOSED");
         }
     },
     onMessage: (msg) => {
@@ -80,7 +92,7 @@ export function onTick(fn: TickListener) {
     return () => tickListeners.delete(fn);
 }
 
-export function onWsState(fn: StateListener) {
-    stateListeners.add(fn);
-    return () => stateListeners.delete(fn);
+export function onWsState(listener: (s: WsState) => void) {
+    stateListeners.add(listener);
+    return () => stateListeners.delete(listener);
 }

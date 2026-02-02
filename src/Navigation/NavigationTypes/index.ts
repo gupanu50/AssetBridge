@@ -1,3 +1,5 @@
+import { ImageSourcePropType } from "react-native";
+
 export type MainStackParamList = {
   Splash: undefined;
   Onboard: undefined;
@@ -22,6 +24,13 @@ export type MainStackParamList = {
   Statement: undefined;
   PaymentMethod: undefined;
   Portfolio: undefined;
+  NoData: {
+    image: ImageSourcePropType;
+    heading: string;
+    descText: string;
+    redText: string;
+    btnLable: string;
+  };
 };
 export type BottomStackParamList = {
   Home: undefined;

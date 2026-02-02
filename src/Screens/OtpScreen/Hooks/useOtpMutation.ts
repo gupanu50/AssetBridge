@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { fetcher } from '../../../Utils/helper';
 import { apiData } from './type';
 
-const otpLogin = async (data: apiData): Promise<AxiosResponse<apiData>> => {
+const otpLogin = async (data: apiData): Promise<AxiosResponse<any>> => {
     return fetcher
         ({
             url: '/api/v1/accounts/auth/verify-otp/',

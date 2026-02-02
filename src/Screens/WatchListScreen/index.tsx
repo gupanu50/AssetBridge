@@ -14,6 +14,7 @@ import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
 import CommonKababMenu from '../../ReusableComponents/commonKababMenu';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
 import WatchRowItem from './watchRowItem';
+import useWatchlistQuery from './Hooks/useWatchlistQuery';
 type Props = MainStackScreenProps<'WatchList'>;
 type AnchorRect = { x: number; y: number; width: number; height: number };
 const WatchListScreen = ({ navigation }: Props) => {
@@ -21,6 +22,8 @@ const WatchListScreen = ({ navigation }: Props) => {
   const [activeTopTab, setActiveTopTab] = useState('Watchlist');
   const [input, setInput] = useState('');
   const [visible, setVisible] = useState(false);
+  const { data, error } = useWatchlistQuery();
+  console.log('DataWatchlist', error)
   const [anchor, setAnchor] = useState<AnchorRect | null>(null);
   const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
     const isActive = activeTopTab === item.label;
