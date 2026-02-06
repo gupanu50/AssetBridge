@@ -4,10 +4,16 @@ export type TopTab = {
 };
 
 export type WatchRow = {
+  items: any
   id: string;
-  name: string;
-  exch: string;
+  symbol: string;
+  exchange: string;
   price: string;
   change: string;
   isUp: boolean;
+};
+
+export type TopTabApi = {
+  id: string;
+  name: string;
 };

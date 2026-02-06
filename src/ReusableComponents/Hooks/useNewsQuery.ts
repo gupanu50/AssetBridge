@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { fetcher } from '../../Utils/helper';
 
 const getNewsList = async (): Promise<AxiosResponse<any>> => {
@@ -8,8 +8,8 @@ const getNewsList = async (): Promise<AxiosResponse<any>> => {
         method: 'GET',
     });
 };
-
-function useNewsQuery() {
+type NewsQueryOptions = UseQueryOptions<AxiosResponse<any>, Error>;
+function useNewsQuery(options?: NewsQueryOptions) {
     return useQuery({
         queryKey: ['/api/v1/news/',],
         queryFn: () => getNewsList(),

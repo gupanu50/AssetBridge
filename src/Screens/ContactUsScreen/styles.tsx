@@ -8,7 +8,8 @@ export const styles = StyleSheet.create({
         backgroundColor: mainColors.black
     },
     main: {
-        marginHorizontal: scaler(10)
+        marginHorizontal: scaler(10),
+        marginBottom: scaler(45)
     },
     assitText: {
         color: mainColors.white,
@@ -50,7 +51,6 @@ export const styles = StyleSheet.create({
         marginBottom: scaler(5)
     },
     messageContainerStyle: {
-        height: scaler(150),
-        marginBottom: scaler(90)
+        height: scaler(150)
     }
 })

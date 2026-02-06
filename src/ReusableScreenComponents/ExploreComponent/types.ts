@@ -7,3 +7,11 @@ export type MoverData = {
   isUp?: boolean;
   isViewAll?: boolean; // isViewAll is optional, doesn't require other fields
 };
+
+export type MoversApiProps = {
+  symbol: string;
+  current_price: number;
+  absolute_change: number;
+  isViewAll?: boolean;
+  id?: string;
+}

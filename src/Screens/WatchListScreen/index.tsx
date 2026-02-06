@@ -1,12 +1,10 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-import React, { useMemo, useRef, useState } from 'react';
-import { mainColors } from '../../Utils/helper';
+import { FlatList, Image, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import scaler from '../../Utils/scaler';
 import CommonHeader from '../../ReusableComponents/commonHeader';
-import IconButton from '../../ReusableComponents/iconButton';
 import { Images } from '../../Assets';
-import { TopTab, WatchRow } from './type';
+import { TopTab, TopTabApi, WatchRow } from './type';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
@@ -18,120 +16,31 @@ import useWatchlistQuery from './Hooks/useWatchlistQuery';
 type Props = MainStackScreenProps<'WatchList'>;
 type AnchorRect = { x: number; y: number; width: number; height: number };
 const WatchListScreen = ({ navigation }: Props) => {
-  const topTabListRef = useRef<FlatList<TopTab>>(null);
-  const [activeTopTab, setActiveTopTab] = useState('Watchlist');
+  const topTabListRef: any = useRef<FlatList<TopTab>>(null);
   const [input, setInput] = useState('');
   const [visible, setVisible] = useState(false);
-  const { data, error } = useWatchlistQuery();
-  console.log('DataWatchlist', error)
+  const { data } = useWatchlistQuery();
+  console.log('WatchData', data)
+  const [activeTopTab, setActiveTopTab] = useState(null);
+  const watchListApiData = data?.data?.data;
   const [anchor, setAnchor] = useState<AnchorRect | null>(null);
-  const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
-    const isActive = activeTopTab === item.label;
+  useEffect(() => {
+    if (watchListApiData?.length && !activeTopTab) {
+      setActiveTopTab(watchListApiData[0].name);
+    }
+  }, [watchListApiData, activeTopTab]);
+  const renderTopTab = ({ item, index }: { item: TopTabApi; index: number }) => {
+    const isActive = activeTopTab === item.name;
     return (
       <CommonTabSlider
-        activeTab="Watchlist"
+        activeTab={item?.name}
         index={index}
-        label={item?.label}
+        label={item?.name}
         isActive={isActive}
         setIsActive={setActiveTopTab}
       />
     );
   };
-  const topTabs = useMemo(
-    () => [
-      { id: 't1', label: 'Watchlist' },
-      { id: 't2', label: 'WatchList 1' },
-      { id: 't3', label: 'WatchList 2' },
-      // if later you want more tabs, add here (it will remain slidable)
-      // {id:'t4', label:'Watchlist'}
-    ],
-    [],
-  );
-  const watchRows = useMemo(
-    () => [
-      {
-        id: 'w1',
-        name: 'GOLDBEES',
-        exch: 'NFO',
-        price: '106.45',
-        change: '0.82(0.78%)',
-        isUp: true,
-      },
-      {
-        id: 'w2',
-        name: 'HDFCBANK',
-        exch: 'NSE',
-        price: '1000.00',
-        change: '10.80(1.09%)',
-        isUp: true,
-      },
-      {
-        id: 'w3',
-        name: 'HINDUNILVR',
-        exch: 'NFO',
-        price: '2444.40',
-        change: '-33.40(-1.35%)',
-        isUp: false,
-      },
-      {
-        id: 'w4',
-        name: 'NIFTY 25000 CE',
-        exch: 'BSE',
-        price: '1575.40',
-        change: '14.40(0.92%)',
-        isUp: true,
-      },
-      {
-        id: 'w5',
-        name: 'ONGC',
-        exch: 'INDICES',
-        price: '240.03',
-        change: '-3.51(-1.44%)',
-        isUp: false,
-      },
-      {
-        id: 'w6',
-        name: 'TCS',
-        exch: 'NFO',
-        price: '3175.90',
-        change: '41.20(1.31%)',
-        isUp: true,
-      },
-      {
-        id: 'w7',
-        name: 'RELIANCE',
-        exch: 'NFO',
-        price: '359.63',
-        change: '-116.40(-3.35%)',
-        isUp: false,
-      },
-      {
-        id: 'w8',
-        name: 'KOTAKBANK',
-        exch: 'BSE',
-        price: '1575.40',
-        change: '-8.40(-0.97%)',
-        isUp: false,
-      },
-      {
-        id: 'w9',
-        name: 'NIFTY PR LEV',
-        exch: 'INDICES',
-        price: '240.03',
-        change: '-3.51(-1.44%)',
-        isUp: false,
-      },
-      {
-        id: 'w10',
-        name: 'NIFTY 50',
-        exch: 'INDICES',
-        price: '489.65',
-        change: '21.20(1.31%)',
-        isUp: true,
-      },
-    ],
-    [],
-  );
   const openMenuAt = (rect: AnchorRect) => {
     setAnchor(rect);
     setVisible(true);
@@ -140,7 +49,7 @@ const WatchListScreen = ({ navigation }: Props) => {
   const renderWatchRow = ({ item }: { item: WatchRow }) => {
     return (
       <WatchRowItem
-        item={item}
+        item={item?.items[0]}
         onPressRow={() => navigation.navigate('Instrument')}
         onOpenMenu={openMenuAt}
       />
@@ -155,8 +64,8 @@ const WatchListScreen = ({ navigation }: Props) => {
       <View style={styles.topTabsWrap}>
         <FlatList
           ref={topTabListRef}
-          data={topTabs}
-          keyExtractor={item => item.id}
+          data={watchListApiData}
+          keyExtractor={item => item.name}
           renderItem={renderTopTab}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -187,8 +96,8 @@ const WatchListScreen = ({ navigation }: Props) => {
         </View>
         <View style={styles.watchListWrap}>
           <FlatList
-            data={watchRows}
-            keyExtractor={item => item.id}
+            data={watchListApiData}
+            keyExtractor={item => item.items[0].symbol}
             renderItem={renderWatchRow}
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => (

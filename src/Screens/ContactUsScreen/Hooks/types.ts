@@ -1,6 +1,7 @@
 export type apiData = {
-    contact: string;
-    password: string;
+    email: string;
+    subject: string;
+    message: string;
 }
 export type apiResponse = {
     data: {

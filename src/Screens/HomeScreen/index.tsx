@@ -15,7 +15,6 @@ type Props = MainStackScreenProps<'HomeTab'>;
 const HomeScreen = ({ navigation }: Props) => {
   // -------------------- STATE --------------------
   const [activeTopTab, setActiveTopTab] = useState('Explore');
-
   // refs to keep tab visible while sliding
   const topTabListRef: any = useRef(null);
 

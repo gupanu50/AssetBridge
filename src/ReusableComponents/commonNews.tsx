@@ -9,7 +9,7 @@ const CommonNews = (props: NewsItemProps) => {
     <TouchableOpacity activeOpacity={0.85} style={[styles.newsItem]}>
       <View style={styles.newsLeft}>
         <Image source={props.img} resizeMode="contain" style={styles.newsImg} />
-        <Text style={styles.newsTime}>{props.time}</Text>
+        <Text style={styles.newsTime}>{props.published_at}</Text>
       </View>
 
       <View style={styles.newsRight}>

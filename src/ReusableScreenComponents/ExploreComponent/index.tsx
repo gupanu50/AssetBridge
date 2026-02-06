@@ -8,20 +8,23 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Images } from '../../Assets';
 import CommonCard from '../../ReusableComponents/commonCard';
 import {
   NewsItemProps,
-  PropCommonCardTypes,
+  PropCommonCardApiTypes,
 } from '../../ReusableComponents/commonTypes';
-import { fontFamily, mainColors } from '../../Utils/helper';
+import { fontFamily, isMarketOpen, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import CommonNews from '../../ReusableComponents/commonNews';
-import { MoverData } from './types';
+import { MoversApiProps } from './types';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import { Dropdown } from 'react-native-element-dropdown';
+import useTopMoversQuery from '../../Screens/HomeScreen/Hooks/useTopMoversQuery';
+import useTradingBotsQuery from '../../ReusableComponents/Hooks/useTradingBotsQuery';
+import useNewsQuery from '../../ReusableComponents/Hooks/useNewsQuery';
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 type ExploreProps = {
   navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
@@ -30,163 +33,150 @@ export default function ExploreComponent(props: ExploreProps) {
   const CARD_WIDTH = SCREEN_WIDTH - scaler(30);
   const CARD_GAP = scaler(12); // space between cards
   const [activeMoverTab, setActiveMoverTab] = useState('Gainers');
-  const [selectedValue, setSelectedValue] = useState<string | null>('today');
+  const [selectedValue, setSelectedValue] = useState<string>('today');
+  const isMarketHours = isMarketOpen();
   const dropDownData = [
     { label: 'Today', value: 'today' },
     { label: 'Yesterday', value: 'yesterday' },
   ];
-  const [activeIndex, setActiveIndex] = useState('Today');
-  // Top Movers section (keep as-is from previous code)
-  const moversDataGrid = useMemo<MoverData[]>(
-    () => [
-      {
-        id: 'm1',
-        name: 'Company Name He...',
-        price: '₹ 500.00',
-        chg: '+8.00 (0.17%)',
-        logo: Images.comLogo,
-        isUp: true,
-      },
-      {
-        id: 'm2',
-        name: 'Company Name He...',
-        price: '₹ 500.00',
-        logo: Images.comLogo,
-        chg: '+8.00 (0.17%)',
-        isUp: true,
-      },
-      {
-        id: 'm3',
-        name: 'Company Name He...',
-        price: '₹ 500.00',
-        logo: Images.comLogo,
-        chg: '-8.00 (0.17%)',
-        isUp: false,
-      },
-      {
-        id: 'm4',
-        name: 'Company Name He...',
-        price: '₹ 500.00',
-        logo: Images.comLogo,
-        chg: '+8.00 (0.17%)',
-        isUp: true,
-      },
-      {
-        id: 'm5',
-        name: 'Company Name He...',
-        price: '₹ 500.00',
-        logo: Images.comLogo,
-        chg: '+8.00 (0.17%)',
-        isUp: true,
-      },
-      { id: 'm6', isViewAll: true },
-    ],
-    [],
-  );
-  const featureCards = useMemo(
-    () => [
-      {
-        id: 'f1',
-        logo: Images.swiperLogo,
-        name: 'TradeMioon Sensex',
-        sub: 'Buying {DTE 0,1,2,3}',
-        tagLeft: 'Buy',
-        tagRight: 'MOMENT',
-        ltp: '20,000',
-        ltpChange: '+3.1%',
-        intraday: '2.22',
-        intradayChange: '+1.3%',
-        pAndL: '3.11',
-        pAndLChange: '-0.37%',
-        status: 'RUNNING',
-      },
-      // add more cards here (it will automatically become swipe-able)
-      {
-        id: 'f2',
-        logo: Images.swiperLogo,
-        name: 'TradeMioon Nifty',
-        sub: 'Buying {DTE 0,1,2,3}',
-        tagLeft: 'Buy',
-        tagRight: 'MOMENT',
-        ltp: '18,450',
-        ltpChange: '+1.2%',
-        intraday: '1.90',
-        intradayChange: '+0.6%',
-        pAndL: '2.01',
-        pAndLChange: '+0.22%',
-        status: 'RUNNING',
-      },
-      {
-        id: 'f3',
-        logo: Images.swiperLogo,
-        name: 'TradeMioon Bank',
-        sub: 'Buying {DTE 0,1,2,3}',
-        tagLeft: 'Buy',
-        tagRight: 'MOMENT',
-        ltp: '42,110',
-        ltpChange: '-0.4%',
-        intraday: '1.10',
-        intradayChange: '-0.2%',
-        pAndL: '1.55',
-        pAndLChange: '-0.11%',
-        status: 'RUNNING',
-      },
-    ],
-    [], // no dependencies
-  );
-  const renderFeatureCard = (item: PropCommonCardTypes) => {
+  const { data, refetch } = useTopMoversQuery({
+    exchange: 'NSE',
+    limit: '5',
+    time: selectedValue,
+    type: activeMoverTab
+  },
+    {
+      queryKey: ['topMovers', selectedValue, activeMoverTab],
+      refetchInterval: isMarketHours ? 3000 : false,
+    }
+  )
+  const moversApiData: MoversApiProps[] = data?.data?.data?.movers ?? [];
+
+  const moversWithViewAll: MoversApiProps[] = React.useMemo(() => {
+    return [
+      ...moversApiData.map(m => ({ ...m, isViewAll: false })), // normalize
+      { id: "__view_all__", isViewAll: true, symbol: '', current_price: 0, absolute_change: 0 },
+    ];
+  }, [moversApiData]);
+  const { data: tradingData }: any = useTradingBotsQuery({
+    queryKey: ['/api/v1/strategy/bots/'],
+    refetchInterval: isMarketHours ? 3000 : false
+  });
+  const tradingBotData = tradingData?.data?.data;
+  const { data: newsApiData } = useNewsQuery();
+  // console.log('NewsData', newsApiData)
+  const newsData = newsApiData?.data?.results;
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     refetch(); // Manually trigger a refetch of the API data
+  //   }, 15000);
+
+  //   return () => clearInterval(interval); // Clean up the interval on unmount
+  // }, [refetch]);
+  // const featureCards = useMemo(
+  //   () => [
+  //     {
+  //       id: 'f1',
+  //       logo: Images.swiperLogo,
+  //       name: 'TradeMioon Sensex',
+  //       sub: 'Buying {DTE 0,1,2,3}',
+  //       tagLeft: 'Buy',
+  //       tagRight: 'MOMENT',
+  //       ltp: '20,000',
+  //       ltpChange: '+3.1%',
+  //       intraday: '2.22',
+  //       intradayChange: '+1.3%',
+  //       pAndL: '3.11',
+  //       pAndLChange: '-0.37%',
+  //       status: 'RUNNING',
+  //     },
+  //     // add more cards here (it will automatically become swipe-able)
+  //     {
+  //       id: 'f2',
+  //       logo: Images.swiperLogo,
+  //       name: 'TradeMioon Nifty',
+  //       sub: 'Buying {DTE 0,1,2,3}',
+  //       tagLeft: 'Buy',
+  //       tagRight: 'MOMENT',
+  //       ltp: '18,450',
+  //       ltpChange: '+1.2%',
+  //       intraday: '1.90',
+  //       intradayChange: '+0.6%',
+  //       pAndL: '2.01',
+  //       pAndLChange: '+0.22%',
+  //       status: 'RUNNING',
+  //     },
+  //     {
+  //       id: 'f3',
+  //       logo: Images.swiperLogo,
+  //       name: 'TradeMioon Bank',
+  //       sub: 'Buying {DTE 0,1,2,3}',
+  //       tagLeft: 'Buy',
+  //       tagRight: 'MOMENT',
+  //       ltp: '42,110',
+  //       ltpChange: '-0.4%',
+  //       intraday: '1.10',
+  //       intradayChange: '-0.2%',
+  //       pAndL: '1.55',
+  //       pAndLChange: '-0.11%',
+  //       status: 'RUNNING',
+  //     },
+  //   ],
+  //   [], // no dependencies
+  // );
+  const renderFeatureCard = (item: PropCommonCardApiTypes) => {
     return (
       <CommonCard
         logo={item.logo}
         onPress={() => props?.navigation?.navigate('AlgoMain')}
         name={item.name}
-        sub={item.sub}
+        sub={item.description}
         tagLeft={item.tagLeft}
         tagRight={item.tagRight}
-        ltp={item.ltp}
+        ltp={item?.backtest_results?.summary?.net_pnl}
         ltpChange={item.ltpChange}
-        intraday={item.intraday}
+        intraday={item?.backtest_results?.summary?.total_trades}
         intradayChange={item.intradayChange}
-        pAndL={item.pAndL}
+        pAndL={item?.backtest_results?.summary?.max_drawdown}
         pAndLChange={item.pAndLChange}
         status={item.status}
       />
     );
   };
-  const newsData = useMemo(
-    () => [
-      {
-        id: 'n1',
-        time: '10 hours ago',
-        img: Images.news3,
-        title:
-          'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
-      },
-      {
-        id: 'n2',
-        time: '10 hours ago',
-        img: Images.news3,
-        title:
-          'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
-      },
-      {
-        id: 'n3',
-        time: '10 hours ago',
-        img: Images.news3,
-        title:
-          'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
-      },
-      {
-        id: 'n4',
-        time: '10 hours ago',
-        img: Images.news3,
-        title:
-          'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
-      },
-    ],
-    [],
-  );
-  const renderMoverGridCard = ({ item }: { item: MoverData }) => {
+  // const newsData = useMemo(
+  //   () => [
+  //     {
+  //       id: 'n1',
+  //       time: '10 hours ago',
+  //       img: Images.news3,
+  //       title:
+  //         'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
+  //     },
+  //     {
+  //       id: 'n2',
+  //       time: '10 hours ago',
+  //       img: Images.news3,
+  //       title:
+  //         'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
+  //     },
+  //     {
+  //       id: 'n3',
+  //       time: '10 hours ago',
+  //       img: Images.news3,
+  //       title:
+  //         'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
+  //     },
+  //     {
+  //       id: 'n4',
+  //       time: '10 hours ago',
+  //       img: Images.news3,
+  //       title:
+  //         'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
+  //     },
+  //   ],
+  //   [],
+  // );
+  const renderMoverGridCard = ({ item }: { item: MoversApiProps }) => {
     if (item.isViewAll) {
       return (
         <TouchableOpacity
@@ -204,18 +194,18 @@ export default function ExploreComponent(props: ExploreProps) {
     return (
       <TouchableOpacity activeOpacity={0.85} style={styles.moverCard}
         onPress={() => props.navigation?.navigate('Instrument')}>
-        <Image source={item.logo} resizeMode="contain" style={styles.logoImg} />
+        {/* <Image source={item.logo} resizeMode="contain" style={styles.logoImg} /> */}
         <Text style={styles.moverName} numberOfLines={1}>
-          {item.name}
+          {item.symbol}
         </Text>
-        <Text style={styles.moverPrice}>{item.price}</Text>
+        <Text style={styles.moverPrice}>{item.current_price}</Text>
         <Text
           style={[
             styles.moverChg,
-            { color: item.isUp ? mainColors.green : mainColors.red },
+            { color: mainColors.greenText },
           ]}
         >
-          {item.chg}
+          {item.absolute_change}
         </Text>
       </TouchableOpacity>
     );
@@ -224,8 +214,7 @@ export default function ExploreComponent(props: ExploreProps) {
   const renderNewsItem = ({ item }: { item: NewsItemProps }) => {
     return (
       <CommonNews
-        id={item.id}
-        time={item.time}
+        published_at={item.published_at}
         img={item.img}
         title={item.title}
       />
@@ -235,8 +224,8 @@ export default function ExploreComponent(props: ExploreProps) {
     <View style={styles.mainView}>
       {/* -------------------- BIG CARD (UNCHANGED SECTION) -------------------- */}
       <FlatList
-        data={featureCards}
-        keyExtractor={item => item.id}
+        data={tradingBotData}
+        keyExtractor={item => item.name}
         renderItem={({ item }) => renderFeatureCard(item)}
         horizontal
         pagingEnabled
@@ -325,8 +314,8 @@ export default function ExploreComponent(props: ExploreProps) {
 
       <View style={styles.moversGridWrap}>
         <FlatList
-          data={moversDataGrid}
-          keyExtractor={item => item.id ?? 'view_all'}
+          data={moversWithViewAll}
+          keyExtractor={(item, index) => item.id ?? item.symbol ?? String(index)}
           renderItem={renderMoverGridCard}
           numColumns={2}
           columnWrapperStyle={{ justifyContent: 'space-between' }}
@@ -349,7 +338,7 @@ export default function ExploreComponent(props: ExploreProps) {
       <View style={styles.newsCard}>
         <FlatList
           data={newsData}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.title}
           renderItem={renderNewsItem}
           scrollEnabled={false}
           ItemSeparatorComponent={() => <View style={styles.newsSeparator} />}

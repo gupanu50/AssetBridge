@@ -193,14 +193,14 @@ const CommonCard = (props: PropCommonCardTypes) => {
             />
             <Text style={styles.actionText}>Instrument</Text>
           </View>
-          <View style={[styles.actionPill, styles.actionPillGreen]}>
+          <View style={[styles.actionPill, styles.actionPillGreen, { backgroundColor: props?.status === 'active' ? mainColors.swiperPnl : mainColors.warningBg }]}>
             <Image
-              source={Images.swiperRunning}
+              source={props.status === 'active' ? Images.swiperRunning : Images.swiperPaused}
               resizeMode="contain"
               style={styles.inInsRunImg}
             />
             <Text style={styles.runningText}>
-              {props.status}
+              {props.status === 'active' ? 'RUNNING' : 'PAUSED'}
             </Text>
           </View>
         </View>

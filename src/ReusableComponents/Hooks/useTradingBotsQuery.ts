@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { fetcher } from '../../Utils/helper';
 
 const getTradingBotsList = async (): Promise<AxiosResponse<any>> => {
@@ -8,11 +8,12 @@ const getTradingBotsList = async (): Promise<AxiosResponse<any>> => {
         method: 'GET',
     });
 };
-
-function useTradingBotsQuery() {
+type TradingBotsQueryOptions = UseQueryOptions<AxiosResponse<any>, Error>;
+function useTradingBotsQuery(options?: TradingBotsQueryOptions) {
     return useQuery({
-        queryKey: ['/api/v1/strategy/bots/',],
+        queryKey: ['/api/v1/strategy/bots/'],
         queryFn: () => getTradingBotsList(),
+        ...options
     });
 }
 

@@ -1,38 +1,65 @@
 import { NEW_WEB_SOCKET_URL } from "../helper";
 import { WsClient, WsState } from "./wsClient";
 
-type Tick = {
-    symbol: string;
-    current_price?: number;
-    absolute_change?: number;
-    percentage_change?: number;
-    exchange?: string;
-    ts?: number;
+export type SubscriptionType = "contract" | "option_chain";
+
+export type SubscribeItem = {
+    segment: string; // "INDICES" | "NSE" | "NFO-FUT" | "NFO-OPT" etc.
+    symbols: string[];
+    subscription_type: SubscriptionType | string;
 };
 
-type TickListener = (t: Tick) => void;
-type StateListener = (s: WsState) => void;
+export type SubscribePayload = {
+    type: "subscribe";
+    data: SubscribeItem[];
+};
 
-const activeSymbols = new Set<string>();
-const tickListeners = new Set<TickListener>();
+export type UnsubscribePayload = {
+    type: "unsubscribe";
+    data: SubscribeItem[];
+};
+
+type StateListener = (s: WsState) => void;
+type MessageListener = (msg: any) => void;
 
 let currentState: WsState = "idle";
-const stateListeners = new Set<(s: WsState) => void>();
+const stateListeners = new Set<StateListener>();
+const messageListeners = new Set<MessageListener>();
+
+let paused = false;
+
+// last sent subscription (for re-subscribe on reconnect / resume)
+let lastSubscribePayload: SubscribePayload | null = null;
+
+// Cache last data per key (key can be "NIFTY50" or "NSE:FORTIS" etc.)
+const lastByKey: Record<string, any> = {};
 
 export function getWsState() {
     return currentState;
 }
 
+export function getLastByKey(key: string) {
+    return lastByKey[key];
+}
+
+export function getAllLast() {
+    return lastByKey;
+}
 
 export const marketWs = new WsClient({
     url: NEW_WEB_SOCKET_URL,
+    heartbeatMs: 0, // ✅ IMPORTANT: disable ping (your server errors on empty data)
     onStateChange: (s) => {
         currentState = s;
         stateListeners.forEach((fn) => fn(s));
+
         if (s === "open") {
             console.log("🟢 WebSocket CONNECTED");
-            const syms = Array.from(activeSymbols);
-            if (syms.length) marketWs.sendJson({ type: "subscribe", symbols: syms });
+
+            // If market open (not paused) and we had subscription -> resubscribe after reconnect
+            if (!paused && lastSubscribePayload?.data?.length) {
+                marketWs.sendJson(lastSubscribePayload);
+            }
         } else if (s === "connecting") {
             console.log("🟡 WebSocket CONNECTING...");
         } else {
@@ -41,33 +68,20 @@ export const marketWs = new WsClient({
     },
     onMessage: (msg) => {
         if (!msg) return;
-        if (Array.isArray(msg)) msg.forEach((m) => emit(parseTick(m)));
-        else emit(parseTick(msg));
+
+        // ✅ Cache BOTH snapshot + update (Postman shows update)
+        if ((msg?.type === "snapshot" || msg?.type === "update") && msg?.data && typeof msg.data === "object") {
+            Object.entries(msg.data as Record<string, any>).forEach(([k, payload]) => {
+                lastByKey[k] = payload;
+            });
+        }
+
+        // paused => do not push to UI listeners
+        if (paused) return;
+
+        messageListeners.forEach((fn) => fn(msg));
     },
 });
-
-function parseTick(m: any): Tick {
-    const symbol = String(m.symbol ?? m.s ?? "").trim();
-    if (!symbol) return { symbol: "" };
-
-    const price = m.current_price ?? m.ltp ?? m.price ?? m.p;
-    const abs = m.absolute_change ?? m.change ?? m.chg;
-    const pct = m.percentage_change ?? m.changePct ?? m.pct ?? m.pc;
-
-    return {
-        symbol,
-        current_price: price != null ? Number(price) : undefined,
-        absolute_change: abs != null ? Number(abs) : undefined,
-        percentage_change: pct != null ? Number(pct) : undefined,
-        exchange: m.exchange ?? m.ex ?? m.e,
-        ts: Number(m.ts ?? Date.now()),
-    };
-}
-
-function emit(t: Tick) {
-    if (!t.symbol) return;
-    tickListeners.forEach((fn) => fn(t));
-}
 
 export function connectSocketOnce() {
     marketWs.connect();
@@ -77,22 +91,50 @@ export function disconnectSocket() {
     marketWs.close();
 }
 
-export function subscribeSymbols(symbols: string[]) {
-    symbols.forEach((s) => activeSymbols.add(s));
-    marketWs.sendJson({ type: "subscribe", symbols });
+export function subscribe(payload: SubscribePayload) {
+    if (!payload?.data?.length) return;
+
+    // save subscription for reconnect/resume
+    lastSubscribePayload = payload;
+
+    if (paused) return;
+
+    marketWs.sendJson(payload);
 }
 
-export function unsubscribeSymbols(symbols: string[]) {
-    symbols.forEach((s) => activeSymbols.delete(s));
-    marketWs.sendJson({ type: "unsubscribe", symbols });
+export function unsubscribe(payload: UnsubscribePayload) {
+    if (!payload?.data?.length) return;
+    marketWs.sendJson(payload);
 }
 
-export function onTick(fn: TickListener) {
-    tickListeners.add(fn);
-    return () => tickListeners.delete(fn);
+export function pauseMarketFeed() {
+    paused = true;
+    console.log('PausedMarketFeed', paused)
+    // unsubscribe from server stream (socket stays connected)
+    if (lastSubscribePayload?.data?.length) {
+        marketWs.sendJson({ type: "unsubscribe", data: lastSubscribePayload.data });
+    }
 }
 
-export function onWsState(listener: (s: WsState) => void) {
-    stateListeners.add(listener);
-    return () => stateListeners.delete(listener);
+export function resumeMarketFeed() {
+    paused = false;
+    console.log('ResumeMarketFeed', paused)
+    // re-subscribe
+    if (lastSubscribePayload?.data?.length) {
+        marketWs.sendJson(lastSubscribePayload);
+    }
+}
+
+export function onWsMessage(fn: (msg: any) => void) {
+    messageListeners.add(fn);
+    return () => {
+        messageListeners.delete(fn);
+    };
+}
+
+export function onWsState(fn: (s: WsState) => void) {
+    stateListeners.add(fn);
+    return () => {
+        stateListeners.delete(fn);
+    };
 }

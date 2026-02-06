@@ -8,7 +8,7 @@ import {
 import React, { useState } from 'react';
 import { Images } from '../../Assets';
 import scaler from '../../Utils/scaler';
-import { mainColors } from '../../Utils/helper';
+import { getApiErrorMessage, mainColors } from '../../Utils/helper';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import IconButton from '../../ReusableComponents/iconButton';
@@ -54,8 +54,8 @@ const LoginScreen = ({ navigation }: Props) => {
         },
         onError: er => {
           setLoader(false);
-          console.log('ErrorLogin', er)
-          snackbarHandler.errorToast('Invalid mobile number or Password');
+          const msg = getApiErrorMessage(er)
+          snackbarHandler.errorToast(msg);
         },
       },)
   }

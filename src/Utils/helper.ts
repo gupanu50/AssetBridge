@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { Platform } from 'react-native';
 // import {onlineManager} from '@tanstack/react-query';
 // import SnackbarHandler from './SnackbarHandler';
@@ -16,10 +16,26 @@ export const GOOGLE_PLACES_API_BASE_URL =
   'https://maps.googleapis.com/maps/api';
 // ------------------------------------------------------------------------------------
 
+type GenericApiError = {
+  message?: string;
+  detail?: string;
+  errors?: Record<string, string[]>;
+};
+
+export const isMarketOpen = () => {
+  const currentDate = new Date();
+  const marketStart = new Date();
+  const marketEnd = new Date();
+
+  marketStart.setHours(9, 0, 0, 0);
+  marketEnd.setHours(15, 30, 0, 0);
+
+  return currentDate >= marketStart && currentDate <= marketEnd;
+};
+
 export const fetcher = async (config: AxiosRequestConfig) => {
   const { url, method, data, headers, baseURL } = config;
   const token = store.getState().auth?.userData?.access;
-  // const API_URL = 'http://65.0.155.230/';
   return await axios.request({
     baseURL: baseURL ?? NEW_BASE_URL,
     url,
@@ -27,14 +43,33 @@ export const fetcher = async (config: AxiosRequestConfig) => {
     data,
     ...config,
     headers: {
-      // Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${token}` : undefined,
       deviceType: Platform.OS,
       ...config?.headers,
       ...headers,
       'Content-Type': 'application/json',
-      Token: token,
+      // Token: token,
     },
   });
+};
+
+export const getApiErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    const err = error as AxiosError<GenericApiError>;
+    const data = err.response?.data;
+    const fieldMsg = data?.errors
+      ? Object.values(data.errors)?.[0]?.[0]
+      : undefined;
+    return (
+      fieldMsg ||
+      data?.message ||
+      data?.detail ||
+      err.message ||
+      "Something went wrong"
+    );
+  }
+  if (error instanceof Error) return error.message;
+  return "Something went wrong";
 };
 
 export const ConstantStrings = {

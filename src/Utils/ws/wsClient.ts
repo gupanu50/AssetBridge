@@ -2,7 +2,7 @@ export type WsState = "idle" | "connecting" | "open" | "closed";
 
 type WsClientOptions = {
     url: string;
-    heartbeatMs?: number;
+    heartbeatMs?: number; // 0 = disabled
     maxBackoffMs?: number;
     onMessage?: (msg: any) => void;
     onStateChange?: (s: WsState) => void;
@@ -26,7 +26,7 @@ export class WsClient {
 
     constructor(opts: WsClientOptions) {
         this.url = opts.url;
-        this.heartbeatMs = opts.heartbeatMs ?? 15000;
+        this.heartbeatMs = opts.heartbeatMs ?? 0; // ✅ disabled by default (your server errors on ping)
         this.maxBackoffMs = opts.maxBackoffMs ?? 15000;
         this.onMessage = opts.onMessage;
         this.onStateChange = opts.onStateChange;
@@ -51,8 +51,14 @@ export class WsClient {
 
         this.ws.onmessage = (e) => {
             let msg: any = e.data;
-            try { msg = JSON.parse(e.data); } catch { }
+            try {
+                msg = JSON.parse(e.data);
+            } catch { }
             this.onMessage?.(msg);
+        };
+
+        this.ws.onerror = () => {
+            // Some servers fire error then close.
         };
 
         this.ws.onclose = () => {
@@ -98,6 +104,8 @@ export class WsClient {
 
     private startHeartbeat() {
         this.stopHeartbeat();
+        if (!this.heartbeatMs || this.heartbeatMs <= 0) return;
+
         this.heartbeatTimer = setInterval(() => {
             this.sendJson({ type: "ping", ts: Date.now() });
         }, this.heartbeatMs);

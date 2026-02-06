@@ -30,10 +30,10 @@ const WatchRowItem = ({ item, onOpenMenu, onPressRow }: RowProps) => {
         <TouchableOpacity activeOpacity={0.85} style={styles.watchRow} onPress={onPressRow}>
             <View style={styles.watchLeft}>
                 <Text style={styles.watchName} numberOfLines={1}>
-                    {item.name}
+                    {item.symbol}
                 </Text>
                 <Text style={styles.watchExch} numberOfLines={1}>
-                    {item.exch}
+                    {item.exchange}
                 </Text>
             </View>
 
@@ -46,7 +46,7 @@ const WatchRowItem = ({ item, onOpenMenu, onPressRow }: RowProps) => {
                     <Text style={[styles.watchChange, { color: mainColors.white }]} numberOfLines={1}>
                         {item.change}
                     </Text>
-                    <Image source={arrowImg} style={styles.watchArrowImg} resizeMode="contain" />
+                    {/* <Image source={arrowImg} style={styles.watchArrowImg} resizeMode="contain" /> */}
                 </View>
             </View>
 

@@ -11,7 +11,7 @@ import PasswordInfoTooltip from '../../ReusableComponents/signUpToolTip'
 import useRegisterMutation from './Hooks/useRegisterMutation'
 import snackbarHandler from '../../Utils/snackbarHandler'
 import CommonLoader from '../../ReusableComponents/commonLoader'
-import { mainColors } from '../../Utils/helper'
+import { getApiErrorMessage, mainColors } from '../../Utils/helper'
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
 type Props = MainStackScreenProps<'SignUp'>;
 const SignUpScreen = ({ navigation }: Props) => {
@@ -56,7 +56,8 @@ const SignUpScreen = ({ navigation }: Props) => {
         },
         onError: er => {
           setLoader(false);
-          snackbarHandler.errorToast('Something went wrong please try again later');
+          const msg = getApiErrorMessage(er)
+          snackbarHandler.errorToast(msg);
         },
       },)
   }

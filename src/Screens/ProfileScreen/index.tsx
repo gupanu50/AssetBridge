@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     Image,
     ImageSourcePropType,
+    Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -16,8 +17,20 @@ import IconButton from '../../ReusableComponents/iconButton';
 import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+import { logout } from '../../Redux/authSlice';
+import { useDispatch } from 'react-redux';
 type Props = MainStackScreenProps<'Profile'>;
 const ProfileScreen = ({ navigation }: Props) => {
+    const dispatch = useDispatch();
+    const logoutUser = () => {
+        dispatch(logout());
+        navigation.reset({
+            index: 0,
+            routes: [
+                { name: 'Login' }
+            ]
+        })
+    }
     return (
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
             {/* Header */}
@@ -95,7 +108,7 @@ const ProfileScreen = ({ navigation }: Props) => {
             <View style={styles.hr} />
             <MenuItem icon={Images.profileContact} label="Contact Us" onPress={() => navigation.navigate('ContactUs')} />
             <View style={styles.hr} />
-            <MenuItem icon={Images.profileLogout} label="Logout" />
+            <MenuItem icon={Images.profileLogout} label="Logout" onPress={() => logoutUser()} />
             <View style={styles.hr} />
             {/* Refer Card */}
             <View style={styles.referCard}>

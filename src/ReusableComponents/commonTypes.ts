@@ -17,11 +17,32 @@ export type PropCommonCardTypes = {
   status: string;
   onPress?: () => void;
 };
-
+export type PropCommonCardApiTypes = {
+  logo: ImageSourcePropType;
+  name: string;
+  sub: string;
+  tagLeft: string;
+  tagRight: string;
+  ltp: string;
+  ltpChange: string;
+  intraday: string;
+  intradayChange: string;
+  pAndL: string;
+  pAndLChange: string;
+  status: string;
+  onPress?: () => void;
+  description: string;
+  backtest_results: {
+    summary: {
+      net_pnl: string;
+      total_trades: string;
+      max_drawdown: string;
+    }
+  }
+};
 export type NewsItemProps = {
-  id: string;
-  time: string;
-  img: any;
+  published_at: string;
+  img?: ImageSourcePropType;
   title: string;
 };
 
@@ -64,3 +85,17 @@ export type KababProps = {
   setVisible: (value: boolean) => void;
   anchor?: AnchorRect | null;
 }
+
+export type CommonTopBtnSliderProps = {
+  navigation?: MainStackScreenProps<'HomeTab' | 'Algo' | 'WatchList' | 'MarketPlace'>['navigation'];
+}
+
+export type IndexKey = 'NIFTY50' | 'SENSEX' | 'NIFTYBANK';
+
+export type IndexRow = {
+  key: IndexKey;
+  label: string;
+  ltp?: number;
+  absChange?: number;
+  pctChange?: number;
+};
