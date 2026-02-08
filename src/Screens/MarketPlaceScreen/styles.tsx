@@ -255,11 +255,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   subs: {
-    height: scaler(40),
+    height: scaler(50),
     marginVertical: scaler(15),
     marginTop: scaler(25),
     overflow: 'scroll',
-    borderRadius: 12,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -381,9 +381,23 @@ export const styles = StyleSheet.create({
     color: mainColors.mainButton,
     fontSize: scaler(11),
   },
+  flexView1: { flexDirection: 'row' },
   viewMoreIconWrap: {
     marginLeft: scaler(6),
   },
   pnlDemoImg: { height: scaler(390), width: scaler(390), alignSelf: 'center' },
-  tradesDemoImg: { marginTop: scaler(15), height: scaler(280), width: scaler(330), borderRadius: 15, overflow: 'hidden', alignSelf: 'center' }
+  tradesDemoImg: { marginTop: scaler(15), height: scaler(280), width: scaler(330), borderRadius: 15, overflow: 'hidden', alignSelf: 'center' },
+  subsText: {
+    fontFamily: fontFamily.poppinsMedium,
+    fontSize: scaler(14),
+    color: mainColors.white
+  },
+  lineChartView: { height: scaler(200), marginTop: scaler(10) },
+  lineChartView1: { position: "absolute", left: 0, right: 0, top: 0, bottom: 0 },
+  buttonsView: {
+    paddingHorizontal: scaler(10),
+    paddingVertical: scaler(2),
+    borderRadius: 25,
+    marginRight: scaler(20),
+  }
 });

@@ -15,7 +15,7 @@ import {
   NewsItemProps,
   PropCommonCardApiTypes,
 } from '../../ReusableComponents/commonTypes';
-import { fontFamily, isMarketOpen, mainColors } from '../../Utils/helper';
+import { fontFamily, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import CommonNews from '../../ReusableComponents/commonNews';
 import { MoversApiProps } from './types';
@@ -34,7 +34,7 @@ export default function ExploreComponent(props: ExploreProps) {
   const CARD_GAP = scaler(12); // space between cards
   const [activeMoverTab, setActiveMoverTab] = useState('Gainers');
   const [selectedValue, setSelectedValue] = useState<string>('today');
-  const isMarketHours = isMarketOpen();
+  const isMarketHours = isMarketOpenIST();
   const dropDownData = [
     { label: 'Today', value: 'today' },
     { label: 'Yesterday', value: 'yesterday' },
@@ -63,6 +63,7 @@ export default function ExploreComponent(props: ExploreProps) {
     refetchInterval: isMarketHours ? 3000 : false
   });
   const tradingBotData = tradingData?.data?.data;
+  console.log('TradingBotData', tradingBotData)
   const { data: newsApiData } = useNewsQuery();
   // console.log('NewsData', newsApiData)
   const newsData = newsApiData?.data?.results;
@@ -128,7 +129,7 @@ export default function ExploreComponent(props: ExploreProps) {
     return (
       <CommonCard
         logo={item.logo}
-        onPress={() => props?.navigation?.navigate('AlgoMain')}
+        onPress={() => props?.navigation?.navigate('AlgoMain', { item: item })}
         name={item.name}
         sub={item.description}
         tagLeft={item.tagLeft}

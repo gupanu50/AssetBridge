@@ -7,37 +7,7 @@ import {
     subscribe,
     onWsMessage,
 } from "./marketSocket";
-
-/**
- * ✅ IST time safe check (no parsing issues)
- */
-function getISTParts() {
-    const parts = new Intl.DateTimeFormat("en-IN", {
-        timeZone: "Asia/Kolkata",
-        hour12: false,
-        weekday: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-    }).formatToParts(new Date());
-
-    const obj: any = {};
-    for (const p of parts) obj[p.type] = p.value;
-
-    return {
-        weekday: String(obj.weekday), // "Mon", "Tue"...
-        hour: Number(obj.hour),
-        minute: Number(obj.minute),
-    };
-}
-
-// NSE market hours: 09:15 to 15:30 IST (Mon-Fri)
-function isMarketOpenIST(): boolean {
-    const { weekday, hour, minute } = getISTParts();
-    if (weekday === "Sat" || weekday === "Sun") return false;
-
-    const mins = hour * 60 + minute;
-    return mins >= (9 * 60 + 15) && mins <= (15 * 60 + 30);
-}
+import { isMarketOpenIST } from "../helper";
 
 /**
  * ✅ Your required symbols

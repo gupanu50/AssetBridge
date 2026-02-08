@@ -72,4 +72,5 @@ export const Images = {
   horiLine: require('./Images/horiLine.png'),
   noAlgoData: require('./Images/noAlgoData.png'),
   noNoti: require('./Images/noNoti.png'),
+  deactivateBtn: require('./Images/deactivateBtn.png')
 };

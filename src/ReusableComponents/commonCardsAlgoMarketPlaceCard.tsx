@@ -120,7 +120,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
   ];
 
   return (
-    <TouchableOpacity style={styles.featureCardWrapper} onPress={props?.onPress}>
+    <View style={styles.featureCardWrapper}>
       <View style={styles.featureCard}>
         <View style={styles.featureTopRow}>
           <View style={styles.featureLeft}>
@@ -178,7 +178,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
             </TouchableOpacity>
           </View>
           <Text style={styles.monthText}>1M</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={props?.onPress}>
             <Image
               source={Images.swiperView}
               resizeMode="contain"
@@ -316,7 +316,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 

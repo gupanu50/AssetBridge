@@ -2,7 +2,7 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native
 import React, { useEffect, useMemo, useState } from 'react'
 import { fontFamily, mainColors } from '../Utils/helper';
 import scaler from '../Utils/scaler';
-import useCompressQuery from '../Screens/HomeScreen/Hooks/useCompressQuery';
+// import useCompressQuery from '../Screens/HomeScreen/Hooks/useCompressQuery';
 import { getLastByKey, onWsMessage } from '../Utils/ws/marketSocket';
 import { CommonTopBtnSliderProps, IndexKey, IndexRow } from './commonTypes';
 
@@ -42,7 +42,7 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
         if (absText && pctText) return `${absText} (${pctText})`;
         return absText || pctText;
     }
-    const { data } = useCompressQuery();
+    // const { data } = useCompressQuery();
     const [indexRows, setIndexRows] = useState<Record<IndexKey, IndexRow>>(() => {
         // ✅ initial from cache (works even if market closed and ws paused)
         const keys: IndexKey[] = ['NIFTY50', 'SENSEX', 'NIFTYBANK'];

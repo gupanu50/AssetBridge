@@ -1,17 +1,19 @@
 /* eslint-disable react-native/no-inline-styles */
 import {
+  Dimensions,
   FlatList,
   Image,
   ImageBackground,
   ScrollView,
   Switch,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import React, { useMemo, useRef, useState } from 'react';
 import CommonHeader from '../../ReusableComponents/commonHeader';
 import scaler from '../../Utils/scaler';
-import { mainColors } from '../../Utils/helper';
+import { fontFamily, mainColors } from '../../Utils/helper';
 import { Images } from '../../Assets';
 import IconButton from '../../ReusableComponents/iconButton';
 import CommonButton from '../../ReusableComponents/commonButton';
@@ -20,14 +22,50 @@ import { TopTabProps } from '../../ReusableComponents/commonTypes';
 import { styles } from './styles';
 import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+import { LineChart } from 'react-native-wagmi-charts';
 type Props = MainStackScreenProps<'MarketPlace'>;
 const MarketPlaceScreen = ({ navigation }: Props) => {
   const [activeTopTab, setActiveTopTab] = useState('Overview');
   // refs to keep tab visible while sliding
   const topTabListRef: any = useRef(null);
+  type Point = { timestamp: number; value: number };
+  const DAY = 24 * 60 * 60 * 1000;
+
+  const genSeries = (
+    points: number,
+    startValue: number,
+    startTime: number,
+    stepMs: number,
+    volatility: number,
+    drift: number
+  ): Point[] => {
+    let v = startValue;
+    const out: Point[] = [];
+    for (let i = 0; i < points; i++) {
+      const noise = (Math.random() - 0.5) * volatility;
+      v = Math.max(1, v + drift + noise);
+      out.push({ timestamp: startTime + i * stepMs, value: +v.toFixed(2) });
+    }
+    return out;
+  };
   const [aboutExpanded, setAboutExpanded] = useState(true);
   const [disclaimerExpanded, setDisclaimerExpanded] = useState(true);
+  const [range, setRange] = useState<"1M" | "6M" | "1Y" | "3Y" | "5Y" | "ALL">("1M");
+  const { width: SCREEN_WIDTH } = Dimensions.get('window');
+  const buildRangeData = (range: "1M" | "6M" | "1Y" | "3Y" | "5Y" | "ALL") => {
+    // keep points reasonable for mobile performance
+    const pointsMap = { "1M": 30, "6M": 90, "1Y": 120, "3Y": 180, "5Y": 220, "ALL": 260 } as const;
+    const stepMap = { "1M": DAY, "6M": 2 * DAY, "1Y": 3 * DAY, "3Y": 6 * DAY, "5Y": 8 * DAY, "ALL": 11 * DAY } as const;
 
+    const points = pointsMap[range];
+    const stepMs = stepMap[range];
+    const startTime = Date.now() - points * stepMs;
+
+    const prices = genSeries(points, 92, startTime, stepMs, range === "1M" ? 2.2 : 1.6, range === "1M" ? 0.18 : 0.10);
+    const shadow = genSeries(points, 94, startTime, stepMs, 1.1, 0.06); // grey line
+
+    return { prices, shadow };
+  };
   // -------------------- Remaining UI Data --------------------
   const aboutBullets = useMemo(
     () => [
@@ -87,7 +125,7 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
       </View>
     );
   };
-
+  const { prices, shadow } = React.useMemo(() => buildRangeData(range), [range]);
   // -------------------- DATA --------------------
   // Tabs exactly like image (slidable) + counts
   const topTabs = useMemo(
@@ -212,12 +250,53 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
             </View>
           </View>
           <View style={styles.lineView} />
-          <View style={styles.onlyHeight}>
+          {/* <View style={styles.onlyHeight}>
             <Image
               source={Images.tempChart}
               resizeMode="contain"
               style={styles.logoImg}
             />
+          </View> */}
+          <View style={styles.lineChartView}>
+            {/* Shadow line (grey) */}
+            <LineChart.Provider data={shadow}>
+              <LineChart height={scaler(180)} width={SCREEN_WIDTH - scaler(44)}>
+                {/* <LineChart.Dot at={2} /> */}
+                <LineChart.Path color="rgba(255,255,255,0.20)" />
+              </LineChart>
+            </LineChart.Provider>
+
+            {/* Main line (green) + cursor/tooltip */}
+            <View style={styles.lineChartView1}>
+              <LineChart.Provider data={prices}>
+                <LineChart height={scaler(180)} width={SCREEN_WIDTH - scaler(44)}>
+                  {/* optional: gradient fill (if you want greyish feel) */}
+                  <LineChart.Gradient />
+
+                  <LineChart.Path color="rgba(22,199,132,1)" />
+
+                  <LineChart.CursorCrosshair>
+                    <LineChart.Tooltip style={{ backgroundColor: '#262626', borderRadius: 15 }} textStyle={{ color: mainColors.white }} />
+                  </LineChart.CursorCrosshair>
+                </LineChart>
+              </LineChart.Provider>
+            </View>
+            <View style={styles.flexView1}>
+              {(["1M", "6M", "1Y", "3Y", "5Y", "ALL"] as const).map((t) => {
+                const active = range === t;
+                return (
+                  <TouchableOpacity
+                    key={t}
+                    onPress={() => setRange(t)}
+                    style={[styles.buttonsView, { backgroundColor: active ? "#0072BC" : '#1F1F1F', }]}
+                  >
+                    <Text style={{ color: active ? mainColors.white : mainColors.headingTextColor, fontSize: scaler(11), fontFamily: fontFamily.poppinsRegular }}>
+                      {t}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
           <View style={styles.lineView} />
           <Text style={styles.recomText}>Recommended Trade Log Summary</Text>
@@ -247,44 +326,45 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
                 />
               </View>
             </View>
-          </View>
-          <View style={styles.featureStatsRow}>
-            <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Brokerage</Text>
-              <View style={styles.statValueRow}>
-                <Text style={styles.statValue}>{100}</Text>
-                <View style={styles.swiperPnlView}>
-                  <Image
-                    source={Images.marketPlaceEdit}
-                    resizeMode="contain"
-                    style={styles.swiperUpImg}
-                  />
+
+            <View style={styles.featureStatsRow}>
+              <View style={styles.statBox}>
+                <Text style={styles.statLabel}>Brokerage</Text>
+                <View style={styles.statValueRow}>
+                  <Text style={styles.statValue}>{100}</Text>
+                  <View style={styles.swiperPnlView}>
+                    <Image
+                      source={Images.marketPlaceEdit}
+                      resizeMode="contain"
+                      style={styles.swiperUpImg}
+                    />
+                  </View>
                 </View>
               </View>
-            </View>
 
-            <View style={styles.statBox}>
-              <Text style={[styles.statLabel, { paddingLeft: 5 }]}>
-                Taxes & Charges
-              </Text>
-              <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-                <Text style={styles.statValue}>₹100,00,000</Text>
+              <View style={styles.statBox}>
+                <Text style={[styles.statLabel, { paddingLeft: 5 }]}>
+                  Taxes & Charges
+                </Text>
+                <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
+                  <Text style={styles.statValue}>₹100,00,000</Text>
+                </View>
               </View>
-            </View>
 
-            <View
-              style={[
-                styles.statBox,
-                {
-                  borderRightWidth: 0,
-                },
-              ]}
-            >
-              <Text style={[styles.statLabel, { paddingLeft: 5 }]}>
-                Slippage
-              </Text>
-              <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-                <Text style={styles.statValue}>30%</Text>
+              <View
+                style={[
+                  styles.statBox,
+                  {
+                    borderRightWidth: 0,
+                  },
+                ]}
+              >
+                <Text style={[styles.statLabel, { paddingLeft: 5 }]}>
+                  Slippage
+                </Text>
+                <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
+                  <Text style={styles.statValue}>30%</Text>
+                </View>
               </View>
             </View>
           </View>
@@ -310,7 +390,7 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
             </View>
           </View>
           <ImageBackground source={Images.subscribeBg} style={styles.subs}>
-            <Text>Subscribe</Text>
+            <Text style={styles.subsText}>SUBSCRIBE</Text>
           </ImageBackground>
           <View style={styles.topTabsWrap}>
             <FlatList

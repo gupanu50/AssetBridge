@@ -63,7 +63,7 @@ const MyAlgoComponent = ({ navigation }: MyAlgoProps) => {
       <View style={styles.commonCardView}>
         <CommonCard
           logo={item.logo}
-          onPress={() => navigation?.navigate('AlgoMain')}
+          onPress={() => navigation?.navigate('AlgoMain', { item: item })}
           name={item.name}
           sub={item.sub}
           tagLeft={item.tagLeft}

@@ -22,16 +22,36 @@ type GenericApiError = {
   errors?: Record<string, string[]>;
 };
 
-export const isMarketOpen = () => {
-  const currentDate = new Date();
-  const marketStart = new Date();
-  const marketEnd = new Date();
+/**
+ * ✅ IST time safe check (no parsing issues)
+ */
+function getISTParts() {
+  const parts = new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    hour12: false,
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).formatToParts(new Date());
 
-  marketStart.setHours(9, 0, 0, 0);
-  marketEnd.setHours(15, 30, 0, 0);
+  const obj: any = {};
+  for (const p of parts) obj[p.type] = p.value;
 
-  return currentDate >= marketStart && currentDate <= marketEnd;
-};
+  return {
+    weekday: String(obj.weekday), // "Mon", "Tue"...
+    hour: Number(obj.hour),
+    minute: Number(obj.minute),
+  };
+}
+
+// NSE market hours: 09:15 to 15:30 IST (Mon-Fri)
+export function isMarketOpenIST(): boolean {
+  const { weekday, hour, minute } = getISTParts();
+  if (weekday === "Sat" || weekday === "Sun") return false;
+
+  const mins = hour * 60 + minute;
+  return mins >= (9 * 60 + 15) && mins <= (15 * 60 + 30);
+}
 
 export const fetcher = async (config: AxiosRequestConfig) => {
   const { url, method, data, headers, baseURL } = config;

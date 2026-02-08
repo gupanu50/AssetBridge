@@ -18,7 +18,7 @@ export type MainStackParamList = {
   BuySellOrder: undefined;
   ContactUs: undefined;
   TransactionHistory: undefined;
-  AlgoMain: undefined;
+  AlgoMain: { item: any };
   Profile: undefined;
   ProfileSettings: undefined;
   Statement: undefined;
