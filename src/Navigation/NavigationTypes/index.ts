@@ -9,7 +9,7 @@ export type MainStackParamList = {
   Otp: { mobile?: string, navScr?: string };
   Forget: undefined;
   Algo: undefined;
-  Instrument: undefined;
+  Instrument: any;
   OptionsChain: undefined;
   MarketPlace: undefined;
   SignUp: undefined;

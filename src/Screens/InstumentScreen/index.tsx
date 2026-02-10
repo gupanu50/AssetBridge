@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useMemo, useRef, useState } from 'react';
-import { mainColors } from '../../Utils/helper';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { isMarketOpenIST, mainColors } from '../../Utils/helper';
 import CommonBackHeader from '../../ReusableComponents/commonBackHeader';
 import { Images } from '../../Assets';
 import scaler from '../../Utils/scaler';
@@ -21,11 +21,34 @@ import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsCl
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import { CandlestickChart } from "react-native-wagmi-charts";
+import { getLastByKey, onWsMessage } from '../../Utils/ws/marketSocket';
+import { computeChange, formatChange, formatNumber, lastPart } from '../../Utils/ws/commonWebSocketFunctions';
+import useTopMoversPercentageQuery from '../HomeScreen/Hooks/useTopMoversPercentQuery';
 type Props = MainStackScreenProps<'Instrument'>;
-const InstumentScreen = ({ navigation }: Props) => {
+const InstumentScreen = ({ navigation, route }: Props) => {
   const [selectedLabel, setSelectedLabel] = useState<string>('1D');
+  console.log('InstrumentRoute', route?.params)
+  const paramItem = route?.params?.item;
   const topTabListRef: any = useRef(null);
+  const isMarketHours = isMarketOpenIST();
   const [activeTopTab, setActiveTopTab] = useState('Opened Positions');
+  let moversDetails;
+  if (paramItem?.segment) {
+    const { data: moversPercentageData } = useTopMoversPercentageQuery({
+      exchange: 'NSE',
+      name: paramItem?.symbol
+    },
+      {
+        queryKey: ['/price/market/move', 'NSE', paramItem?.symbol],
+        refetchInterval: isMarketHours ? 3000 : false,
+      }
+    )
+    const moverPercentageDataDetails = moversPercentageData?.data?.data
+    console.log('InstrumentScreen', moverPercentageDataDetails);
+    moversDetails = React.useMemo(() => {
+      return moverPercentageDataDetails
+    }, [moverPercentageDataDetails]);
+  }
   const W = Dimensions.get("window").width;
   const candleData120 = [
     { timestamp: 1706706600000, open: 945.00, high: 946.80, low: 943.90, close: 946.20 },
@@ -70,8 +93,75 @@ const InstumentScreen = ({ navigation }: Props) => {
     { timestamp: 1706708880000, open: 949.30, high: 950.20, low: 948.10, close: 949.80 },
     { timestamp: 1706708940000, open: 949.80, high: 951.50, low: 949.50, close: 951.10 },
   ];
+  function normalizeWsSymbol(raw: any): string {
+    const s = String(raw ?? "").trim().toUpperCase();
 
+    if (s === "NIFTY 50" || s === "NIFTY50") return "NIFTY50";
+    if (s === "NIFTY BANK" || s === "NIFTYBANK") return "NIFTYBANK";
+    if (s === "SENSEX") return "SENSEX";
 
+    // generic fallback: remove spaces
+    return s.replace(/\s+/g, "");
+  }
+  const rawSymbol =
+    route?.params?.symbol ??
+    route?.params?.item?.wsSymbol ??
+    route?.params?.item?.symbol;
+  const symbol = normalizeWsSymbol(rawSymbol);
+
+  const [live, setLive] = useState(() => {
+    const payload =
+      getLastByKey(`INDICES:${symbol}`) ||
+      getLastByKey(symbol); // snapshot cache key
+
+    const { ltp, abs, pct } = computeChange(payload);
+    return { ltp, abs, pct };
+  });
+
+  useEffect(() => {
+    if (!symbol) return;
+
+    const off = onWsMessage((msg) => {
+      if (msg?.type !== "snapshot" && msg?.type !== "update") return;
+      if (!msg?.data || typeof msg.data !== "object") return;
+
+      let payload: any;
+
+      if (msg.type === "snapshot") {
+        payload = msg.data?.[symbol]; // { NIFTY50: {...} }
+      } else {
+        // { "INDICES:NIFTY50": {...} }
+        for (const [k, v] of Object.entries(msg.data)) {
+          if (lastPart(k) === symbol) {
+            payload = v;
+            break;
+          }
+        }
+      }
+
+      // fallback: match by payload.symbol
+      if (!payload) {
+        for (const v of Object.values(msg.data)) {
+          const sym = String((v as any)?.symbol ?? "").toUpperCase();
+          if (sym === symbol) {
+            payload = v;
+            break;
+          }
+        }
+      }
+
+      if (!payload) return;
+
+      const { ltp, abs, pct } = computeChange(payload);
+      setLive((prev) =>
+        prev.ltp === ltp && prev.abs === abs && prev.pct === pct
+          ? prev
+          : { ltp, abs, pct }
+      );
+    });
+
+    return () => off();
+  }, [symbol]);
   // const filteredData = useMemo(() => {
   //   const q = searchText.trim().toLowerCase();
   //   if (!q) return flatData;
@@ -92,17 +182,17 @@ const InstumentScreen = ({ navigation }: Props) => {
     ],
     [],
   );
-  const onPressTopTab = (label: string, index: number) => {
-    setActiveTopTab(label);
-    // keep active tab visible while sliding
-    try {
-      topTabListRef.current?.scrollToIndex({
-        index,
-        animated: true,
-        viewPosition: 0.5,
-      });
-    } catch (e) { }
-  };
+  // const onPressTopTab = (label: string, index: number) => {
+  //   setActiveTopTab(label);
+  //   // keep active tab visible while sliding
+  //   try {
+  //     topTabListRef.current?.scrollToIndex({
+  //       index,
+  //       animated: true,
+  //       viewPosition: 0.5,
+  //     });
+  //   } catch (e) { }
+  // };
   // -------------------- RENDERERS --------------------
   const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
     const isActive = activeTopTab === item.label;
@@ -152,9 +242,9 @@ const InstumentScreen = ({ navigation }: Props) => {
               style={styles.logoImg}
             />
             <View style={[styles.innerFlexView, styles.onlyWidth]}>
-              <Text style={styles.headingText}>HDFC</Text>
+              <Text style={styles.headingText}>{paramItem?.symbol}</Text>
               <View style={styles.flexView}>
-                <Text style={styles.subHeadingText}>HDFC</Text>
+                <Text style={styles.subHeadingText}>{paramItem?.symbol}</Text>
                 <Text style={[styles.subHeadingText, styles.innerFlexView]}>
                   NSE
                 </Text>
@@ -187,10 +277,15 @@ const InstumentScreen = ({ navigation }: Props) => {
           </View>
           <View style={[styles.flexView, styles.onlyMarginVertical]}>
             <View>
-              <Text style={styles.amountHeading}>{'\u20B9'}945.00</Text>
-              <Text style={styles.amountPosLosHeading}>
-                20,000(10%) <Text style={styles.innerText}>1D</Text>
-              </Text>
+              <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? moversDetails?.current_price : formatNumber(live.ltp, 2)}</Text>
+              {paramItem?.segment ?
+                <Text style={styles.amountPosLosHeading}>
+                  {moversDetails?.absolute_change}({moversDetails?.percentage_change}%) <Text style={styles.innerText}>1D</Text>
+                </Text> :
+                <Text style={styles.amountPosLosHeading}>
+                  {formatChange(live.abs, live.pct)} <Text style={styles.innerText}>1D</Text>
+                </Text>
+              }
             </View>
             <View style={styles.eCommerceView}>
               <Text style={[styles.subHeadingText, styles.onlyFontSize]}>

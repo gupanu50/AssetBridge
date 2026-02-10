@@ -9,10 +9,11 @@ import CommonButton from '../../ReusableComponents/commonButton'
 import { styles } from './styles'
 import useChangePasswordMutation from './Hooks/useChangePassword'
 import snackbarHandler from '../../Utils/snackbarHandler'
-
-const ChangePasswordScreen = () => {
-    const [secureText, setSecureText] = useState(false);
-    const [secureText1, setSecureText1] = useState(false);
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
+type Props = MainStackScreenProps<'ChangePassword'>;
+const ChangePasswordScreen = ({ navigation }: Props) => {
+    const [secureText, setSecureText] = useState(true);
+    const [secureText1, setSecureText1] = useState(true);
     const [password, setPassword] = useState('');
     const { mutate } = useChangePasswordMutation();
     const [password1, setPassword1] = useState('');
@@ -36,8 +37,14 @@ const ChangePasswordScreen = () => {
         },
             {
                 onSuccess: response => {
-                    snackbarHandler.successToast('Register')
-                    setLoader(false)
+                    snackbarHandler.successToast(response.data?.data?.message)
+                    setLoader(false);
+                    navigation.reset({
+                        index: 0,
+                        routes: [{
+                            name: 'Login'
+                        }]
+                    })
                 },
                 onError: er => {
                     setLoader(false);

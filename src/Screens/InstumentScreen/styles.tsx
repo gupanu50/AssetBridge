@@ -38,9 +38,7 @@ export const styles = StyleSheet.create({
     alignSelf: 'center'
   },
   innerFlexView1: {
-    position: 'absolute',
     alignSelf: 'center',
-    left: scaler(60),
   },
   onlyWidth: {
     width: scaler(240),

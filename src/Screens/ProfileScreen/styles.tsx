@@ -77,7 +77,7 @@ export const styles = StyleSheet.create({
     balanceTopRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-between'
     },
     balanceLabel: {
         color: mainColors.headingTextColor,
@@ -88,7 +88,6 @@ export const styles = StyleSheet.create({
         color: mainColors.white,
         fontFamily: fontFamily.poppinsSemiBold,
         fontSize: scaler(18),
-        marginTop: scaler(10),
     },
     balanceBtnRow: {
         flexDirection: 'row',

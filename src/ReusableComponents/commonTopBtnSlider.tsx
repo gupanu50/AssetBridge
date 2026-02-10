@@ -5,43 +5,9 @@ import scaler from '../Utils/scaler';
 // import useCompressQuery from '../Screens/HomeScreen/Hooks/useCompressQuery';
 import { getLastByKey, onWsMessage } from '../Utils/ws/marketSocket';
 import { CommonTopBtnSliderProps, IndexKey, IndexRow } from './commonTypes';
+import { computeChange, formatChange, formatNumber, lastPart } from '../Utils/ws/commonWebSocketFunctions';
 
 const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
-    function toNum(v: any): number | undefined {
-        const n = Number(v);
-        return Number.isFinite(n) ? n : undefined;
-    }
-
-    function computeChange(payload: any): { ltp?: number; abs?: number; pct?: number } {
-        if (!payload) return {};
-
-        const ltp = toNum(payload.ltp ?? payload.current_price ?? payload.price);
-        const close = toNum(payload.close);
-
-        // If server already sends change / pct use it, else compute from close
-        const abs =
-            toNum(payload.absolute_change ?? payload.change ?? payload.chg) ??
-            (ltp != null && close != null ? ltp - close : undefined);
-
-        const pct =
-            toNum(payload.percentage_change ?? payload.changePct ?? payload.pct ?? payload.pc) ??
-            (abs != null && close != null && close !== 0 ? (abs / close) * 100 : undefined);
-
-        return { ltp, abs, pct };
-    }
-
-    function formatNumber(n?: number, decimals = 2) {
-        if (n == null) return '--';
-        return n.toFixed(decimals);
-    }
-
-    function formatChange(abs?: number, pct?: number) {
-        if (abs == null && pct == null) return '--';
-        const absText = abs == null ? '' : `${abs >= 0 ? '+' : ''}${abs.toFixed(2)}`;
-        const pctText = pct == null ? '' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
-        if (absText && pctText) return `${absText} (${pctText})`;
-        return absText || pctText;
-    }
     // const { data } = useCompressQuery();
     const [indexRows, setIndexRows] = useState<Record<IndexKey, IndexRow>>(() => {
         // ✅ initial from cache (works even if market closed and ws paused)
@@ -65,12 +31,6 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
 
     useEffect(() => {
         const WANT: IndexKey[] = ["NIFTY50", "SENSEX", "NIFTYBANK"];
-
-        const lastPart = (k: string) => {
-            // "INDICES:NIFTY50" -> "NIFTY50"
-            const parts = String(k || "").split(":");
-            return (parts[parts.length - 1] || "").trim();
-        };
 
         const off = onWsMessage((msg) => {
             if (msg?.type !== "snapshot" && msg?.type !== "update") return;
@@ -128,9 +88,9 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
             const color = isUp ? mainColors.green : mainColors.red;
 
             return {
-                label: row?.label ?? k,
-                value: formatNumber(row?.ltp, 2),
-                percent: formatChange(abs, pct),
+                symbol: row?.label ?? k,
+                current_price: formatNumber(row?.ltp, 2),
+                percentage_change: formatChange(abs, pct),
                 color,
             };
         });
@@ -140,13 +100,13 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
             <FlatList
                 horizontal
                 data={horidata}
-                keyExtractor={(item, index) => item.label + index}
+                keyExtractor={(item, index) => item.symbol + index}
                 renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.innerBoxView} onPress={() => navigation?.navigate('Instrument')}>
-                        <Text style={styles.textNifty}>{item.label}</Text>
+                    <TouchableOpacity style={styles.innerBoxView} onPress={() => navigation?.navigate('Instrument', { item: item })}>
+                        <Text style={styles.textNifty}>{item.symbol}</Text>
                         <Text style={styles.textNiftyValue}>
-                            {item.value}{'  '}
-                            <Text style={{ color: item.color }}>{item.percent}</Text>
+                            {item.current_price}{'  '}
+                            <Text style={{ color: item.color }}>{item.percentage_change}</Text>
                         </Text>
                     </TouchableOpacity>
                 )}

@@ -10,6 +10,7 @@ import ExploreComponent from '../../ReusableScreenComponents/ExploreComponent';
 import PositionsOpenComponent from '../../ReusableScreenComponents/PositionsOpenComponent';
 import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsClosedComponent';
 import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
+import NotificationsModal from '../NotificationScreen';
 
 type Props = MainStackScreenProps<'HomeTab'>;
 const HomeScreen = ({ navigation }: Props) => {
@@ -43,10 +44,16 @@ const HomeScreen = ({ navigation }: Props) => {
   };
 
   // Top Movers grid cards (kept)
-
+  const [showNoti, setShowNoti] = useState(false);
   return (
     <View style={styles.container}>
-      <CommonHeader navigation={navigation} />
+      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} />
+      <NotificationsModal
+        visible={showNoti}
+        onClose={() => setShowNoti(!showNoti)}
+        topOffset={scaler(80)}          // tweak: header height + margin
+        arrowRightOffset={scaler(35)}   // tweak: align under bell icon
+      />
       <CommonTopBtnSlider navigation={navigation} />
 
       {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}

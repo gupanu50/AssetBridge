@@ -3,25 +3,30 @@ import React, { useState } from 'react';
 import scaler from '../Utils/scaler';
 import { Images } from '../Assets';
 import { mainColors } from '../Utils/helper';
-import IconButton from './iconButton';
-import { MainStackScreenProps } from '../Navigation/NavigationTypes/screenTypes';
 import CommonTextInput from './commonTextInput';
 type CommonHeaderProps = {
-  navigation?: MainStackScreenProps<
-    'HomeTab' | 'Algo' | 'WatchList' | 'NoData'
-  >['navigation'];
+  onPressBell?: () => void; // ✅ add this
 };
 const CommonHeader = (props: CommonHeaderProps) => {
   const [showSearch, setShowSearch] = useState(false);
   const [value, setValue] = useState('');
   return (
     <View>
-      <View style={styles.container}>
+      <View style={[styles.container, { justifyContent: showSearch ? 'center' : 'space-between' }]}>
         <Image
           source={Images.singleLogo}
           style={styles.logo}
           resizeMode="contain"
         />
+        {showSearch && (
+          <CommonTextInput
+            value={value}
+            setValue={setValue}
+            placeholder="Search here"
+            containerStyle={styles.containerStyle}
+            style={styles.input}
+          />
+        )}
         <View style={styles.innerView}>
           <TouchableOpacity onPress={() => setShowSearch(!showSearch)}>
             <Image
@@ -31,13 +36,13 @@ const CommonHeader = (props: CommonHeaderProps) => {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => props?.navigation?.navigate('NoData', {
-              image: Images.noNoti,
-              heading: 'No Notifications',
-              descText: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's`,
-              redText: 'Notification Inbox Empty',
-              btnLable: 'Go to Dashboard',
-            })}
+            onPress={() => {
+              // ✅ open modal if provided, else fallback to your old screen
+              if (props.onPressBell) {
+                props.onPressBell();
+                return;
+              }
+            }}
           >
             <Image
               source={Images.notification}
@@ -47,15 +52,6 @@ const CommonHeader = (props: CommonHeaderProps) => {
           </TouchableOpacity>
         </View>
       </View>
-      {showSearch && (
-        <CommonTextInput
-          value={value}
-          setValue={setValue}
-          placeholder="Search here"
-          containerStyle={styles.containerStyle}
-          style={styles.input}
-        />
-      )}
     </View>
   );
 };
@@ -90,13 +86,15 @@ const styles = StyleSheet.create({
   notiLogo: {
     height: scaler(25),
     width: scaler(25),
-    marginLeft: scaler(10),
+    marginLeft: scaler(8),
   },
   containerStyle: {
     marginHorizontal: scaler(10),
-    marginBottom: scaler(10)
+    height: scaler(30),
+    borderWidth: 0,
   },
   input: {
-    width: '98%'
+    height: '130%',
+    width: '70%',
   },
 });

@@ -11,7 +11,12 @@ const SplashScreen = ({ navigation }: Props) => {
   const isLogin = useSelector(selectIsLogin);
   useEffect(() => {
     setTimeout(() => {
-      navigation.navigate(isLogin ? 'HomeTab' : 'Onboard');
+      navigation.reset({
+        index: 0,
+        routes: [{
+          name: isLogin ? 'HomeTab' : 'Onboard'
+        }]
+      })
     }, 3000);
   }, []);
   return (

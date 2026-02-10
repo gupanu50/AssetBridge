@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { fetcher } from '../../../Utils/helper';
 import { apiData } from './types';
 
-const changePasswordUser = async (data: apiData): Promise<AxiosResponse<apiData>> => {
+const changePasswordUser = async (data: apiData): Promise<AxiosResponse<any>> => {
     return fetcher
         ({
             url: '/api/v1/accounts/user/change-forgot-password/',

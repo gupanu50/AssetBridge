@@ -47,7 +47,7 @@ const OtpScreen = ({ navigation, route }: Props) => {
       index: 0,
       routes: [
         {
-          name: nav === 'register' ? 'Login' : nav === 'forgot_password' ? 'Forget' : 'HomeTab',
+          name: nav === 'register' ? 'Login' : nav === 'forgot_password' ? 'ChangePassword' : 'HomeTab',
         },
       ],
     });
@@ -82,7 +82,6 @@ const OtpScreen = ({ navigation, route }: Props) => {
     },
       {
         onSuccess: response => {
-          console.log('Response', response?.data?.data)
           dispatch(login(response?.data?.data))
         },
         onError: er => {

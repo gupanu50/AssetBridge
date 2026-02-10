@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { NoDataProps } from './types'
 import CommonHeader from '../../ReusableComponents/commonHeader'
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
@@ -7,11 +7,19 @@ import scaler from '../../Utils/scaler'
 import { fontFamily, mainColors } from '../../Utils/helper'
 import CommonButton from '../../ReusableComponents/commonButton'
 import { Images } from '../../Assets'
+import NotificationsModal from '../../Screens/NotificationScreen'
 type Props = MainStackScreenProps<'NoData'>;
-const NoDataFoundComponent = ({ navigation, route }: Props) => {
+const NoDataFoundComponent = ({ route }: Props) => {
+    const [showNoti, setShowNoti] = useState(false);
     return (
         <View style={styles.container}>
-            <CommonHeader navigation={navigation} />
+            <CommonHeader onPressBell={() => setShowNoti(!showNoti)} />
+            <NotificationsModal
+                visible={showNoti}
+                onClose={() => setShowNoti(!showNoti)}
+                topOffset={scaler(80)}          // tweak: header height + margin
+                arrowRightOffset={scaler(35)}   // tweak: align under bell icon
+            />
             <Image source={route?.params?.image} resizeMode='contain' style={styles.img} />
             <Text style={styles.head}>{route?.params?.heading}</Text>
             <Text style={styles.desc}>{route?.params?.descText}</Text>

@@ -39,7 +39,7 @@ export default function ExploreComponent(props: ExploreProps) {
     { label: 'Today', value: 'today' },
     { label: 'Yesterday', value: 'yesterday' },
   ];
-  const { data, refetch } = useTopMoversQuery({
+  const { data } = useTopMoversQuery({
     exchange: 'NSE',
     limit: '5',
     time: selectedValue,
@@ -63,7 +63,6 @@ export default function ExploreComponent(props: ExploreProps) {
     refetchInterval: isMarketHours ? 3000 : false
   });
   const tradingBotData = tradingData?.data?.data;
-  console.log('TradingBotData', tradingBotData)
   const { data: newsApiData } = useNewsQuery();
   // console.log('NewsData', newsApiData)
   const newsData = newsApiData?.data?.results;
@@ -194,7 +193,7 @@ export default function ExploreComponent(props: ExploreProps) {
 
     return (
       <TouchableOpacity activeOpacity={0.85} style={styles.moverCard}
-        onPress={() => props.navigation?.navigate('Instrument')}>
+        onPress={() => props.navigation?.navigate('Instrument', { item: item })}>
         {/* <Image source={item.logo} resizeMode="contain" style={styles.logoImg} /> */}
         <Text style={styles.moverName} numberOfLines={1}>
           {item.symbol}

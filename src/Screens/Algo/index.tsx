@@ -9,10 +9,12 @@ import AlgoMarketPlaceComponent from '../../ReusableScreenComponents/AlgoMarketP
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
 import NoAlgoData from '../../ReusableScreenComponents/MyAlgoComponent/NoAlgoData';
+import NotificationsModal from '../NotificationScreen';
 type Props = MainStackScreenProps<'Algo' | 'AlgoMain'>;
 const AlgoScreen = ({ navigation }: Props) => {
   const topTabListRef = useRef(null);
   const [activeTopTab, setActiveTopTab] = useState('My Algo');
+  const [showNoti, setShowNoti] = useState(false);
   // -------------------- DATA --------------------
   // Tabs exactly like image (slidable) + counts
   const topTabs = useMemo(
@@ -39,7 +41,13 @@ const AlgoScreen = ({ navigation }: Props) => {
   };
   return (
     <View style={styles.container}>
-      <CommonHeader navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />
+      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} />
+      <NotificationsModal
+        visible={showNoti}
+        onClose={() => setShowNoti(!showNoti)}
+        topOffset={scaler(80)}          // tweak: header height + margin
+        arrowRightOffset={scaler(35)}   // tweak: align under bell icon
+      />
       <CommonTopBtnSlider navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />
       {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}
       <View style={styles.topTabsWrap}>

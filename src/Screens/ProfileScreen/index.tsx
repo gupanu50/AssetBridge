@@ -64,35 +64,13 @@ const ProfileScreen = ({ navigation }: Props) => {
                 style={styles.balanceCard}
             >
                 <View style={styles.balanceTopRow}>
-                    <Text style={styles.balanceLabel}>Trading Balance</Text>
+                    <View>
+                        <Text style={styles.balanceLabel}>Trading Balance</Text>
+                        <Text style={styles.balanceValue}>₹ 36,23,005,69</Text>
+                    </View>
                     <Ionicons name="chevron-forward" size={scaler(18)} color={mainColors.white} />
                 </View>
-
-                <Text style={styles.balanceValue}>₹ 36,23,005,69</Text>
-
-                <View style={styles.balanceBtnRow}>
-                    <TouchableOpacity activeOpacity={0.9} style={styles.btnOutline}>
-                        <Text style={styles.btnOutlineText}>Withdraw</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity activeOpacity={0.9} style={styles.btnSolid}>
-                        <Text style={styles.btnSolidText}>Add Funds</Text>
-                    </TouchableOpacity>
-                </View>
             </LinearGradient>
-
-            {/* Console */}
-            <Text style={styles.sectionTitle}>Console</Text>
-
-            <View style={styles.chipsWrap}>
-                <Chip label="Gilt Stocks" />
-                <Chip label="Tradebook" />
-                <Chip label="Download" />
-                <Chip label="Portfolio" />
-                <Chip label="Family" />
-                <Chip label="P&L" />
-                <Chip label="Tax P&L" />
-            </View>
 
             {/* Divider */}
             <View style={[styles.hr, { marginTop: scaler(20) }]} />

@@ -23,6 +23,7 @@ import { styles } from './styles';
 import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import { LineChart } from 'react-native-wagmi-charts';
+import NotificationsModal from '../NotificationScreen';
 type Props = MainStackScreenProps<'MarketPlace'>;
 const MarketPlaceScreen = ({ navigation }: Props) => {
   const [activeTopTab, setActiveTopTab] = useState('Overview');
@@ -52,6 +53,7 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
   const [disclaimerExpanded, setDisclaimerExpanded] = useState(true);
   const [range, setRange] = useState<"1M" | "6M" | "1Y" | "3Y" | "5Y" | "ALL">("1M");
   const { width: SCREEN_WIDTH } = Dimensions.get('window');
+  const [showNoti, setShowNoti] = useState(false);
   const buildRangeData = (range: "1M" | "6M" | "1Y" | "3Y" | "5Y" | "ALL") => {
     // keep points reasonable for mobile performance
     const pointsMap = { "1M": 30, "6M": 90, "1Y": 120, "3Y": 180, "5Y": 220, "ALL": 260 } as const;
@@ -158,8 +160,13 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   return (
     <View style={styles.container}>
-      <CommonHeader />
-
+      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} />
+      <NotificationsModal
+        visible={showNoti}
+        onClose={() => setShowNoti(!showNoti)}
+        topOffset={scaler(80)}          // tweak: header height + margin
+        arrowRightOffset={scaler(35)}   // tweak: align under bell icon
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: scaler(30) }}

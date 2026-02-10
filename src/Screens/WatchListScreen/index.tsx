@@ -13,6 +13,7 @@ import CommonKababMenu from '../../ReusableComponents/commonKababMenu';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
 import WatchRowItem from './watchRowItem';
 import useWatchlistQuery from './Hooks/useWatchlistQuery';
+import NotificationsModal from '../NotificationScreen';
 type Props = MainStackScreenProps<'WatchList'>;
 type AnchorRect = { x: number; y: number; width: number; height: number };
 const WatchListScreen = ({ navigation }: Props) => {
@@ -24,6 +25,7 @@ const WatchListScreen = ({ navigation }: Props) => {
   const [activeTopTab, setActiveTopTab] = useState(null);
   const watchListApiData = data?.data?.data;
   const [anchor, setAnchor] = useState<AnchorRect | null>(null);
+  const [showNoti, setShowNoti] = useState(false);
   useEffect(() => {
     if (watchListApiData?.length && !activeTopTab) {
       setActiveTopTab(watchListApiData[0].name);
@@ -50,14 +52,20 @@ const WatchListScreen = ({ navigation }: Props) => {
     return (
       <WatchRowItem
         item={item?.items[0]}
-        onPressRow={() => navigation.navigate('Instrument')}
+        onPressRow={() => navigation.navigate('Instrument', { item: item?.items[0] })}
         onOpenMenu={openMenuAt}
       />
     );
   };
   return (
     <View style={styles.container}>
-      <CommonHeader navigation={navigation} />
+      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} />
+      <NotificationsModal
+        visible={showNoti}
+        onClose={() => setShowNoti(!showNoti)}
+        topOffset={scaler(80)}          // tweak: header height + margin
+        arrowRightOffset={scaler(35)}   // tweak: align under bell icon
+      />
       <View style={styles.mainView}>
         <CommonTopBtnSlider navigation={navigation} />
       </View>
