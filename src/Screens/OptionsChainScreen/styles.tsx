@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
 
   headerRow: {
     flexDirection: 'row',
-    backgroundColor: mainColors.inputBorder,
+    backgroundColor: '#101010',
     alignItems: 'center',
     paddingHorizontal: PAD_H,
     height: scaler(30),
@@ -81,7 +81,7 @@ export const styles = StyleSheet.create({
 
   moneyText: {
     color: mainColors.white,
-    fontSize: scaler(13),
+    fontSize: scaler(12),
     fontFamily: fontFamily.poppinsRegular,
   },
   pctText: {

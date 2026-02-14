@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     Image,
     ImageSourcePropType,
-    Alert,
+    Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -19,6 +19,7 @@ import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import { logout } from '../../Redux/authSlice';
 import { useDispatch } from 'react-redux';
+import useProfileQuery from './Hooks/useProfileQuery';
 type Props = MainStackScreenProps<'Profile'>;
 const ProfileScreen = ({ navigation }: Props) => {
     const dispatch = useDispatch();
@@ -30,7 +31,12 @@ const ProfileScreen = ({ navigation }: Props) => {
                 { name: 'Login' }
             ]
         })
-    }
+    };
+    const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+    const { data } = useProfileQuery();
+    const profileData = data?.data?.data[0]
+    console.log('ProfileData', profileData)
+    const [showTooltip, setShowTooltip] = useState(false);
     return (
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
             {/* Header */}
@@ -46,14 +52,71 @@ const ProfileScreen = ({ navigation }: Props) => {
                 </View>
 
                 <View style={styles.headerMid}>
-                    <Text style={styles.headerId}>AB12345</Text>
-                    <Text style={styles.headerName}>David John Smith</Text>
-                    <Text style={styles.headerPhone}>+1-212-555-0132</Text>
+                    <Text style={styles.headerId}>{profileData?.username}</Text>
+                    <Text style={styles.headerName}>{`${profileData?.first_name} ${profileData?.last_name}`}</Text>
+                    <Text style={styles.headerPhone}>{`${profileData?.contact}`}</Text>
                 </View>
 
-                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn}>
-                    <Image source={Images.profileBadge} resizeMode='contain' style={styles.imgView} />
+                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => setShowTooltip(true)}>
+                    <Image source={Images.profileBadge} resizeMode='contain' style={styles.imgView} tintColor={profileData?.broker_auth?.color} />
                 </TouchableOpacity>
+                {showTooltip && <Modal
+                    visible={showTooltip}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setShowTooltip(false)}
+                >
+                    {/* Backdrop (click outside to close) */}
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => setShowTooltip(false)}>
+                        {/* Stop closing when clicking tooltip itself */}
+                        <TouchableOpacity
+                            onPress={() => { }}
+                            style={[
+                                {
+                                    position: 'absolute',
+                                    maxWidth: scaler(220),
+                                    paddingVertical: scaler(10),
+                                    paddingHorizontal: scaler(12),
+                                    borderRadius: scaler(10),
+                                    backgroundColor: mainColors.black,
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(255,255,255,0.12)',
+                                },
+                                tooltipPos
+                                    ? {
+                                        // show below the badge (you can adjust offsets)
+                                        top: tooltipPos.y + tooltipPos.h + scaler(8),
+                                        left: Math.max(scaler(12), tooltipPos.x - scaler(160)),
+                                    }
+                                    : { top: scaler(90), right: scaler(12) },
+                            ]}
+                        >
+                            <Text style={{ color: mainColors.white, fontSize: scaler(12), lineHeight: scaler(16) }}>
+                                {profileData?.broker_auth?.message}
+                            </Text>
+
+                            {/* Optional: small arrow */}
+                            {tooltipPos && (
+                                <View
+                                    style={{
+                                        position: 'absolute',
+                                        top: -scaler(6),
+                                        left: scaler(170),
+                                        width: 0,
+                                        height: 0,
+                                        borderLeftWidth: scaler(6),
+                                        borderRightWidth: scaler(6),
+                                        borderBottomWidth: scaler(6),
+                                        borderLeftColor: 'transparent',
+                                        borderRightColor: 'transparent',
+                                        borderBottomColor: '#0B2230',
+                                    }}
+                                />
+                            )}
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                </Modal>
+                }
             </View>
 
             {/* Trading Balance Card */}
@@ -66,7 +129,7 @@ const ProfileScreen = ({ navigation }: Props) => {
                 <View style={styles.balanceTopRow}>
                     <View>
                         <Text style={styles.balanceLabel}>Trading Balance</Text>
-                        <Text style={styles.balanceValue}>₹ 36,23,005,69</Text>
+                        <Text style={styles.balanceValue}>₹ {profileData?.portfolio_balance}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={scaler(18)} color={mainColors.white} />
                 </View>
@@ -76,13 +139,11 @@ const ProfileScreen = ({ navigation }: Props) => {
             <View style={[styles.hr, { marginTop: scaler(20) }]} />
 
             {/* Menu */}
-            <MenuItem icon={Images.tabProfile} label="Profile Settings" onPress={() => navigation.navigate('ProfileSettings')} />
+            <MenuItem icon={Images.tabProfile} label="Profile Settings" onPress={() => navigation.navigate('ProfileSettings', { profileData: profileData })} />
             <View style={styles.hr} />
             <MenuItem icon={Images.profilePayment} label="Payment Methods" onPress={() => navigation.navigate('PaymentMethod')} />
             <View style={styles.hr} />
             <MenuItem icon={Images.profileHistory} label="Transaction History" onPress={() => navigation.navigate('TransactionHistory')} />
-            <View style={styles.hr} />
-            <MenuItem icon={Images.profileStatement} label="Statement (Ledger)" onPress={() => navigation.navigate('Statement')} />
             <View style={styles.hr} />
             <MenuItem icon={Images.profileContact} label="Contact Us" onPress={() => navigation.navigate('ContactUs')} />
             <View style={styles.hr} />

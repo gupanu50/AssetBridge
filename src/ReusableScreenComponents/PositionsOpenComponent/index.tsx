@@ -1,47 +1,117 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
-import { mainColors } from '../../Utils/helper';
+import React, { useEffect, useMemo, useState } from 'react';
+import { isMarketOpenIST, mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
 import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
 import scaler from '../../Utils/scaler';
-import { FlatItem, PositionOpenProps } from './types';
+import { FlatItem } from './types';
 import { Images } from '../../Assets';
+import usePostionsOpenQuery from './Hooks/usePostionsOpenQuery';
+import moment from 'moment';
+import { getLastByKey, onWsMessage, pauseMarketFeed, registerSubscription, resumeMarketFeed, SubscribePayload, unregisterSubscription } from '../../Utils/ws/marketSocket';
+import { buildWsKey, mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
+import { computeChange } from '../../Utils/ws/commonWebSocketFunctions';
+import CommonTextInput from '../../ReusableComponents/commonTextInput';
 
-const PositionsOpenComponent = (props: PositionOpenProps) => {
-  const [isChecked, setIsChecked] = useState(false);
+const PositionsOpenComponent = () => {
+  const { data } = usePostionsOpenQuery();
+  const flatData = data?.data?.data?.results;
+  console.log('dataOpenPostions', flatData);
+  const ORDER_OWNER_ID = "openPostions";
+  const [tick, setTick] = useState(0);
+  const [input, setInput] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const wsPayload: SubscribePayload | null = useMemo(() => {
+    if (!Array.isArray(flatData) || !flatData.length) return null;
 
-  const flatData = [
-    {
-      id: 1,
-      name: 'NIFTY 25000 CE',
-      exchange: 'NFO',
-      bs: 'Long',
-      DateTime: '04APR25',
-      Qty: '50',
-      LTP: '245.55',
-      Product: 'CNC',
-      Status: 'Filled',
-      Price: '245.00',
-      Source: 'Manual',
-    },
-    {
-      id: 2,
-      name: 'Lorem Ipsum',
-      exchange: 'NSE',
-      bs: 'Short',
-      DateTime: '05APR25',
-      Qty: '50',
-      LTP: '2450.55',
-      Product: 'CNC',
-      Status: 'Pending',
-      Price: '2450.00',
-      Source: 'Automated',
-    },
-  ];
+    // seg__type -> symbols set
+    const bucket = new Map<string, { segment: string; subscription_type: string; symbols: Set<string> }>();
+
+    for (const order of flatData) {
+      const seg = String(order?.segment || "NSE").trim();
+      const sym = String(order?.symbol || "").trim();
+      const wsSeg = mapApiToWsSegment(order?.segment, order?.exchange); // Map API segment to WS segment
+
+      if (!seg || !sym) continue;
+
+      const typ = "contract";
+      const key = `${wsSeg}__${typ}`;
+
+      if (!bucket.has(key)) {
+        bucket.set(key, { segment: wsSeg, subscription_type: typ, symbols: new Set() });
+      }
+      bucket.get(key)!.symbols.add(sym);
+    }
+
+    const dataArr = Array.from(bucket.values()).map((b) => ({
+      segment: b.segment,
+      subscription_type: b.subscription_type,
+      symbols: Array.from(b.symbols),
+    }));
+    if (!dataArr.length) return null;
+    return { type: "subscribe", data: dataArr };
+  }, [flatData]);
+
+  useEffect(() => {
+    if (!wsPayload) return;
+
+    // Register this subscription for orders
+    registerSubscription(ORDER_OWNER_ID, wsPayload);
+
+    // Market closed: fetch once (snapshot)
+    if (!isMarketOpenIST()) {
+      resumeMarketFeed();
+
+      const needed = new Set<string>();
+      wsPayload.data.forEach(it => {
+        const seg = String(it.segment).toUpperCase();
+        it.symbols.forEach(sym => needed.add(`${seg}:${String(sym).toUpperCase()}`));
+      });
+
+      const got = new Set<string>();
+      let timeoutId: any;
+
+      const off = onWsMessage((msg) => {
+        if (msg?.type !== "snapshot" && msg?.type !== "update") return;
+        if (!msg?.data || typeof msg.data !== "object") return;
+
+        Object.keys(msg.data).forEach(k => {
+          const kk = String(k).toUpperCase();
+          if (needed.has(kk)) got.add(kk);
+        });
+
+        const done = Array.from(needed).every(k => got.has(k));
+        if (done) {
+          pauseMarketFeed();     // stop streaming again
+          off();
+          clearTimeout(timeoutId);
+        }
+      });
+
+      timeoutId = setTimeout(() => {
+        pauseMarketFeed();
+        off();
+      }, 4000);
+    }
+
+    return () => {
+      unregisterSubscription(ORDER_OWNER_ID);
+    };
+  }, [wsPayload]);
+
+  // Handle updates and snapshots from WebSocket
+  useEffect(() => {
+    const off = onWsMessage((msg) => {
+      if (msg?.type !== "snapshot" && msg?.type !== "update") return;
+      if (!msg?.data || typeof msg.data !== "object") return;
+      setTick((t) => t + 1); // Trigger re-render when the data changes
+    });
+
+    return () => off();
+  }, []);
   const toggleRow = (id: number) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -51,26 +121,38 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
     });
   };
 
-  const isAllSelected =
-    flatData.length > 0 && selectedIds.size === flatData.length;
+  const isAllSelected = useMemo(() => {
+    return flatData?.length > 0 && selectedIds.size === flatData.length;
+  }, [selectedIds, flatData]);
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(flatData.map(x => x.id)));
+      setSelectedIds(new Set(flatData.map((x: any) => x.id)));
     }
   };
+  const filteredOrderData = useMemo(() => {
+    if (!input.trim()) {
+      return flatData; // If input is empty, return all orders
+    }
+    return flatData?.filter((order: any) =>
+      order.symbol.toLowerCase().includes(input.toLowerCase()) ||
+      order.symbol.toLowerCase().includes(input.toLowerCase())
+    );
+  }, [input, flatData]);
   const renderCardData = ({ item }: { item: FlatItem }) => {
     const checked = selectedIds.has(item.id);
-    setIsChecked(checked);
     const statusColor =
       item.Status?.toLowerCase() === 'filled'
         ? mainColors.green
         : item.Status?.toLowerCase() === 'pending'
           ? '#F5A524' // orange-ish like screenshot
           : mainColors.descText;
-
+    const wsSeg = mapApiToWsSegment('NSE', item.exchange);
+    const cacheKey = buildWsKey(wsSeg, item.symbol);
+    const payload = getLastByKey(cacheKey); // Retrieve cached data from WebSocket
+    const { ltp } = computeChange(payload);
     return (
       <View style={styles.orderCard}>
         {/* Top row: checkbox + Name + Exchange badge */}
@@ -82,13 +164,14 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
           >
             <IconButton
               vectorType="MaterialCommunityIcons"
+              onPress={() => toggleRow(item.id)}
               name={checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
               backgroundColor={mainColors.black}
-              color={isChecked ? mainColors.mainButton : mainColors.transactionTime}
+              color={checked ? mainColors.mainButton : mainColors.transactionTime}
             />
           </TouchableOpacity>
 
-          <Text style={styles.cardTitle}>{item.name}</Text>
+          <Text style={styles.cardTitle}>{item.symbol}</Text>
 
           <View style={styles.exchangeBadge}>
             <Text style={styles.exchangeBadgeText}>{item.exchange}</Text>
@@ -100,7 +183,7 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
 
         {/* Buy/Sell + DateTime */}
         <View style={styles.cardSubRow}>
-          <Text style={styles.dateText}>{item.DateTime}</Text>
+          <Text style={styles.dateText}>{moment(item.entry_time).format('DDMMMYY')}</Text>
         </View>
 
         {/* Two columns like screenshot */}
@@ -109,18 +192,18 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
           <View style={styles.cardCol}>
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Qty </Text>
-              <Text style={styles.kValue}>: {item.Qty}</Text>
+              <Text style={styles.kValue}>: {item.quantity}</Text>
             </View>
 
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Entry price Avg </Text>
-              <Text style={styles.kValue}>: {item.LTP}</Text>
+              <Text style={styles.kValue}>: {item.entry_price}</Text>
             </View>
 
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Product</Text>
               <View style={styles.pill}>
-                <Text style={styles.pillText}>{item.Product}</Text>
+                <Text style={styles.pillText}>{item.product_type}</Text>
               </View>
             </View>
           </View>
@@ -136,7 +219,7 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
 
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>LTP </Text>
-              <Text style={styles.kValue}>: {item.Price}</Text>
+              <Text style={styles.kValue}>: {ltp}</Text>
             </View>
 
             <View style={styles.kvRow}>
@@ -146,7 +229,7 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
                   styles.pillDirection,
                   {
                     backgroundColor:
-                      item.bs === 'Long'
+                      item.direction === 'long'
                         ? mainColors.swiperBgPnl
                         : mainColors.swiperMaxDDbg,
                   },
@@ -157,13 +240,13 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
                     styles.pillDirectionText,
                     {
                       color:
-                        item.bs === 'Long'
+                        item.direction === 'long'
                           ? mainColors.swiperPnl
                           : mainColors.swiperMaxDD,
                     },
                   ]}
                 >
-                  {item.bs}
+                  {item.direction}
                 </Text>
               </View>
             </View>
@@ -177,14 +260,20 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
       <View style={[styles.flexView, styles.lineView]}>
         <IconButton
           vectorType="MaterialCommunityIcons"
-          name={isChecked ? 'checkbox-marked' : 'checkbox-blank-outline'}
+          name={isAllSelected ? 'checkbox-marked' : 'checkbox-blank-outline'}
           backgroundColor={mainColors.black}
-          color={isChecked ? mainColors.mainButton : mainColors.transactionTime}
+          color={isAllSelected ? mainColors.mainButton : mainColors.transactionTime}
           onPress={() => toggleSelectAll()}
         />
         <Text style={styles.selectText}>Select All</Text>
         <View style={styles.searchBox}>
-          <Text style={styles.searchText}>Search</Text>
+          <CommonTextInput
+            value={input}
+            setValue={setInput}
+            placeholder='Search'
+            containerStyle={{ height: scaler(38), width: scaler(65), borderWidth: 0 }}
+            style={{ fontSize: scaler(11) }}
+          />
           <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
         </View>
         <IconButton
@@ -195,7 +284,7 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
         />
       </View>
       <FlatList
-        data={flatData}
+        data={filteredOrderData}
         renderItem={renderCardData}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
@@ -208,29 +297,13 @@ const PositionsOpenComponent = (props: PositionOpenProps) => {
           { marginBottom: scaler(10), alignItems: 'center' },
         ]}
       >
-        <View style={styles.exitView}>
+        {isAllSelected ? <View style={styles.exitView}>
           <Text style={styles.exitText}>Exit 2 Positions</Text>
-        </View>
+        </View> : <View style={{ width: scaler(100) }} />}
         <Text style={styles.totalText}>Total</Text>
         <Text style={styles.totalValueText}>12,58,593.00</Text>
       </View>
       <View style={styles.itemSeperator} />
-      {props?.isShow && <View style={styles.buttonFlexView}>
-        <CommonButton
-          label="Buy"
-          onPress={() => props?.nav?.navigate('BuySellOrder')}
-          backgroundColor={mainColors.black}
-          textColor={mainColors.greenText}
-          extraStyle={[styles.buttonWidth, { borderColor: mainColors.greenText }]}
-        />
-        <CommonButton
-          label="Sell"
-          backgroundColor={mainColors.black}
-          textColor={mainColors.redText}
-          onPress={() => props?.nav?.navigate('BuySellOrder')}
-          extraStyle={[styles.buttonWidth, { borderColor: mainColors.redText }]}
-        />
-      </View>}
     </View>
   );
 };

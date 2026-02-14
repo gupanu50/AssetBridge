@@ -1,5 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import {
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -13,7 +14,8 @@ import {
 import React, { useMemo, useRef, useState } from 'react';
 import CommonHeader from '../../ReusableComponents/commonHeader';
 import scaler from '../../Utils/scaler';
-import { fontFamily, mainColors } from '../../Utils/helper';
+import moment from 'moment';
+import { fontFamily, getApiErrorMessage, mainColors } from '../../Utils/helper';
 import { Images } from '../../Assets';
 import IconButton from '../../ReusableComponents/iconButton';
 import CommonButton from '../../ReusableComponents/commonButton';
@@ -24,14 +26,37 @@ import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import { LineChart } from 'react-native-wagmi-charts';
 import NotificationsModal from '../NotificationScreen';
+import MarketPlaceOverviewComponent from '../../ReusableScreenComponents/MarketPlaceOverviewComponent';
+import MarketPlaceTradesComponent from '../../ReusableScreenComponents/MarketPlaceTradesComponent';
+import MarketPlacePnlCalendarComponent from '../../ReusableScreenComponents/MarketPlacePnLCalendarComponent';
+import RiskDisclosureScreen from '../../ReusableComponents/riskDisclosureModal';
+import useSubscriptionMutation from './Hooks/useSubscribeMutation';
+import snackbarHandler from '../../Utils/snackbarHandler';
 type Props = MainStackScreenProps<'MarketPlace'>;
-const MarketPlaceScreen = ({ navigation }: Props) => {
+const MarketPlaceScreen = ({ navigation, route }: Props) => {
   const [activeTopTab, setActiveTopTab] = useState('Overview');
   // refs to keep tab visible while sliding
   const topTabListRef: any = useRef(null);
+  const { mutate: subscribeMutate } = useSubscriptionMutation();
+  const subs = () => {
+    subscribeMutate({
+      id: route?.params?.cardData?.bot_id,
+      type: 'start'
+    },
+      {
+        onSuccess: (response: any) => {
+          snackbarHandler.successToast(response?.data?.message);
+        },
+        onError: er => {
+          const msg = getApiErrorMessage(er)
+          snackbarHandler.errorToast(msg);
+        },
+      },)
+  }
+  console.log('MarketPlaceRouteParams', route?.params?.cardData)
   type Point = { timestamp: number; value: number };
   const DAY = 24 * 60 * 60 * 1000;
-
+  const cardData = route?.params?.cardData;
   const genSeries = (
     points: number,
     startValue: number,
@@ -49,8 +74,7 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
     }
     return out;
   };
-  const [aboutExpanded, setAboutExpanded] = useState(true);
-  const [disclaimerExpanded, setDisclaimerExpanded] = useState(true);
+
   const [range, setRange] = useState<"1M" | "6M" | "1Y" | "3Y" | "5Y" | "ALL">("1M");
   const { width: SCREEN_WIDTH } = Dimensions.get('window');
   const [showNoti, setShowNoti] = useState(false);
@@ -69,64 +93,7 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
     return { prices, shadow };
   };
   // -------------------- Remaining UI Data --------------------
-  const aboutBullets = useMemo(
-    () => [
-      'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-      "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type",
-      'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-      'It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum',
-    ],
-    [],
-  );
 
-  const disclaimerBullets = useMemo(
-    () => [
-      'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-      "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type",
-      'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-      'It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum',
-    ],
-    [],
-  );
-
-  const renderBulletList = (items: string[], expanded: boolean) => {
-    const list = expanded ? items : items.slice(0, 2);
-    return (
-      <View style={{ marginTop: scaler(10) }}>
-        {list.map((t, idx) => (
-          <View key={`${idx}`} style={styles.bulletRow}>
-            <Text style={styles.bulletDot}>{'\u2022'}</Text>
-            <Text style={styles.bulletText}>{t}</Text>
-          </View>
-        ))}
-      </View>
-    );
-  };
-
-  const renderViewLessMore = (
-    expanded: boolean,
-    onPress: () => void,
-    labelExpanded = 'View Less',
-    labelCollapsed = 'View More',
-  ) => {
-    return (
-      <View style={styles.viewMoreRow}>
-        <Text onPress={onPress} style={styles.viewMoreText}>
-          {expanded ? labelExpanded : labelCollapsed}
-        </Text>
-
-        <View style={styles.viewMoreIconWrap}>
-          <IconButton
-            vectorType="MaterialCommunityIcons"
-            name={expanded ? 'chevron-up' : 'chevron-down'}
-            color={mainColors.mainButton}
-            backgroundColor={mainColors.black}
-            onPress={onPress}
-          />
-        </View>
-      </View>
-    );
-  };
   const { prices, shadow } = React.useMemo(() => buildRangeData(range), [range]);
   // -------------------- DATA --------------------
   // Tabs exactly like image (slidable) + counts
@@ -156,11 +123,12 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
       />
     );
   };
+  const [showRiskModal, setShowRiskModal] = useState(false)
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
   return (
     <View style={styles.container}>
-      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} />
+      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} navigation={navigation} />
       <NotificationsModal
         visible={showNoti}
         onClose={() => setShowNoti(!showNoti)}
@@ -185,20 +153,20 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
           </View>
           <View>
             <Text style={styles.headingText}>
-              TradeMilaan Sensex Buying DTE 0, 1, 2, 3,4,5...
+              {cardData?.name}
             </Text>
-            <Text style={styles.subHeadingText}>By Deviprasad Panathila</Text>
+            <Text style={styles.subHeadingText}>{cardData.description}</Text>
           </View>
         </View>
         <View style={styles.mainView}>
           <View style={styles.lineView} />
           <View style={[styles.publishedView, { marginTop: scaler(10) }]}>
             <Text style={styles.headingPubText}>Published on {'  '}</Text>
-            <Text style={styles.subHeadingPubText}>:{'  '} 14 Nov, 2025</Text>
+            <Text style={styles.subHeadingPubText}>:{'  '} {moment(cardData?.backtest_results?.summary?.start_date).format('DD MMM, YYYY')}</Text>
           </View>
           <View style={[styles.publishedView, { marginTop: scaler(10) }]}>
             <Text style={styles.headingPubText}>Margin {'             '}</Text>
-            <Text style={styles.subHeadingPubText}>:{'  '} 100000</Text>
+            <Text style={styles.subHeadingPubText}>:{'  '} {cardData?.minimum_capital_required}</Text>
           </View>
           <View style={[styles.publishedView, { marginTop: scaler(10) }]}>
             <Text style={styles.headingPubText}>Activate on {'     '}</Text>
@@ -396,9 +364,11 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
               />
             </View>
           </View>
-          <ImageBackground source={Images.subscribeBg} style={styles.subs}>
-            <Text style={styles.subsText}>SUBSCRIBE</Text>
-          </ImageBackground>
+          <TouchableOpacity onPress={() => setShowRiskModal(true)}>
+            <ImageBackground source={Images.subscribeBg} style={styles.subs}>
+              <Text style={styles.subsText}>SUBSCRIBE</Text>
+            </ImageBackground>
+          </TouchableOpacity>
           <View style={styles.topTabsWrap}>
             <FlatList
               ref={topTabListRef}
@@ -412,131 +382,17 @@ const MarketPlaceScreen = ({ navigation }: Props) => {
             />
           </View>
           {/* -------------------- Remaining UI (Overview Section) -------------------- */}
-          {activeTopTab === 'Overview' ? (
-            <>
-              {/* Summary Card */}
-              <View style={styles.summaryCard}>
-                {/* Row 1 */}
-                <View style={styles.summaryRow}>
-                  <View style={styles.summaryCol}>
-                    <Text style={styles.summaryLabel}>Overall PnL</Text>
-                    <Text
-                      style={[styles.summaryValue, { color: mainColors.green }]}
-                    >
-                      ₹ 1,00,000
-                    </Text>
-                  </View>
-
-                  <View style={styles.summaryCol}>
-                    <Text style={styles.summaryLabel}>Overall PnL</Text>
-                    <Text
-                      style={[styles.summaryValue, { color: mainColors.red }]}
-                    >
-                      ₹ -32,000
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Win/Loss bar */}
-                <View style={styles.winLossRow}>
-                  <View style={styles.summaryWinLossCol}>
-                    <Text style={styles.summaryWinLossLabel}>Win</Text>
-                    <Text style={styles.summarySmallValue}>₹ 1,00,000</Text>
-                  </View>
-
-                  <View style={styles.summaryWinLossCol}>
-                    <Text style={styles.summaryWinLossLabel}>Loss</Text>
-                    <Text style={styles.summarySmallValue}>23%</Text>
-                  </View>
-                </View>
-
-                <View style={styles.progressTrack}>
-                  <View style={styles.progressFill} />
-                </View>
-
-                <View style={styles.summaryDivider} />
-
-                {/* Row 2 */}
-                <View style={styles.summaryRow}>
-                  <View style={styles.summaryCol}>
-                    <Text style={styles.summaryLabel}>Total Trades</Text>
-                    <Text style={styles.summaryValuePlain}>150</Text>
-                  </View>
-
-                  <View style={styles.summaryCol}>
-                    <Text style={styles.summaryLabel}>Average PnL / Trade</Text>
-                    <Text style={styles.summaryValuePlain}>₹ 18,000</Text>
-                  </View>
-                </View>
-
-                <View style={styles.summaryDivider} />
-
-                {/* Row 3 */}
-                <View style={styles.summaryRow}>
-                  <View style={styles.summaryCol}>
-                    <Text style={styles.summaryLabel}>
-                      Reward to Risk Ratio
-                    </Text>
-                    <Text style={styles.summaryValuePlain}>2.30</Text>
-                  </View>
-
-                  <View style={styles.summaryCol}>
-                    <Text style={styles.summaryLabel}>Expectancy Ratio</Text>
-                    <Text style={styles.summaryValuePlain}>0.99</Text>
-                  </View>
-                </View>
-
-                <View style={styles.summaryDivider} />
-
-                {/* Row 4 */}
-                <View style={styles.summaryRow}>
-                  <View style={styles.summaryCol}>
-                    <Text style={[styles.summaryLabel, { color: mainColors.headingTextColor }]}>Maximum Profit</Text>
-                    <Text
-                      style={[styles.summaryValue, { color: mainColors.greenText }]}
-                    >
-                      ₹ 99,000
-                    </Text>
-                  </View>
-
-                  <View style={styles.summaryCol}>
-                    <Text style={[styles.summaryLabel, { color: mainColors.headingTextColor }]}>Maximum Loss</Text>
-                    <Text
-                      style={[styles.summaryValue, { color: mainColors.redText }]}
-                    >
-                      ₹ -54,000
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              {/* About this Algo */}
-              <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>About this Algo</Text>
-
-                {renderBulletList(aboutBullets, aboutExpanded)}
-
-                {renderViewLessMore(aboutExpanded, () =>
-                  setAboutExpanded(prev => !prev),
-                )}
-              </View>
-
-              {/* Disclaimer */}
-              <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>Disclaimer</Text>
-
-                {renderBulletList(disclaimerBullets, disclaimerExpanded)}
-
-                {renderViewLessMore(disclaimerExpanded, () =>
-                  setDisclaimerExpanded(prev => !prev),
-                )}
-              </View>
-            </>
-          ) : null}
-          {activeTopTab === 'PnL Calender' && <Image source={Images.pnl} resizeMode='contain' style={styles.pnlDemoImg} />}
-          {activeTopTab === 'Trades' && <Image source={Images.trades} resizeMode='contain' style={styles.tradesDemoImg} />}
+          {activeTopTab === 'Overview' && <MarketPlaceOverviewComponent cardData={cardData} />}
+          {activeTopTab === 'PnL Calender' &&
+            <MarketPlacePnlCalendarComponent
+              dailyPnl={cardData?.backtest_results?.daily_pnl ?? []}
+              initialMonth={1}   // September = 8 (0-based) optional
+              initialYear={2026} // optional
+            />}
+          {activeTopTab === 'Trades' && <MarketPlaceTradesComponent trades={cardData?.backtest_results?.trade_logic} pageSize={3} otherData={cardData} />}
         </View>
       </ScrollView>
+      <RiskDisclosureScreen visible={showRiskModal} setVisible={setShowRiskModal} onPress={subs} />
     </View>
   );
 };

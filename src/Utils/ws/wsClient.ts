@@ -26,7 +26,7 @@ export class WsClient {
 
     constructor(opts: WsClientOptions) {
         this.url = opts.url;
-        this.heartbeatMs = opts.heartbeatMs ?? 0; // ✅ disabled by default (your server errors on ping)
+        this.heartbeatMs = opts.heartbeatMs ?? 0; // ✅ default disabled (your server errors on ping)
         this.maxBackoffMs = opts.maxBackoffMs ?? 15000;
         this.onMessage = opts.onMessage;
         this.onStateChange = opts.onStateChange;
@@ -58,7 +58,7 @@ export class WsClient {
         };
 
         this.ws.onerror = () => {
-            // Some servers fire error then close.
+            // some servers raise error before close
         };
 
         this.ws.onclose = () => {
@@ -105,7 +105,6 @@ export class WsClient {
     private startHeartbeat() {
         this.stopHeartbeat();
         if (!this.heartbeatMs || this.heartbeatMs <= 0) return;
-
         this.heartbeatTimer = setInterval(() => {
             this.sendJson({ type: "ping", ts: Date.now() });
         }, this.heartbeatMs);

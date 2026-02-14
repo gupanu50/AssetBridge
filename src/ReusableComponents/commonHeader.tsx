@@ -1,15 +1,96 @@
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
 import scaler from '../Utils/scaler';
 import { Images } from '../Assets';
-import { mainColors } from '../Utils/helper';
+import { fontFamily, mainColors } from '../Utils/helper';
 import CommonTextInput from './commonTextInput';
-type CommonHeaderProps = {
-  onPressBell?: () => void; // ✅ add this
-};
+import useCompressQuery from '../Screens/HomeScreen/Hooks/useCompressQuery';
+import { CommonHeaderProps, ContractsObj, SearchItem } from './commonTypes';
+/** ✅ Debounce */
+function useDebounce<T>(value: T, delayMs = 300): T {
+  const [debounced, setDebounced] = useState<T>(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(id);
+  }, [value, delayMs]);
+  return debounced;
+}
+
+function safeStr(v: any) {
+  return String(v ?? "").trim();
+}
+
+function buildSearchIndex(contractsObj?: ContractsObj | null): SearchItem[] {
+  if (!contractsObj || typeof contractsObj !== "object") return [];
+
+  const out: SearchItem[] = [];
+
+  Object.values(contractsObj).forEach((rows) => {
+    if (!Array.isArray(rows)) return;
+
+    for (const row of rows) {
+      if (!Array.isArray(row) || row.length < 10) continue;
+
+      const symbol = safeStr(row[2]);
+      const fullName = safeStr(row[3]);
+      const segment = safeStr(row[9]);
+
+      if (!symbol || !fullName || !segment) continue;
+
+      out.push({
+        symbol,
+        fullName,
+        fullNameLower: fullName.toLowerCase(),
+        segment,
+      });
+    }
+  });
+
+  return out;
+}
+
+function searchItems(items: SearchItem[], q: string, limit = 30): SearchItem[] {
+  const query = q.trim().toLowerCase();
+  if (!query) return [];
+
+  const matches = items.filter((it) => it.fullNameLower.includes(query));
+
+  // prefer startsWith
+  matches.sort((a, b) => {
+    const aStarts = a.fullNameLower.startsWith(query) ? 0 : 1;
+    const bStarts = b.fullNameLower.startsWith(query) ? 0 : 1;
+    if (aStarts !== bStarts) return aStarts - bStarts;
+    return a.fullName.length - b.fullName.length;
+  });
+
+  return matches.slice(0, limit);
+}
+
 const CommonHeader = (props: CommonHeaderProps) => {
   const [showSearch, setShowSearch] = useState(false);
   const [value, setValue] = useState('');
+  const debouncedValue = useDebounce(value, 300);
+  const { data } = useCompressQuery();
+  const contracts: ContractsObj | undefined = data?.data?.data?.contracts;
+
+  // ✅ build flattened list once per API update
+  const searchIndex = useMemo(() => buildSearchIndex(contracts), [contracts]);
+
+  // ✅ compute results only after debounce
+  const results = useMemo(() => {
+    return searchItems(searchIndex, debouncedValue, 30);
+  }, [searchIndex, debouncedValue]);
+
+  const onPick = (item: SearchItem) => {
+    const obj = {
+      segment: item?.segment,
+      symbol: item?.symbol,
+      exchange: item?.segment,
+    }
+    setShowSearch(false);
+    setValue('');
+    props?.navigation?.navigate('Instrument', { item: obj })
+  };
   return (
     <View>
       <View style={[styles.container, { justifyContent: showSearch ? 'center' : 'space-between' }]}>
@@ -52,6 +133,36 @@ const CommonHeader = (props: CommonHeaderProps) => {
           </TouchableOpacity>
         </View>
       </View>
+      {/* ✅ Drop-down results */}
+      {showSearch && debouncedValue.trim().length > 0 && (
+        <View style={styles.dropdown}>
+          {results.length === 0 ? (
+            <Text style={styles.noResult}>No match found</Text>
+          ) : (
+            <FlatList
+              data={results}
+              keyExtractor={(it) => `${it.segment}:${it.symbol}:${it.fullName}`}
+              keyboardShouldPersistTaps="handled"
+              initialNumToRender={15}
+              maxToRenderPerBatch={20}
+              windowSize={7}
+              removeClippedSubviews
+              style={styles.list}
+              contentContainerStyle={styles.listContent}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.row} onPress={() => onPick(item)}>
+                  <Text style={styles.fullName}>{item.fullName}</Text>
+                  <Text style={styles.subText}>
+                    {item.symbol} • {item.segment}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+            />
+          )}
+
+        </View>
+      )}
     </View>
   );
 };
@@ -94,7 +205,49 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   input: {
-    height: '130%',
     width: '70%',
+    paddingBottom: 0,
+  },
+  dropdown: {
+    marginHorizontal: scaler(12),
+    marginTop: scaler(4),
+    borderRadius: scaler(12),
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  row: {
+    paddingVertical: scaler(10),
+    paddingHorizontal: scaler(12),
+    borderBottomWidth: 0.5,
+  },
+  fullName: {
+    fontSize: scaler(14),
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.white
+  },
+  subText: {
+    marginTop: scaler(2),
+    opacity: 0.6,
+    fontFamily: fontFamily.poppinsRegular,
+    fontSize: scaler(11),
+    color: mainColors.white
+  },
+  noResult: {
+    paddingVertical: scaler(12),
+    paddingHorizontal: scaler(12),
+    fontFamily: fontFamily.poppinsRegular,
+    opacity: 0.6,
+    color: mainColors.white
+  },
+  list: {
+    maxHeight: scaler(600), // ✅ dropdown height (scroll inside this)
+  },
+  listContent: {
+    paddingVertical: 0,
+  },
+  separator: {
+    height: 0.5,
+    opacity: 0.5,
+    backgroundColor: mainColors.white, // or border color you prefer
   },
 });

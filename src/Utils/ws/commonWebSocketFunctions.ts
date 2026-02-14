@@ -38,3 +38,7 @@ export const lastPart = (k: string) => {
     const parts = String(k || "").split(":");
     return (parts[parts.length - 1] || "").trim();
 };
+
+export function makeKey(segment: string, symbol: string) {
+    return `${segment}:${symbol}`;
+}

@@ -26,6 +26,7 @@ export const styles = StyleSheet.create({
   searchLogo: {
     height: scaler(15),
     width: scaler(15),
+    tintColor: mainColors.white
   },
   searchBox: {
     borderWidth: 1,

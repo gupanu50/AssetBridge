@@ -2,13 +2,11 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native
 import React, { useEffect, useMemo, useState } from 'react'
 import { fontFamily, mainColors } from '../Utils/helper';
 import scaler from '../Utils/scaler';
-// import useCompressQuery from '../Screens/HomeScreen/Hooks/useCompressQuery';
 import { getLastByKey, onWsMessage } from '../Utils/ws/marketSocket';
 import { CommonTopBtnSliderProps, IndexKey, IndexRow } from './commonTypes';
 import { computeChange, formatChange, formatNumber, lastPart } from '../Utils/ws/commonWebSocketFunctions';
 
 const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
-    // const { data } = useCompressQuery();
     const [indexRows, setIndexRows] = useState<Record<IndexKey, IndexRow>>(() => {
         // ✅ initial from cache (works even if market closed and ws paused)
         const keys: IndexKey[] = ['NIFTY50', 'SENSEX', 'NIFTYBANK'];
@@ -35,7 +33,7 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
         const off = onWsMessage((msg) => {
             if (msg?.type !== "snapshot" && msg?.type !== "update") return;
             if (!msg?.data || typeof msg.data !== "object") return;
-            console.log("WS MESSAGE:", msg);
+            console.log('WSMessage', msg)
             setIndexRows((prev) => {
                 let changed = false;
                 const next = { ...prev };

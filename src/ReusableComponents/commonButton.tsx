@@ -8,7 +8,7 @@ type buttonProps = {
   backgroundColor?: string;
   leftImage?: JSX.Element;
   textColor?: string;
-  extraStyle?: ViewStyle | TextStyle;
+  extraStyle?: ViewStyle | TextStyle | ViewStyle[] | TextStyle[];
   onPress?: () => void;
   disabled?: boolean;
 };

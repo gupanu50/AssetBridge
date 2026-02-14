@@ -7,17 +7,15 @@ export type TopTab = {
 };
 export type FlatItem = {
   id: number;
-  name: string;
+  symbol: string;
   exchange: string;
-  bs: string;
-  DateTime: string;
-  Qty: string;
+  side: string;
+  submitted_at: string;
+  quantity: string;
   LTP: string;
-  Product: string;
-  Status: string;
-  Price: string;
+  product_type: string;
+  status: string;
+  limit_price: string;
+  segment: string;
   Source: string;
 };
-export type OrdersProps = {
-  isShow: boolean;
-}

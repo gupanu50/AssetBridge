@@ -41,7 +41,7 @@ const AlgoScreen = ({ navigation }: Props) => {
   };
   return (
     <View style={styles.container}>
-      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} />
+      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />
       <NotificationsModal
         visible={showNoti}
         onClose={() => setShowNoti(!showNoti)}

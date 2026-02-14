@@ -18,13 +18,14 @@ export const styles = StyleSheet.create({
   searchLogo: {
     height: scaler(15),
     width: scaler(15),
+    tintColor: mainColors.white
   },
   selectText: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
     fontSize: scaler(14),
     alignSelf: 'center',
-    width: scaler(180),
+    width: scaler(165),
     paddingLeft: scaler(10),
   },
   searchBox: {
@@ -32,6 +33,7 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     flexDirection: 'row',
     height: scaler(30),
+    width: scaler(100),
     paddingVertical: scaler(3),
     paddingHorizontal: scaler(10),
     alignItems: 'center',
@@ -148,5 +150,8 @@ export const styles = StyleSheet.create({
   itemSeperator: {
     borderBottomWidth: 0.5,
     borderColor: mainColors.inputBorder,
+  },
+  searchView: {
+    justifyContent: 'center'
   },
 });

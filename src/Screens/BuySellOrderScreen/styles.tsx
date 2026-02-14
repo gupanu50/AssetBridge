@@ -106,6 +106,7 @@ export const styles = StyleSheet.create({
     },
     onlyWidth: {
         width: '100%',
+        color: mainColors.white
     },
     onlyWidth1: {
         width: '70%',

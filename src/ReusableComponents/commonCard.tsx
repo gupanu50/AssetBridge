@@ -35,7 +35,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
     : mainColors.green;
 
   return (
-    <TouchableOpacity style={styles.featureCardWrapper} onPress={props?.onPress}>
+    <View style={styles.featureCardWrapper}>
       <View style={styles.featureCard}>
         <View style={styles.featureTopRow}>
           <View style={styles.featureLeft}>
@@ -103,7 +103,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               </Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={props?.onPress}>
             <Image
               source={Images.swiperView}
               resizeMode="contain"
@@ -193,25 +193,26 @@ const CommonCard = (props: PropCommonCardTypes) => {
             />
             <Text style={styles.actionText}>Instrument</Text>
           </View>
-          <View style={[styles.actionPill, styles.actionPillGreen, { backgroundColor: props?.status === 'active' ? mainColors.swiperPnl : mainColors.warningBg }]}>
+          <View style={styles.actionPillGreen}>
             <Image
-              source={props.status === 'active' ? Images.swiperRunning : Images.swiperPaused}
+              source={Images.subscribeBtn}
               resizeMode="contain"
-              style={styles.inInsRunImg}
+              style={styles.imgView}
             />
-            <Text style={styles.runningText}>
-              {props.status === 'active' ? 'RUNNING' : 'PAUSED'}
-            </Text>
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
 export default CommonCard;
 
 const styles = StyleSheet.create({
+  imgView: {
+    height: '100%',
+    width: '100%'
+  },
   featureCardWrapper: {
     width: SCREEN_WIDTH - scaler(30),
   },
@@ -296,12 +297,8 @@ const styles = StyleSheet.create({
     marginLeft: scaler(2),
   },
   actionPillGreen: {
-    marginRight: 0,
-    paddingHorizontal: scaler(5),
-    paddingRight: scaler(8),
     height: scaler(35),
-    backgroundColor: mainColors.swiperPnl,
-    borderColor: 'transparent',
+    width: scaler(90),
   },
   actionText: {
     fontFamily: fontFamily.poppinsRegular,

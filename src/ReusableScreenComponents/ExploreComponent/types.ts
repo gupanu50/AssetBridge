@@ -14,4 +14,5 @@ export type MoversApiProps = {
   absolute_change: number;
   isViewAll?: boolean;
   id?: string;
+  percentage_change?: number;
 }

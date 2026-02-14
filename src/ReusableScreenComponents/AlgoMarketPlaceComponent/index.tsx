@@ -4,10 +4,18 @@ import { Images } from '../../Assets';
 import { styles } from './styles';
 import CommonAlgoMarketPlaceCard from '../../ReusableComponents/commonCardsAlgoMarketPlaceCard';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
+import useTradingBotsQuery from '../../ReusableComponents/Hooks/useTradingBotsQuery';
+import { isMarketOpenIST } from '../../Utils/helper';
 type MyAlgoProps = {
   navigation?: MainStackScreenProps<'AlgoMain'>['navigation'];
 }
 const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
+  const isMarketHours = isMarketOpenIST();
+  const { data: tradingData }: any = useTradingBotsQuery({
+    queryKey: ['/api/v1/strategy/bots/'],
+    refetchInterval: isMarketHours ? 3000 : false
+  });
+  const tradingBotData = tradingData?.data?.data;
   const featureCards = useMemo(
     () => [
       {
@@ -64,15 +72,15 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
         <CommonAlgoMarketPlaceCard
           logo={item.logo}
           name={item.name}
-          onPress={() => navigation?.navigate('MarketPlace')}
-          sub={item.sub}
+          onPress={() => navigation?.navigate('MarketPlace', { cardData: item })}
+          sub={item.description}
           tagLeft={item.tagLeft}
           tagRight={item.tagRight}
-          ltp={item.ltp}
+          ltp={item.backtest_results.summary.net_pnl}
           ltpChange={item.ltpChange}
-          intraday={item.intraday}
+          intraday={item.backtest_results.summary.total_trades}
           intradayChange={item.intradayChange}
-          pAndL={item.pAndL}
+          pAndL={item.backtest_results.summary.max_drawdown}
           pAndLChange={item.pAndLChange}
           status={item.status}
         />
@@ -83,7 +91,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
     <View style={styles.mainView}>
       {/* -------------------- BIG CARD (UNCHANGED SECTION) -------------------- */}
       <FlatList
-        data={featureCards}
+        data={tradingBotData}
         keyExtractor={i => i.id}
         renderItem={renderFeatureCard}
       />

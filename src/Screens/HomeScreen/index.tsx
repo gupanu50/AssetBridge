@@ -47,7 +47,7 @@ const HomeScreen = ({ navigation }: Props) => {
   const [showNoti, setShowNoti] = useState(false);
   return (
     <View style={styles.container}>
-      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} />
+      <CommonHeader onPressBell={() => setShowNoti(!showNoti)} navigation={navigation} />
       <NotificationsModal
         visible={showNoti}
         onClose={() => setShowNoti(!showNoti)}

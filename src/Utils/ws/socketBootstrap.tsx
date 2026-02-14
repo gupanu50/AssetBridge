@@ -1,37 +1,43 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { AppState } from "react-native";
 import {
     connectSocketOnce,
     pauseMarketFeed,
     resumeMarketFeed,
-    subscribe,
+    registerSubscription,
+    unregisterSubscription,
     onWsMessage,
 } from "./marketSocket";
 import { isMarketOpenIST } from "../helper";
+import type { SubscribePayload } from "./marketSocket";
 
-/**
- * ✅ Your required symbols
- */
-const REQUIRED_KEYS = ["NIFTY50", "SENSEX", "NIFTYBANK"] as const;
-
-const DEFAULT_SUBSCRIBE_PAYLOAD = {
-    type: "subscribe" as const,
-    data: [
-        { segment: "INDICES", symbols: ["NIFTY50"], subscription_type: "contract" },
-        { segment: "INDICES", symbols: ["SENSEX"], subscription_type: "contract" },
-        { segment: "INDICES", symbols: ["NIFTYBANK"], subscription_type: "contract" },
-    ],
+type Props = {
+    payload: SubscribePayload; // ✅ ONLY dynamic thing
+    ownerId?: string;          // optional; default "bootstrap"
 };
 
-export default function SocketBootstrap() {
-    // ✅ Closed-market snapshot should run once per app session
+function extractRequiredSymbols(payload: SubscribePayload): string[] {
+    const out: string[] = [];
+    (payload?.data || []).forEach((it) => {
+        (it.symbols || []).forEach((s) => {
+            const sym = String(s || "").trim();
+            if (sym) out.push(sym);
+        });
+    });
+    return Array.from(new Set(out));
+}
+
+export default function SocketBootstrap({ payload, ownerId = "bootstrap" }: Props) {
     const closedMarketSnapshotDoneRef = useRef(false);
+    const REQUIRED = useMemo(() => extractRequiredSymbols(payload), [payload]);
 
     useEffect(() => {
         connectSocketOnce();
 
+        // ✅ register this payload globally (union with other screens)
+        registerSubscription(ownerId, payload);
+
         const runClosedMarketOneShotSnapshot = () => {
-            // Already done once => keep paused
             if (closedMarketSnapshotDoneRef.current) {
                 pauseMarketFeed();
                 return;
@@ -39,30 +45,31 @@ export default function SocketBootstrap() {
 
             closedMarketSnapshotDoneRef.current = true;
 
-            // Temporarily resume and subscribe to get last values
+            // resume + subscribe union
             resumeMarketFeed();
-            subscribe(DEFAULT_SUBSCRIBE_PAYLOAD);
 
             const got = new Set<string>();
             let timeoutId: any = null;
 
             const off = onWsMessage((msg) => {
-                // We accept both snapshot + update (some servers send update)
                 if (msg?.type !== "snapshot" && msg?.type !== "update") return;
-                if (!msg?.data) return;
+                if (!msg?.data || typeof msg.data !== "object") return;
 
-                Object.keys(msg.data).forEach((k) => got.add(k));
-                const allReceived = REQUIRED_KEYS.every((k) => got.has(k));
+                Object.keys(msg.data).forEach((k) => {
+                    // k can be "NIFTY50" or "INDICES:NIFTY50" or "NSE:INFY"
+                    const parts = String(k).split(":");
+                    const last = (parts[parts.length - 1] || "").trim();
+                    if (last) got.add(last);
+                });
 
+                const allReceived = REQUIRED.every((s) => got.has(s));
                 if (allReceived) {
-                    // Got all 3 once -> pause (unsubscribe) but keep socket connected
                     pauseMarketFeed();
                     off();
                     if (timeoutId) clearTimeout(timeoutId);
                 }
             });
 
-            // Safety timeout: pause anyway
             timeoutId = setTimeout(() => {
                 pauseMarketFeed();
                 off();
@@ -73,19 +80,17 @@ export default function SocketBootstrap() {
             const open = isMarketOpenIST();
 
             if (open) {
-                // ✅ MARKET OPEN => Continuous feed ON
-                closedMarketSnapshotDoneRef.current = false; // reset so next closed session can snapshot again
+                // market open => stream continuously
+                closedMarketSnapshotDoneRef.current = false;
                 resumeMarketFeed();
-                subscribe(DEFAULT_SUBSCRIBE_PAYLOAD);
             } else {
-                // ✅ MARKET CLOSED => Snapshot once then pause/unsubscribe
+                // market closed => snapshot once then pause
                 runClosedMarketOneShotSnapshot();
             }
         };
 
         applyMarketRule();
 
-        // Check every 1 minute (if market opens while app is open)
         const timer = setInterval(applyMarketRule, 60_000);
 
         const sub = AppState.addEventListener("change", (state) => {
@@ -98,8 +103,9 @@ export default function SocketBootstrap() {
         return () => {
             clearInterval(timer);
             sub.remove();
+            unregisterSubscription(ownerId);
         };
-    }, []);
+    }, [ownerId, payload, REQUIRED]);
 
     return null;
 }

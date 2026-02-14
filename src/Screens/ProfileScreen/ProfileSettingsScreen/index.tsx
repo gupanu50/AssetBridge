@@ -1,22 +1,64 @@
-import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import IconButton from '../../../ReusableComponents/iconButton'
 import { Images } from '../../../Assets'
 import scaler from '../../../Utils/scaler'
-import { mainColors } from '../../../Utils/helper'
+import { getApiErrorMessage, mainColors } from '../../../Utils/helper'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import CommonTextInput from '../../../ReusableComponents/commonTextInput'
 import CommonButton from '../../../ReusableComponents/commonButton'
 import { styles } from './styles'
 import CommonDrawerBackHeader from '../../../ReusableComponents/commonDrawerBackHeader'
 import { MainStackScreenProps } from '../../../Navigation/NavigationTypes/screenTypes'
+import useChangePasswordProfileMutation from '../Hooks/useChangePasswordMutation'
+import snackbarHandler from '../../../Utils/snackbarHandler'
 type Props = MainStackScreenProps<'ProfileSettings'>;
-const ProfileSettingsScreen = ({ navigation }: Props) => {
+const ProfileSettingsScreen = ({ navigation, route }: Props) => {
     const [mail, setMail] = useState('');
     const [oldPass, setOldPass] = useState('');
+    const [errorOld, setErrorOld] = useState('');
+    const [errornew, setErrorNew] = useState('');
+    const [errorCon, setErrorCon] = useState('');
     const [newPass, setNewPass] = useState('');
     const [rePass, setRePass] = useState('');
-    const [secureText, setSecureText] = useState(false)
+    const [showTooltip, setShowTooltip] = useState(false);
+    const [secureText, setSecureText] = useState(true);
+    const { mutate } = useChangePasswordProfileMutation();
+    const [secureText1, setSecureText1] = useState(true);
+    const [secureText2, setSecureText2] = useState(true);
+    const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+    const profileData = route?.params?.profileData;
+    const onBtnPressed = () => {
+        if (!oldPass) {
+            setErrorOld('Please enter Old Password');
+            return;
+        } if (!newPass) {
+            setErrorNew('Please enter new password');
+            return;
+        } else if (!rePass) {
+            setErrorCon('Please enter confirm password');
+            return;
+        } else if (newPass !== rePass) {
+            setErrorCon('Confirm Password does not match with password');
+            return;
+        }
+        mutate({
+            old_password: oldPass,
+            new_password: newPass,
+        },
+            {
+                onSuccess: response => {
+                    snackbarHandler.successToast(response?.data?.data?.message)
+                    setOldPass('');
+                    setNewPass('');
+                    setRePass('');
+                },
+                onError: er => {
+                    const msg = getApiErrorMessage(er)
+                    snackbarHandler.errorToast(msg);
+                },
+            },)
+    }
     return (
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
             <CommonDrawerBackHeader title='Profile Settings' navigation={navigation} />
@@ -32,14 +74,71 @@ const ProfileSettingsScreen = ({ navigation }: Props) => {
                 </View>
 
                 <View style={styles.headerMid}>
-                    <Text style={styles.headerId}>AB12345</Text>
-                    <Text style={styles.headerName}>David John Smith</Text>
-                    <Text style={styles.headerPhone}>+1-212-555-0132</Text>
+                    <Text style={styles.headerId}>{profileData?.username}</Text>
+                    <Text style={styles.headerName}>{`${profileData?.first_name} ${profileData?.last_name}`}</Text>
+                    <Text style={styles.headerPhone}>{`${profileData?.contact}`}</Text>
                 </View>
 
-                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn}>
-                    <Image source={Images.profileBadge} resizeMode='contain' style={styles.imgView} />
+                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => setShowTooltip(true)}>
+                    <Image source={Images.profileBadge} resizeMode='contain' style={styles.imgView} tintColor={profileData?.broker_auth?.color} />
                 </TouchableOpacity>
+                {showTooltip && <Modal
+                    visible={showTooltip}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setShowTooltip(false)}
+                >
+                    {/* Backdrop (click outside to close) */}
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => setShowTooltip(false)}>
+                        {/* Stop closing when clicking tooltip itself */}
+                        <TouchableOpacity
+                            onPress={() => { }}
+                            style={[
+                                {
+                                    position: 'absolute',
+                                    maxWidth: scaler(220),
+                                    paddingVertical: scaler(10),
+                                    paddingHorizontal: scaler(12),
+                                    borderRadius: scaler(10),
+                                    backgroundColor: mainColors.black,
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(255,255,255,0.12)',
+                                },
+                                tooltipPos
+                                    ? {
+                                        // show below the badge (you can adjust offsets)
+                                        top: tooltipPos.y + tooltipPos.h + scaler(8),
+                                        left: Math.max(scaler(12), tooltipPos.x - scaler(160)),
+                                    }
+                                    : { top: scaler(120), right: scaler(12) },
+                            ]}
+                        >
+                            <Text style={{ color: mainColors.white, fontSize: scaler(12), lineHeight: scaler(16) }}>
+                                {profileData?.broker_auth?.message}
+                            </Text>
+
+                            {/* Optional: small arrow */}
+                            {tooltipPos && (
+                                <View
+                                    style={{
+                                        position: 'absolute',
+                                        top: -scaler(6),
+                                        left: scaler(170),
+                                        width: 0,
+                                        height: 0,
+                                        borderLeftWidth: scaler(6),
+                                        borderRightWidth: scaler(6),
+                                        borderBottomWidth: scaler(6),
+                                        borderLeftColor: 'transparent',
+                                        borderRightColor: 'transparent',
+                                        borderBottomColor: '#0B2230',
+                                    }}
+                                />
+                            )}
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                </Modal>
+                }
             </View>
             <View style={styles.lineHeight} />
             <Text style={styles.addAddress}>Add Mailing Address</Text>
@@ -78,6 +177,7 @@ const ProfileSettingsScreen = ({ navigation }: Props) => {
                     <Text style={styles.inputLable}>Old Password</Text>
                     <CommonButton
                         label="Forget?"
+                        onPress={() => navigation.navigate('Forget')}
                         backgroundColor="transparent"
                         textColor={mainColors.mainButton}
                         extraStyle={styles.forgetBtn}
@@ -85,9 +185,10 @@ const ProfileSettingsScreen = ({ navigation }: Props) => {
                 </View>
                 <CommonTextInput
                     value={oldPass}
-                    setValue={setOldPass}
+                    setValue={(text) => { setErrorOld(''); setOldPass(text) }}
                     secure={secureText}
-                    containerStyle={styles.input}
+                    errorMessage={errorOld}
+                    containerStyle={{ marginBottom: errorOld ? scaler(5) : scaler(20) }}
                     placeholder='Enter Password'
                     rightImage={
                         <TouchableOpacity
@@ -95,11 +196,11 @@ const ProfileSettingsScreen = ({ navigation }: Props) => {
                             style={styles.eyeIcon}
                         >
                             <IconButton
-                                onPress={() => { }}
-                                name={oldPass ? 'close' : 'eye'}
+                                onPress={() => setSecureText(!secureText)}
+                                name={secureText ? 'eye-off-outline' : 'eye'}
                                 vectorType="MaterialCommunityIcons"
                                 size={scaler(28)}
-                                color="#999"
+                                color={errorOld ? mainColors.redText : mainColors.inputLabel}
                             />
                         </TouchableOpacity>
                     }
@@ -107,20 +208,23 @@ const ProfileSettingsScreen = ({ navigation }: Props) => {
                 <Text style={styles.inputLable}>Enter New Password</Text>
                 <CommonTextInput
                     value={newPass}
-                    setValue={setNewPass}
-                    containerStyle={styles.input}
+                    setValue={(text) => { setErrorNew(''); setNewPass(text) }}
+                    secure={secureText1}
+                    errorMessage={errornew}
+                    containerStyle={{ marginBottom: errornew ? scaler(5) : scaler(20) }}
                     placeholder='Enter Password'
                     rightImage={
                         <TouchableOpacity
                             testID="togglePasswordIcon"
+                            onPress={() => setSecureText1(!secureText1)}
                             style={styles.eyeIcon}
                         >
                             <IconButton
-                                onPress={() => { }}
-                                name={newPass ? 'close' : 'eye'}
+                                onPress={() => setSecureText1(!secureText1)}
+                                name={secureText1 ? 'eye-off-outline' : 'eye'}
                                 vectorType="MaterialCommunityIcons"
                                 size={scaler(28)}
-                                color="#999"
+                                color={errornew ? mainColors.redText : mainColors.inputLabel}
                             />
                         </TouchableOpacity>
                     }
@@ -130,9 +234,10 @@ const ProfileSettingsScreen = ({ navigation }: Props) => {
                 </View>
                 <CommonTextInput
                     value={rePass}
-                    setValue={setRePass}
-                    secure={secureText}
-                    containerStyle={styles.input}
+                    secure={secureText2}
+                    setValue={(text) => { setErrorCon(''); setRePass(text) }}
+                    containerStyle={{ marginBottom: errorCon ? scaler(5) : scaler(20) }}
+                    errorMessage={errorCon}
                     placeholder='Confirm Password'
                     rightImage={
                         <TouchableOpacity
@@ -140,17 +245,17 @@ const ProfileSettingsScreen = ({ navigation }: Props) => {
                             style={styles.eyeIcon}
                         >
                             <IconButton
-                                onPress={() => { }}
-                                name={rePass ? 'close' : 'eye'}
+                                onPress={() => setSecureText2(!secureText2)}
+                                name={secureText2 ? 'eye-off-outline' : 'eye'}
                                 vectorType="MaterialCommunityIcons"
                                 size={scaler(28)}
-                                color="#999"
+                                color={errorCon ? mainColors.redText : mainColors.inputLabel}
                             />
                         </TouchableOpacity>
                     }
                 />
                 <View style={[styles.lineHeight, { height: scaler(15) }]} />
-                <CommonButton label='Save Changes' extraStyle={styles.saveBtn} />
+                <CommonButton label='Save Changes' extraStyle={styles.saveBtn} onPress={() => onBtnPressed()} />
             </KeyboardAwareScrollView>
         </ScrollView>
     )

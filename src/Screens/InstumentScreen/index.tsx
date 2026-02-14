@@ -24,27 +24,28 @@ import { CandlestickChart } from "react-native-wagmi-charts";
 import { getLastByKey, onWsMessage } from '../../Utils/ws/marketSocket';
 import { computeChange, formatChange, formatNumber, lastPart } from '../../Utils/ws/commonWebSocketFunctions';
 import useTopMoversPercentageQuery from '../HomeScreen/Hooks/useTopMoversPercentQuery';
+import CommonButton from '../../ReusableComponents/commonButton';
 type Props = MainStackScreenProps<'Instrument'>;
 const InstumentScreen = ({ navigation, route }: Props) => {
   const [selectedLabel, setSelectedLabel] = useState<string>('1D');
-  console.log('InstrumentRoute', route?.params)
   const paramItem = route?.params?.item;
+  const paramNav = route?.params?.nav;
+  console.log('ParamItemsInstrumentScreen', paramItem, route?.params?.nav)
   const topTabListRef: any = useRef(null);
   const isMarketHours = isMarketOpenIST();
   const [activeTopTab, setActiveTopTab] = useState('Opened Positions');
   let moversDetails;
   if (paramItem?.segment) {
     const { data: moversPercentageData } = useTopMoversPercentageQuery({
-      exchange: 'NSE',
+      exchange: paramNav === 'movers' ? paramItem?.segment : paramItem?.exchange,
       name: paramItem?.symbol
     },
       {
         queryKey: ['/price/market/move', 'NSE', paramItem?.symbol],
-        refetchInterval: isMarketHours ? 3000 : false,
+        refetchInterval: isMarketHours ? 10 : false,
       }
     )
     const moverPercentageDataDetails = moversPercentageData?.data?.data
-    console.log('InstrumentScreen', moverPercentageDataDetails);
     moversDetails = React.useMemo(() => {
       return moverPercentageDataDetails
     }, [moverPercentageDataDetails]);
@@ -113,7 +114,6 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     const payload =
       getLastByKey(`INDICES:${symbol}`) ||
       getLastByKey(symbol); // snapshot cache key
-
     const { ltp, abs, pct } = computeChange(payload);
     return { ltp, abs, pct };
   });
@@ -162,18 +162,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
 
     return () => off();
   }, [symbol]);
-  // const filteredData = useMemo(() => {
-  //   const q = searchText.trim().toLowerCase();
-  //   if (!q) return flatData;
-  //   return flatData.filter(x =>
-  //     `${x.name} ${x.exchange} ${x.Status} ${x.Source}`
-  //       .toLowerCase()
-  //       .includes(q),
-  //   );
-  // }, [flatData, searchText]);
 
-  // -------------------- DATA --------------------
-  // Tabs exactly like image (slidable) + counts
   const topTabs = useMemo(
     () => [
       { id: 't1', label: 'Opened Positions' },
@@ -229,7 +218,15 @@ const InstumentScreen = ({ navigation, route }: Props) => {
         <Text style={styles.text}>{item.label}</Text>
       </TouchableOpacity>
     );
-  };
+  }
+  const navBuySell = (nav: string) => {
+    const routeParamsData = {
+      paramItem: paramItem,
+      nav: paramNav || '',
+      buynav: nav
+    }
+    navigation.navigate('BuySellOrder', { buySelldata: routeParamsData })
+  }
   return (
     <View style={styles.conatiner}>
       <CommonBackHeader navigation={navigation} />
@@ -246,7 +243,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
               <View style={styles.flexView}>
                 <Text style={styles.subHeadingText}>{paramItem?.symbol}</Text>
                 <Text style={[styles.subHeadingText, styles.innerFlexView]}>
-                  NSE
+                  {paramItem?.segment}
                 </Text>
                 <View style={styles.innerFlexView1}>
                   <IconButton
@@ -267,7 +264,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
               </View>
             </View>
             <IconButton
-              onPress={() => navigation.navigate('OptionsChain')}
+              onPress={() => navigation.navigate('OptionsChain', { segment: paramItem?.segment, symbol: paramItem?.symbol })}
               vectorType="MaterialCommunityIcons"
               size={scaler(20)}
               name="link-variant"
@@ -279,10 +276,10 @@ const InstumentScreen = ({ navigation, route }: Props) => {
             <View>
               <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? moversDetails?.current_price : formatNumber(live.ltp, 2)}</Text>
               {paramItem?.segment ?
-                <Text style={styles.amountPosLosHeading}>
+                <Text style={[styles.amountPosLosHeading, { color: moversDetails?.absolute_change > 0 ? mainColors.greenText : mainColors.redText }]}>
                   {moversDetails?.absolute_change}({moversDetails?.percentage_change}%) <Text style={styles.innerText}>1D</Text>
                 </Text> :
-                <Text style={styles.amountPosLosHeading}>
+                <Text style={[styles.amountPosLosHeading, { color: formatChange(live.abs, live.pct).includes('-') ? mainColors.redText : mainColors.greenText }]}>
                   {formatChange(live.abs, live.pct)} <Text style={styles.innerText}>1D</Text>
                 </Text>
               }
@@ -337,10 +334,26 @@ const InstumentScreen = ({ navigation, route }: Props) => {
             onScrollToIndexFailed={() => { }}
           />
         </View>
-        {activeTopTab === 'Orders' && <OrderComponent isShow={true} />}
-        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent isShow={true} nav={navigation} />}
-        {activeTopTab === 'Closed Positions' && <PositionsClosedComponent isShow={true} />}
+        {activeTopTab === 'Orders' && <OrderComponent />}
+        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent />}
+        {activeTopTab === 'Closed Positions' && <PositionsClosedComponent />}
       </ScrollView>
+      {true && <View style={styles.buttonFlexView}>
+        <CommonButton
+          label="Buy"
+          backgroundColor={mainColors.black}
+          onPress={() => navBuySell('buy')}
+          textColor={mainColors.greenText}
+          extraStyle={[styles.buttonWidth, { borderColor: mainColors.greenText }]}
+        />
+        <CommonButton
+          label="Sell"
+          backgroundColor={mainColors.black}
+          onPress={() => navBuySell('sell')}
+          textColor={mainColors.redText}
+          extraStyle={[styles.buttonWidth, { borderColor: mainColors.redText }]}
+        />
+      </View>}
     </View>
   );
 };

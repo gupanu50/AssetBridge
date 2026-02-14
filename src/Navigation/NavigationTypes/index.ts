@@ -10,17 +10,59 @@ export type MainStackParamList = {
   Forget: undefined;
   Algo: undefined;
   Instrument: any;
-  OptionsChain: undefined;
-  MarketPlace: undefined;
+  OptionsChain: { segment: string, symbol: string };
+  MarketPlace: {
+    cardData: {
+      name: string;
+      bot_id: string;
+      description: string;
+      minimum_capital_required: string;
+      backtest_results: {
+        summary: {
+          start_date: string;
+          max_drawdown: number;
+          net_pnl: number;
+          total_trades: number;
+          win_rate: number;
+        },
+        trade_logic: [];
+        daily_pnl: []
+      }
+    }
+  };
   SignUp: undefined;
   ChangePassword: undefined;
   Notifications: undefined;
-  BuySellOrder: undefined;
+  BuySellOrder: {
+    buySelldata: {
+      paramItem: any;
+      nav: string;
+      buynav: string;
+    },
+  };
   ContactUs: undefined;
   TransactionHistory: undefined;
   AlgoMain: { item: any };
   Profile: undefined;
-  ProfileSettings: undefined;
+  ProfileSettings: {
+    profileData: {
+      broker_auth: {
+        status: string,
+        color: string,
+        message: string
+      },
+      last_login: null,
+      username: string,
+      first_name: string,
+      last_name: string,
+      email: string,
+      country_code: string,
+      contact: string,
+      portfolio_balance: string,
+      available_balance: string,
+      invested_amount: string,
+    }
+  };
   Statement: undefined;
   PaymentMethod: undefined;
   Portfolio: undefined;

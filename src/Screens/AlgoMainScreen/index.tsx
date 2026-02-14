@@ -15,7 +15,7 @@ import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTyp
 import { styles } from './styles'
 type Props = MainStackScreenProps<'AlgoMain'>;
 const AlgoMainScreen = ({ navigation, route }: Props) => {
-  console.log('Route', route?.params?.item);
+  console.log('RouteAlgomainScreen', route?.params?.item);
   const routeParams = route?.params?.item;
   const [activeTopTab, setActiveTopTab] = useState('Opened Positions');
   const topTabListRef: any = useRef(null);
@@ -120,7 +120,7 @@ const AlgoMainScreen = ({ navigation, route }: Props) => {
         {activeTopTab === 'Orders' && <OrderComponent isShow={false} />}
         {activeTopTab === 'Opened Positions' && <PositionsOpenComponent isShow={false} />}
         {activeTopTab === 'Closed Positions' && <PositionsClosedComponent isShow={false} />}
-        {activeTopTab === 'Overview' && <OverviewComponent />}
+        {activeTopTab === 'Overview' && <OverviewComponent overViewData={routeParams?.backtest_results?.summary} />}
       </ScrollView>
     </View>
   )

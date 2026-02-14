@@ -1,6 +1,6 @@
 import { FlatList, Image, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
-import React, { useMemo, useRef, useState } from 'react'
-import { fontFamily, mainColors } from '../../Utils/helper'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { fontFamily, getApiErrorMessage, isMarketOpenIST, mainColors } from '../../Utils/helper'
 import IconButton from '../../ReusableComponents/iconButton'
 import scaler from '../../Utils/scaler'
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider'
@@ -12,12 +12,72 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { horizontalFlatDataType } from './types'
 import CommonButton from '../../ReusableComponents/commonButton'
 import { styles } from './styles'
-const BuySellOrderScreen = () => {
+import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
+import useTopMoversPercentageQuery from '../HomeScreen/Hooks/useTopMoversPercentQuery'
+import moment from 'moment'
+import useBuySellMutation from './Hooks'
+import snackbarHandler from '../../Utils/snackbarHandler'
+import { getLastByKey, onWsMessage } from '../../Utils/ws/marketSocket'
+import { computeChange, formatChange, lastPart } from '../../Utils/ws/commonWebSocketFunctions'
+type Props = MainStackScreenProps<'BuySellOrder'>;
+const BuySellOrderScreen = ({ navigation, route }: Props) => {
     const [activeTopTab, setActiveTopTab] = useState('Carry Forward');
-    const [valueShares, setValueShares] = useState('');
-    const [marketPrice, setMarketPrice] = useState('200');
+    const [valueShares, setValueShares] = useState(0);
+    const [marketPrice, setMarketPrice] = useState(200);
+    const [stopLossvalue, setStopLossValue] = useState(0);
+    const [limitMarket, setLimitMarket] = useState('market')
+    const { mutate } = useBuySellMutation();
     const [isEnabled, setIsEnabled] = useState(false);
+    const isMarketHours = isMarketOpenIST();
+    console.log('routeParamsBuySell', route?.params?.buySelldata);
+    const buySellParams = route?.params?.buySelldata;
     const [selectedValue, setSelectedValue] = useState<string | null>('day');
+    const buySell = () => {
+        mutate({
+            exchange: buySellParams?.paramItem?.segment || 'indices',
+            is_automated: false,
+            segment: buySellParams?.paramItem?.segment || 'indices',
+            order_tag: 'MANUAL_TRADE_01',
+            //@ts-ignore
+            quantity: parseInt(valueShares),
+            side: buySellParams?.buynav,
+            order_type: limitMarket,
+            product_type: 'mis',
+            take_profit: 2600,
+            symbol: buySellParams?.paramItem?.symbol,
+            time_in_force: 'day',
+            //@ts-ignore
+            limit_price: parseInt(marketPrice),
+            //@ts-ignore
+            stop_loss: parseInt(stopLossvalue)
+        },
+            {
+                onSuccess: response => {
+                    console.log('Response', response)
+                    snackbarHandler.successToast('Your order has been placed')
+                },
+                onError: er => {
+                    const msg = getApiErrorMessage(er)
+                    snackbarHandler.errorToast(msg);
+                },
+            },)
+    }
+    let moversDetails;
+    if (buySellParams?.paramItem?.segment) {
+        const { data: moversPercentageData } = useTopMoversPercentageQuery({
+            exchange: buySellParams?.nav === 'movers' ? buySellParams?.paramItem?.segment : buySellParams?.paramItem?.exchange,
+            name: buySellParams?.paramItem?.symbol
+        },
+            {
+                queryKey: ['/price/market/move', 'NSE', buySellParams?.paramItem?.symbol],
+                refetchInterval: isMarketHours ? 10 : false,
+            }
+        )
+        const moverPercentageDataDetails = moversPercentageData?.data?.data
+        moversDetails = React.useMemo(() => {
+            return moverPercentageDataDetails
+        }, [moverPercentageDataDetails]);
+    }
     const horFlatData = [{ id: 1, name: '+2.5%' }, { id: 2, name: '+5%' }, { id: 3, name: '+10%' }, { id: 4, name: '+15%' }, { id: 5, name: 'Custom' }];
     const renderHoriFlatData = ({ item }: { item: horizontalFlatDataType }) => (
         <TouchableOpacity style={styles.flatItem}>
@@ -54,33 +114,137 @@ const BuySellOrderScreen = () => {
         ],
         [],
     );
+    function normalizeWsSymbol(raw: any): string {
+        const s = String(raw ?? "").trim().toUpperCase();
+
+        if (s === "NIFTY 50" || s === "NIFTY50") return "NIFTY50";
+        if (s === "NIFTY BANK" || s === "NIFTYBANK") return "NIFTYBANK";
+        if (s === "SENSEX") return "SENSEX";
+
+        // generic fallback: remove spaces
+        return s.replace(/\s+/g, "");
+    }
+    const rawSymbol =
+        buySellParams?.paramItem?.symbol
+    const symbol = normalizeWsSymbol(rawSymbol);
+
+    const [live, setLive] = useState(() => {
+        const payload =
+            getLastByKey(`INDICES:${symbol}`) ||
+            getLastByKey(symbol); // snapshot cache key
+        const { ltp, abs, pct } = computeChange(payload);
+        return { ltp, abs, pct };
+    });
+
+    useEffect(() => {
+        if (!symbol) return;
+
+        const off = onWsMessage((msg) => {
+            if (msg?.type !== "snapshot" && msg?.type !== "update") return;
+            if (!msg?.data || typeof msg.data !== "object") return;
+
+            let payload: any;
+
+            if (msg.type === "snapshot") {
+                payload = msg.data?.[symbol]; // { NIFTY50: {...} }
+            } else {
+                // { "INDICES:NIFTY50": {...} }
+                for (const [k, v] of Object.entries(msg.data)) {
+                    if (lastPart(k) === symbol) {
+                        payload = v;
+                        break;
+                    }
+                }
+            }
+
+            // fallback: match by payload.symbol
+            if (!payload) {
+                for (const v of Object.values(msg.data)) {
+                    const sym = String((v as any)?.symbol ?? "").toUpperCase();
+                    if (sym === symbol) {
+                        payload = v;
+                        break;
+                    }
+                }
+            }
+
+            if (!payload) return;
+
+            const { ltp, abs, pct } = computeChange(payload);
+            setLive((prev) =>
+                prev.ltp === ltp && prev.abs === abs && prev.pct === pct
+                    ? prev
+                    : { ltp, abs, pct }
+            );
+        });
+
+        return () => off();
+    }, [symbol]);
+    // add this helper
+    const bumpMarketPrice = (delta: number) => {
+        setMarketPrice((prev: any) => {
+            const n =
+                typeof prev === 'number'
+                    ? prev
+                    : parseFloat(String(prev).replace(/[^\d.]/g, '')) || 0;
+
+            const next = n + delta;
+            return next < 0 ? 0 : next; // prevent negative
+        });
+    };
+    const bumpMarketPrice1 = (delta: number) => {
+        setStopLossValue((prev: any) => {
+            const n =
+                typeof prev === 'number'
+                    ? prev
+                    : parseFloat(String(prev).replace(/[^\d.]/g, '')) || 0;
+
+            const next = n + delta;
+            return next < 0 ? 0 : next; // prevent negative
+        });
+    };
     return (
         <View style={styles.container}>
             <View style={styles.main}>
                 <View style={styles.flexView}>
                     <IconButton
                         vectorType="MaterialCommunityIcons"
+                        onPress={() => navigation.goBack()}
                         name="keyboard-backspace"
                         backgroundColor={mainColors.black}
                         color={mainColors.white}
                     />
                     <View style={styles.niftyView}>
-                        <Text style={styles.niftyText}>NIFTY 50</Text>
-                        <Text style={styles.dateText}>08-JAN-26 25900 CE</Text>
+                        <Text style={styles.niftyText}>{buySellParams?.paramItem?.symbol}</Text>
+                        <Text style={styles.dateText}>{moment().format('DD-MMM-YY')}</Text>
                     </View>
-                    <View>
+                    {buySellParams?.paramItem?.segment ? <View>
                         <View style={styles.innerFlexView}>
-                            <Text style={styles.niftyValueText}>₹100.25</Text>
+                            <Text style={styles.niftyValueText}>₹ {moversDetails?.current_price}</Text>
                             <IconButton
                                 vectorType="MaterialCommunityIcons"
-                                name="arrow-bottom-left"
+                                name={moversDetails?.absolute_change < 0 ? "arrow-bottom-left" : "arrow-bottom-right"}
                                 size={scaler(15)}
                                 backgroundColor={mainColors.black}
-                                color={mainColors.red}
+                                color={moversDetails?.absolute_change < 0 ? mainColors.redText : mainColors.greenText}
                             />
                         </View>
-                        <Text style={styles.niftyChangeText}>-256.36(-85.54%)</Text>
-                    </View>
+                        <Text style={styles.niftyChangeText}>{moversDetails?.absolute_change}({moversDetails?.percentage_change}%)</Text>
+                    </View> :
+                        <View>
+                            <View style={styles.innerFlexView}>
+                                <Text style={styles.niftyValueText}>₹ {buySellParams?.paramItem?.current_price}</Text>
+                                <IconButton
+                                    vectorType="MaterialCommunityIcons"
+                                    name={formatChange(live.abs, live.pct).includes('-') ? "arrow-bottom-left" : "arrow-bottom-right"}
+                                    size={scaler(15)}
+                                    backgroundColor={mainColors.black}
+                                    color={formatChange(live.abs, live.pct).includes('-') ? mainColors.redText : mainColors.greenText}
+                                />
+                            </View>
+                            <Text style={styles.niftyChangeText}>{formatChange(live.abs, live.pct)}%</Text>
+                        </View>
+                    }
                 </View>
                 <View style={styles.resultsBasedView}>
                     <View style={styles.redIconView}>
@@ -140,22 +304,27 @@ const BuySellOrderScreen = () => {
                         <View style={styles.lineView} />
                         <Text style={styles.noSharesText}>Limit Price</Text>
                         <View style={styles.imgView}>
-                            <Image source={Images.increase} resizeMode='contain' style={styles.img} />
+                            <TouchableOpacity onPress={() => bumpMarketPrice(+1)}>
+                                <Image source={Images.increase} resizeMode='contain' style={styles.img} />
+                            </TouchableOpacity>
                             <CommonTextInput
-                                value={marketPrice}
+                                value={String(marketPrice)}
                                 setValue={setMarketPrice}
+                                keyboardType='numeric'
                                 style={styles.onlyWidth}
                                 containerStyle={styles.inputContainerStyle}
                                 max={3}
                             />
-                            <Image source={Images.decrease} resizeMode='contain' style={styles.img} />
+                            <TouchableOpacity onPress={() => bumpMarketPrice(-1)}>
+                                <Image source={Images.decrease} resizeMode='contain' style={styles.img} />
+                            </TouchableOpacity>
                             <View style={styles.limitMarketView}>
-                                <View style={styles.limitView}>
+                                <TouchableOpacity style={[styles.limitView, { backgroundColor: limitMarket === 'limit' ? mainColors.mainButton : mainColors.googleButton }]} onPress={() => setLimitMarket('limit')}>
                                     <Text style={styles.limitText}>Limit</Text>
-                                </View>
-                                <View style={styles.marketView}>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.marketView, { backgroundColor: limitMarket === 'market' ? mainColors.mainButton : mainColors.googleButton }]} onPress={() => setLimitMarket('market')}>
                                     <Text style={styles.limitText}>Market</Text>
-                                </View>
+                                </TouchableOpacity>
                             </View>
                         </View>
                         <View style={styles.lineView} />
@@ -203,14 +372,19 @@ const BuySellOrderScreen = () => {
                         </View>
                         <Text style={styles.noSharesText}>Trigger Price</Text>
                         <View style={styles.imgView}>
-                            <Image source={Images.increase} resizeMode='contain' style={styles.img} />
+                            <TouchableOpacity onPress={() => bumpMarketPrice1(+1)}>
+                                <Image source={Images.increase} resizeMode='contain' style={styles.img} />
+                            </TouchableOpacity>
                             <CommonTextInput
-                                value={marketPrice}
-                                setValue={setMarketPrice}
+                                value={String(stopLossvalue)}
+                                setValue={setStopLossValue}
+                                keyboardType='numeric'
                                 style={styles.onlyWidth}
                                 containerStyle={styles.inputContainerStyle1}
                             />
-                            <Image source={Images.decrease} resizeMode='contain' style={styles.img} />
+                            <TouchableOpacity onPress={() => bumpMarketPrice1(-1)}>
+                                <Image source={Images.decrease} resizeMode='contain' style={styles.img} />
+                            </TouchableOpacity>
                         </View>
                         <FlatList data={horFlatData} renderItem={renderHoriFlatData} showsHorizontalScrollIndicator={false} horizontal />
                         <View style={[styles.labelFlexView, { marginVertical: scaler(0), marginTop: scaler(15) }]}>
@@ -269,7 +443,7 @@ const BuySellOrderScreen = () => {
                                 </View>
                             </View>
                         </View>
-                        <CommonButton label='Place Buy Order' extraStyle={{ marginBottom: scaler(15) }} />
+                        <CommonButton label='Place Buy Order' extraStyle={{ marginBottom: scaler(15) }} onPress={() => buySell()} />
                     </KeyboardAwareScrollView>
                 </ScrollView>
             </View>

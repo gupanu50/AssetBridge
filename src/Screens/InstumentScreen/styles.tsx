@@ -51,7 +51,6 @@ export const styles = StyleSheet.create({
   amountPosLosHeading: {
     fontFamily: fontFamily.poppinsRegular,
     fontSize: scaler(12),
-    color: mainColors.swiperPnl,
   },
   innerText: {
     color: mainColors.descText,
@@ -304,5 +303,7 @@ export const styles = StyleSheet.create({
   buttonWidth: {
     width: '48%',
     borderRadius: 30,
+    borderWidth: 1,
+    marginVertical: scaler(10)
   },
 });

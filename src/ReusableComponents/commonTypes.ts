@@ -68,8 +68,8 @@ export type inputProps = {
   secure?: boolean;
   multiline?: boolean;
   keyboardType?: KeyboardTypeOptions;
-  value: string;
-  setValue: (value: string) => void;
+  value?: any;
+  setValue?: (value: any) => void;
   errorMessage?: string;
 };
 
@@ -98,4 +98,20 @@ export type IndexRow = {
   ltp?: number;
   absChange?: number;
   pctChange?: number;
+};
+export type CommonHeaderProps = {
+  onPressBell?: () => void;
+  navigation?: MainStackScreenProps<'HomeTab' | 'WatchList' | 'Algo' | 'MarketPlace'>['navigation']
+};
+
+/** ✅ API shape */
+export type ContractRow = any[];
+export type ContractsObj = Record<string, ContractRow[]>;
+
+export type SearchItem = {
+  symbol: string;   // row[2]
+  fullName: string; // row[3]
+  fullNameLower: string;
+  segment: string;  // row[9]
+  exchange?: string;
 };

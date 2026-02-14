@@ -51,7 +51,6 @@ export default function ExploreComponent(props: ExploreProps) {
     }
   )
   const moversApiData: MoversApiProps[] = data?.data?.data?.movers ?? [];
-
   const moversWithViewAll: MoversApiProps[] = React.useMemo(() => {
     return [
       ...moversApiData.map(m => ({ ...m, isViewAll: false })), // normalize
@@ -193,19 +192,19 @@ export default function ExploreComponent(props: ExploreProps) {
 
     return (
       <TouchableOpacity activeOpacity={0.85} style={styles.moverCard}
-        onPress={() => props.navigation?.navigate('Instrument', { item: item })}>
+        onPress={() => props.navigation?.navigate('Instrument', { item: item, nav: 'movers' })}>
         {/* <Image source={item.logo} resizeMode="contain" style={styles.logoImg} /> */}
         <Text style={styles.moverName} numberOfLines={1}>
           {item.symbol}
         </Text>
-        <Text style={styles.moverPrice}>{item.current_price}</Text>
+        <Text style={styles.moverPrice}>₹ {item.current_price}</Text>
         <Text
           style={[
             styles.moverChg,
-            { color: mainColors.greenText },
+            { color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText },
           ]}
         >
-          {item.absolute_change}
+          {item.absolute_change} ({item?.percentage_change}%)
         </Text>
       </TouchableOpacity>
     );

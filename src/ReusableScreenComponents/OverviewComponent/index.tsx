@@ -1,12 +1,12 @@
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useMemo } from 'react'
 import { Images } from '../../Assets';
-import { OverviewDataProps } from './types';
+import { OverviewDataProps, OverViewProps } from './types';
 import { fontFamily, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import IconButton from '../../ReusableComponents/iconButton';
 
-const OverviewComponent = () => {
+const OverviewComponent = (props: OverViewProps) => {
     const moversDataGrid = useMemo<OverviewDataProps[]>(
         () => [
             {
@@ -19,14 +19,14 @@ const OverviewComponent = () => {
             {
                 id: 'm2',
                 name: 'Max Drawdown',
-                price: '₹ 78,666,00',
+                price: `₹${props?.overViewData?.max_drawdown}`,
                 logo: Images.maxDropDown,
                 isUp: false,
             },
             {
                 id: 'm3',
                 name: 'Win Rate',
-                price: '3.12%',
+                price: `${props?.overViewData?.win_rate}%`,
                 logo: Images.winRate,
                 isUp: false,
             },
@@ -130,6 +130,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         alignSelf: 'center',
         bottom: scaler(15),
-        left: scaler(60)
+        left: scaler(70)
     }
 })

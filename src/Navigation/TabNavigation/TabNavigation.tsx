@@ -17,7 +17,17 @@ const Tab = createBottomTabNavigator<BottomStackParamList>();
 const BottamTabNavigation = () => {
   return (
     <View style={{ flex: 1 }}>
-      <SocketBootstrap />
+      <SocketBootstrap
+        ownerId="indices"
+        payload={{
+          type: "subscribe",
+          data: [
+            { segment: "INDICES", symbols: ["NIFTY50"], subscription_type: "contract" },
+            { segment: "INDICES", symbols: ["SENSEX"], subscription_type: "contract" },
+            { segment: "INDICES", symbols: ["NIFTYBANK"], subscription_type: "contract" },
+          ],
+        }}
+      />
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,

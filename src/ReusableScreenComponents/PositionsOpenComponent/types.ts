@@ -12,19 +12,14 @@ export type TopTab = {
 };
 export type FlatItem = {
   id: number;
-  name: string;
+  symbol: string;
   exchange: string;
-  bs: string;
-  DateTime: string;
-  Qty: string;
-  LTP: string;
-  Product: string;
+  direction: string;
+  entry_time: string;
+  quantity: string;
+  entry_price: string;
+  product_type: string;
   Status: string;
   Price: string;
   Source: string;
 };
-
-export type PositionOpenProps = {
-  isShow: boolean;
-  nav?: MainStackScreenProps<'Instrument'>['navigation'];
-}

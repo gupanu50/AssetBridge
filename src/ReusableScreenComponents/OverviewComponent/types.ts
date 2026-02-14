@@ -7,3 +7,10 @@ export type OverviewDataProps = {
     logo?: ImageSourcePropType;
     isUp?: boolean;
 };
+
+export type OverViewProps = {
+    overViewData: {
+        max_drawdown: string;
+        win_rate: string;
+    }
+}
