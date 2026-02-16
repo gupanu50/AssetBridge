@@ -1,0 +1,55 @@
+<script type="text/javascript">
+	function getParameterByName(name) {
+		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+		var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			results = regex.exec(location.search);
+		return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+
+	function initOnReady() {
+		// Read from query params
+		var datafeedUrl = getParameterByName("dataUrl") || "https://demo-feed-data.tradingview.com";
+		if (datafeedUrl !== "" && !datafeedUrl.startsWith("https://") && !datafeedUrl.startsWith("http://")) {
+			datafeedUrl = "https://" + datafeedUrl;
+		}
+
+		var symbol = getParameterByName("symbol") || "NIFTY50";
+		var interval = getParameterByName("interval") || "1D";
+
+		window.tvWidget = new TradingView.widget({
+			fullscreen: true,
+			symbol: symbol,
+			interval: interval,
+			container: "tv_chart_container",
+
+			// UDF feed
+			datafeed: new Datafeeds.UDFCompatibleDatafeed(datafeedUrl, undefined, {
+				maxResponseLength: 1000,
+				expectedOrder: "latestFirst",
+			}),
+
+			library_path: "charting_library/",
+			locale: getParameterByName("lang") || "en",
+
+			disabled_features: [
+				"use_localstorage_for_settings",
+				"left_toolbar",
+				"header_widget",
+				"timeframes_toolbar",
+				"edit_buttons_in_legend",
+				"context_menus",
+				"control_bar",
+				"border_around_the_chart",
+			],
+
+			overrides: {
+				"paneProperties.background": "#222222",
+				"paneProperties.vertGridProperties.color": "#454545",
+				"paneProperties.horzGridProperties.color": "#454545",
+				"scalesProperties.textColor": "#AAA",
+			},
+		});
+	}
+
+	window.addEventListener("DOMContentLoaded", initOnReady, false);
+</script>

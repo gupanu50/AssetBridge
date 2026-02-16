@@ -16,6 +16,7 @@ export type PropCommonCardTypes = {
   pAndLChange: string;
   status: string;
   onPress?: () => void;
+  onPressSubscribe?: () => void;
 };
 export type PropCommonCardApiTypes = {
   logo: ImageSourcePropType;

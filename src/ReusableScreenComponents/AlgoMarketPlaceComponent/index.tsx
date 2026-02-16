@@ -1,16 +1,18 @@
 import { View, FlatList } from 'react-native';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Images } from '../../Assets';
 import { styles } from './styles';
 import CommonAlgoMarketPlaceCard from '../../ReusableComponents/commonCardsAlgoMarketPlaceCard';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import useTradingBotsQuery from '../../ReusableComponents/Hooks/useTradingBotsQuery';
 import { isMarketOpenIST } from '../../Utils/helper';
+import RiskDisclosureScreen from '../../ReusableComponents/riskDisclosureModal';
 type MyAlgoProps = {
   navigation?: MainStackScreenProps<'AlgoMain'>['navigation'];
 }
 const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
   const isMarketHours = isMarketOpenIST();
+  const [showRiskModal, setShowRiskModal] = useState(false)
   const { data: tradingData }: any = useTradingBotsQuery({
     queryKey: ['/api/v1/strategy/bots/'],
     refetchInterval: isMarketHours ? 3000 : false
@@ -74,6 +76,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
           name={item.name}
           onPress={() => navigation?.navigate('MarketPlace', { cardData: item })}
           sub={item.description}
+          onPressSubscribe={() => setShowRiskModal(true)}
           tagLeft={item.tagLeft}
           tagRight={item.tagRight}
           ltp={item.backtest_results.summary.net_pnl}
@@ -95,6 +98,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
         keyExtractor={i => i.id}
         renderItem={renderFeatureCard}
       />
+      <RiskDisclosureScreen visible={showRiskModal} setVisible={setShowRiskModal} onPress={() => setShowRiskModal(false)} />
     </View>
   );
 };

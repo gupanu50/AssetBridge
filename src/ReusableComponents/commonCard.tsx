@@ -193,13 +193,13 @@ const CommonCard = (props: PropCommonCardTypes) => {
             />
             <Text style={styles.actionText}>Instrument</Text>
           </View>
-          <View style={styles.actionPillGreen}>
+          <TouchableOpacity style={styles.actionPillGreen} onPress={props.onPressSubscribe}>
             <Image
               source={Images.subscribeBtn}
               resizeMode="contain"
               style={styles.imgView}
             />
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     </View>

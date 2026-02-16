@@ -25,6 +25,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import useTopMoversQuery from '../../Screens/HomeScreen/Hooks/useTopMoversQuery';
 import useTradingBotsQuery from '../../ReusableComponents/Hooks/useTradingBotsQuery';
 import useNewsQuery from '../../ReusableComponents/Hooks/useNewsQuery';
+import RiskDisclosureScreen from '../../ReusableComponents/riskDisclosureModal';
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 type ExploreProps = {
   navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
@@ -35,6 +36,7 @@ export default function ExploreComponent(props: ExploreProps) {
   const [activeMoverTab, setActiveMoverTab] = useState('Gainers');
   const [selectedValue, setSelectedValue] = useState<string>('today');
   const isMarketHours = isMarketOpenIST();
+  const [showRiskModal, setShowRiskModal] = useState(false)
   const dropDownData = [
     { label: 'Today', value: 'today' },
     { label: 'Yesterday', value: 'yesterday' },
@@ -129,6 +131,7 @@ export default function ExploreComponent(props: ExploreProps) {
         logo={item.logo}
         onPress={() => props?.navigation?.navigate('AlgoMain', { item: item })}
         name={item.name}
+        onPressSubscribe={() => setShowRiskModal(true)}
         sub={item.description}
         tagLeft={item.tagLeft}
         tagRight={item.tagRight}
@@ -360,6 +363,7 @@ export default function ExploreComponent(props: ExploreProps) {
           <Text style={{ color: mainColors.mainButton }}>Asset Bridge</Text>
         </Text>
       </View>
+      <RiskDisclosureScreen visible={showRiskModal} setVisible={setShowRiskModal} onPress={() => setShowRiskModal(false)} />
     </View>
   );
 }

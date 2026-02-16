@@ -90,6 +90,7 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
                 current_price: formatNumber(row?.ltp, 2),
                 percentage_change: formatChange(abs, pct),
                 color,
+                exchange: 'INDICES'
             };
         });
     }, [indexRows]);

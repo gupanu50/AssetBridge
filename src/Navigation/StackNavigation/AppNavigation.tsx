@@ -20,6 +20,7 @@ import ContactUsScreen from '../../Screens/ContactUsScreen';
 import TransactionHistoryScreen from '../../Screens/TransactionHistoryScreen';
 import AlgoMainScreen from '../../Screens/AlgoMainScreen';
 import NoDataFoundComponent from '../../ReusableScreenComponents/NoDataFoundComponent';
+import TradingViewScreen from '../../Screens/TradingViewScreen';
 export default function AppNavigation() {
   const Stack = createNativeStackNavigator<MainStackParamList>();
   return (
@@ -54,6 +55,10 @@ export default function AppNavigation() {
           <Stack.Screen
             name="AlgoMain"
             component={AlgoMainScreen}
+          />
+          <Stack.Screen
+            name="TradingView"
+            component={TradingViewScreen}
           />
           <Stack.Screen name="NoData" component={NoDataFoundComponent} />
         </Stack.Group>

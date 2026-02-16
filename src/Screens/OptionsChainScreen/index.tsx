@@ -55,7 +55,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
   useEffect(() => {
     if (!wsPayload) return;
 
-    console.log('WsPayloadOptionChain', JSON.stringify(wsPayload?.data[0], null, 2)); // Log the payload for debugging
+    console.log('WsPayloadOptionChain', JSON.stringify(wsPayload, null, 2)); // Log the payload for debugging
 
     // Register the subscription for WebSocket
     registerSubscription('optionChainOwner', wsPayload);

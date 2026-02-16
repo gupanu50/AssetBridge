@@ -9,7 +9,7 @@ import CommonButton from './commonButton';
 type RiskModalProps = {
     visible: boolean;
     setVisible: any;
-    onPress: () => void
+    onPress?: () => void
 }
 const RiskDisclosureScreen = (props: RiskModalProps) => {
     const [isChecked, setIsChecked] = useState(false);
