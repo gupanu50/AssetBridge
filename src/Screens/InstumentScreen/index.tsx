@@ -46,7 +46,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     toDate,
     segment: paramItem?.segment ?? paramItem?.exchange,
   });
-  console.log('CandleStickData', candleData);
+  // console.log('CandleStickData', candleData);
   const candleData120 = useMemo(() => {
     return candleData?.data?.data?.candles?.map((item: any) => ({
       timestamp: item.time,
@@ -244,7 +244,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
               </View>
             </View>
             <IconButton
-              onPress={() => navigation.navigate('OptionsChain', { segment: paramItem?.segment, symbol: paramItem?.symbol })}
+              onPress={() => navigation.navigate('OptionsChain', { segment: paramItem?.segment ? paramItem?.segment : paramItem?.exchange, symbol: paramItem?.symbol })}
               vectorType="MaterialCommunityIcons"
               size={scaler(20)}
               name="link-variant"
@@ -281,7 +281,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
           </View>
           <View style={styles.touchView}>
             <TouchableOpacity style={styles.chartExpandView}
-              onPress={() => navigation.navigate('TradingView')}>
+              onPress={() => navigation.navigate('TradingView', { symbol: paramItem?.symbol })}>
               <Image
                 source={Images.expandScreen}
                 resizeMode="contain"

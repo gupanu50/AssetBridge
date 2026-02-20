@@ -28,7 +28,7 @@ const fmtMoney = (v: number) => `₹${v.toFixed(2)}`;
 const fmtPct = (v: number) => `${v >= 0 ? '' : ''}${v.toFixed(2)}%`;
 type Props = MainStackScreenProps<'OptionsChain'>;
 export default function OptionsChainScreen({ navigation, route }: Props) {
-  console.log('RouteOptionsChaain', route?.params?.segment, route?.params?.symbol);
+  console.log('RouteOptionsChaain', route?.params?.segment, route?.params?.symbol, route?.params);
   // Extracting segment and symbol dynamically from route params
   const segment = route?.params?.segment;
   const symbol = route?.params?.symbol;

@@ -1,64 +1,111 @@
 <!DOCTYPE html>
 <html>
-	<head>
 
-		<title>TradingView Advanced Charts demo -- Mobile (black)</title>
+<head>
+	<title>TradingView Advanced Charts — Mobile (black)</title>
 
-		<!-- Fix for iOS Safari zooming bug -->
-		<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<!-- Fix for iOS Safari zooming bug -->
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0" />
 
-		<script type="text/javascript" src="charting_library/charting_library.standalone.js"></script>
-		<script type="text/javascript" src="datafeeds/udf/dist/bundle.js"></script>
+	<!-- TradingView Charting Library (local) -->
+	<script type="text/javascript" src="charting_library/charting_library.standalone.js"></script>
 
-		<script type="text/javascript">
+	<!-- UDF datafeed bundle (local) -->
+	<script type="text/javascript" src="datafeeds/udf/dist/bundle.js"></script>
 
-			function getParameterByName(name) {
-				name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-					results = regex.exec(location.search);
-				return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-			}
+	<script type="text/javascript">
+		function getParameterByName(name) {
+			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+			var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+				results = regex.exec(location.search);
+			return results === null
+				? ""
+				: decodeURIComponent(results[1].replace(/\+/g, " "));
+		}
 
-		  function initOnReady() {
-				var datafeedUrl = "https://demo-feed-data.tradingview.com";
-				var customDataUrl = getParameterByName('dataUrl');
-				if (customDataUrl !== "") {
-					datafeedUrl = customDataUrl.startsWith('https://') ? customDataUrl : `https://${customDataUrl}`;
-				}
+		function normalizeBaseUrl(raw) {
+			// raw can be:
+			// - "http://13.234.232.141:8001/tv"
+			// - "https://domain.com/tv"
+			// - "13.234.232.141:8001/tv"  (no scheme)
+			if (!raw) return "";
+			raw = String(raw).trim();
 
-				var widget = new TradingView.widget({
-					fullscreen: true,
-					symbol: 'AAPL',
-					interval: '1D',
-					container: "tv_chart_container",
-					//	BEWARE: no trailing slash is expected in feed URL
-					datafeed: new Datafeeds.UDFCompatibleDatafeed(datafeedUrl, undefined, {
-						maxResponseLength: 1000,
-						expectedOrder: 'latestFirst',
-					}),
-					library_path: "charting_library/",
-					locale: getParameterByName('lang') || "en",
+			// If already has scheme, keep it
+			if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
 
-					disabled_features: [
-						'use_localstorage_for_settings',
-						'left_toolbar', 'header_widget', 'timeframes_toolbar', 'edit_buttons_in_legend', 'context_menus', 'control_bar', 'border_around_the_chart',
-					],
-					overrides: {
-						"paneProperties.background": "#222222",
-						"paneProperties.vertGridProperties.color": "#454545",
-						"paneProperties.horzGridProperties.color": "#454545",
-						"scalesProperties.textColor" : "#AAA"
-					}
-				});
-			};
+			// If no scheme, default to http (because your backend is http)
+			return "http://" + raw;
+		}
 
-			window.addEventListener('DOMContentLoaded', initOnReady, false);
-		</script>
+		function initOnReady() {
+			// Read params from RN WebView URL:
+			// file:///.../mobile_black.html?dataUrl=http%3A%2F%2F13.234.232.141%3A8001%2Ftv&symbol=NIFTY50&interval=1D&lang=en
+			var dataUrlParam = getParameterByName("dataUrl");
+			var symbolParam = getParameterByName("symbol");
+			var intervalParam = getParameterByName("interval");
+			var langParam = getParameterByName("lang");
 
-	</head>
+			// Defaults
+			var datafeedUrl = "https://demo-feed-data.tradingview.com";
+			var symbol = "NIFTY50";
+			var interval = "1D";
+			var lang = "en";
 
-	<body style="margin:0px;">
-		<div id="tv_chart_container"></div>
-	</body>
+			// Apply overrides from query
+			var normalized = normalizeBaseUrl(dataUrlParam);
+			if (normalized) datafeedUrl = normalized;
+
+			if (symbolParam) symbol = symbolParam;
+			if (intervalParam) interval = intervalParam;
+			if (langParam) lang = langParam;
+
+			// IMPORTANT:
+			// UDFCompatibleDatafeed expects base path like:
+			// http://13.234.232.141:8001/tv
+			// and it will call:
+			// /tv/config, /tv/time, /tv/symbols, /tv/history, /tv/search ...
+			window.tvWidget = new TradingView.widget({
+				fullscreen: true,
+				symbol: symbol,
+				interval: interval,
+				container: "tv_chart_container",
+
+				// BEWARE: no trailing slash is expected
+				datafeed: new Datafeeds.UDFCompatibleDatafeed(datafeedUrl, undefined, {
+					maxResponseLength: 1000,
+					expectedOrder: "latestFirst",
+				}),
+
+				library_path: "charting_library/",
+				locale: lang,
+
+				disabled_features: [
+					"use_localstorage_for_settings",
+					"left_toolbar",
+					"header_widget",
+					"timeframes_toolbar",
+					"edit_buttons_in_legend",
+					"context_menus",
+					"control_bar",
+					"border_around_the_chart",
+				],
+
+				overrides: {
+					"paneProperties.background": "#222222",
+					"paneProperties.vertGridProperties.color": "#454545",
+					"paneProperties.horzGridProperties.color": "#454545",
+					"scalesProperties.textColor": "#AAA",
+				},
+			});
+		}
+
+		window.addEventListener("DOMContentLoaded", initOnReady, false);
+	</script>
+</head>
+
+<body style="margin: 0px;">
+	<div id="tv_chart_container"></div>
+</body>
 
 </html>

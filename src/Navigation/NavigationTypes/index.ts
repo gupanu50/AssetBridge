@@ -73,7 +73,9 @@ export type MainStackParamList = {
     redText: string;
     btnLable: string;
   };
-  TradingView: undefined;
+  TradingView: {
+    symbol: string;
+  };
 };
 export type BottomStackParamList = {
   Home: undefined;
