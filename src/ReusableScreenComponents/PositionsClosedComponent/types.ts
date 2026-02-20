@@ -7,16 +7,19 @@ export type TopTab = {
 };
 export type FlatItem = {
   id: number;
-  name: string;
+  symbol: string;
   exchange: string;
-  bs: string;
-  DateTime: string;
-  Qty: string;
-  LTP: string;
+  direction: string;
+  entry_time: string;
+  quantity: string;
+  entry_price: string;
+  product_type: string
   Product: string;
   Status: string;
   Price: string;
   Source: string;
+  exit_time: string;
+  exit_price: string;
 };
 
 export type PositionClosedProps = {

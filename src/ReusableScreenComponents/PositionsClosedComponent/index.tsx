@@ -1,42 +1,19 @@
 import { View, Text, FlatList, Image } from 'react-native';
-import React from 'react';
-import CommonButton from '../../ReusableComponents/commonButton';
+import React, { useMemo, useState } from 'react';
 import { mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
 import scaler from '../../Utils/scaler';
 import { styles } from './styles';
 import { FlatItem } from './types';
 import { Images } from '../../Assets';
-
+import usePostionsOpenQuery from '../PositionsOpenComponent/Hooks/usePostionsOpenQuery';
+import moment from 'moment';
+import CommonTextInput from '../../ReusableComponents/commonTextInput';
 const PositionsClosedComponent = () => {
-  const flatData = [
-    {
-      id: 1,
-      name: 'NIFTY 25000 CE',
-      exchange: 'NFO',
-      bs: 'Long',
-      DateTime: '04APR25',
-      Qty: '50',
-      LTP: '10:00:00',
-      Product: 'CNC',
-      Status: '234,5678',
-      Price: '245.00',
-      Source: 'Manual',
-    },
-    {
-      id: 2,
-      name: 'Lorem Ipsum',
-      exchange: 'NSE',
-      bs: 'Short',
-      DateTime: '05APR25',
-      Qty: '50',
-      LTP: '10:00:00',
-      Product: 'CNC',
-      Status: '234,567',
-      Price: '2450.00',
-      Source: 'Automated',
-    },
-  ];
+  const { data } = usePostionsOpenQuery();
+  const flatData = data?.data?.data?.results;
+  const [input, setInput] = useState('');
+  console.log('dataClosedPostions', flatData);
 
   const renderCardData = ({ item }: { item: FlatItem }) => {
     const statusColor =
@@ -45,12 +22,11 @@ const PositionsClosedComponent = () => {
         : item.Status?.toLowerCase() === '234,567'
           ? mainColors.red // orange-ish like screenshot
           : mainColors.descText;
-
     return (
       <View style={styles.orderCard}>
         {/* Top row: checkbox + Name + Exchange badge */}
         <View style={styles.cardTopRow}>
-          <Text style={styles.cardTitle}>{item.name}</Text>
+          <Text style={styles.cardTitle}>{item.symbol}</Text>
 
           <View style={styles.exchangeBadge}>
             <Text style={styles.exchangeBadgeText}>{item.exchange}</Text>
@@ -62,7 +38,7 @@ const PositionsClosedComponent = () => {
 
         {/* Buy/Sell + DateTime */}
         <View style={styles.cardSubRow}>
-          <Text style={styles.dateText}>{item.DateTime}</Text>
+          <Text style={styles.dateText}>{moment(item.entry_time).format('DDMMMYY')}</Text>
         </View>
 
         {/* Two columns like screenshot */}
@@ -71,21 +47,21 @@ const PositionsClosedComponent = () => {
           <View style={styles.cardCol}>
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Qty </Text>
-              <Text style={styles.kValue}>: {item.Qty}</Text>
+              <Text style={styles.kValue}>: {item.quantity}</Text>
             </View>
 
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Entry time </Text>
-              <Text style={styles.kValue}>: {item.LTP}</Text>
+              <Text style={styles.kValue}>: {moment(item.entry_time).format('HH:mm:ss')}</Text>
             </View>
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Exit time </Text>
-              <Text style={styles.kValue}>: {item.LTP}</Text>
+              <Text style={styles.kValue}>: {moment(item.exit_time).format('HH:mm:ss')}</Text>
             </View>
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Product</Text>
               <View style={styles.pill}>
-                <Text style={styles.pillText}>{item.Product}</Text>
+                <Text style={styles.pillText}>{item.product_type}</Text>
               </View>
             </View>
           </View>
@@ -101,11 +77,11 @@ const PositionsClosedComponent = () => {
 
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Entry Price </Text>
-              <Text style={styles.kValue}>: {item.Price}</Text>
+              <Text style={styles.kValue}>: {item.entry_price}</Text>
             </View>
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Exit Price </Text>
-              <Text style={styles.kValue}>: {item.Price}</Text>
+              <Text style={styles.kValue}>: {item.exit_price}</Text>
             </View>
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Direction</Text>
@@ -114,7 +90,7 @@ const PositionsClosedComponent = () => {
                   styles.pillDirection,
                   {
                     backgroundColor:
-                      item.bs === 'Long'
+                      item.direction === 'long'
                         ? mainColors.swiperBgPnl
                         : mainColors.swiperMaxDDbg,
                   },
@@ -125,13 +101,13 @@ const PositionsClosedComponent = () => {
                     styles.pillDirectionText,
                     {
                       color:
-                        item.bs === 'Long'
+                        item.direction === 'long'
                           ? mainColors.swiperPnl
                           : mainColors.swiperMaxDD,
                     },
                   ]}
                 >
-                  {item.bs}
+                  {item.direction}
                 </Text>
               </View>
             </View>
@@ -140,11 +116,26 @@ const PositionsClosedComponent = () => {
       </View>
     );
   };
+  const filteredOrderData = useMemo(() => {
+    if (!input.trim()) {
+      return flatData; // If input is empty, return all orders
+    }
+    return flatData?.filter((order: any) =>
+      order.symbol.toLowerCase().includes(input.toLowerCase()) ||
+      order.symbol.toLowerCase().includes(input.toLowerCase())
+    );
+  }, [input, flatData]);
   return (
     <View style={styles.main}>
       <View style={[styles.flexView, styles.lineView]}>
         <View style={styles.searchBox}>
-          <Text style={styles.searchText}>Search</Text>
+          <CommonTextInput
+            value={input}
+            setValue={setInput}
+            placeholder='Search'
+            containerStyle={{ height: scaler(38), width: scaler(65), borderWidth: 0 }}
+            style={{ fontSize: scaler(11) }}
+          />
           <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
         </View>
         <IconButton
@@ -155,7 +146,7 @@ const PositionsClosedComponent = () => {
         />
       </View>
       <FlatList
-        data={flatData}
+        data={filteredOrderData}
         renderItem={renderCardData}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
