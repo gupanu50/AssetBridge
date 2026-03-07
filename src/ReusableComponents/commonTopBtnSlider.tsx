@@ -33,7 +33,7 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
         const off = onWsMessage((msg) => {
             if (msg?.type !== "snapshot" && msg?.type !== "update") return;
             if (!msg?.data || typeof msg.data !== "object") return;
-            console.log('WSMessage', msg)
+            // console.log('WS Message CommonTabBTNSlider', msg);
             setIndexRows((prev) => {
                 let changed = false;
                 const next = { ...prev };

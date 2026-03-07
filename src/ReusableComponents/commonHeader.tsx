@@ -1,80 +1,25 @@
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import scaler from '../Utils/scaler';
 import { Images } from '../Assets';
 import { fontFamily, mainColors } from '../Utils/helper';
 import CommonTextInput from './commonTextInput';
 import useCompressQuery from '../Screens/HomeScreen/Hooks/useCompressQuery';
 import { CommonHeaderProps, ContractsObj, SearchItem } from './commonTypes';
-/** ✅ Debounce */
-function useDebounce<T>(value: T, delayMs = 300): T {
-  const [debounced, setDebounced] = useState<T>(value);
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(id);
-  }, [value, delayMs]);
-  return debounced;
-}
-
-function safeStr(v: any) {
-  return String(v ?? "").trim();
-}
-
-function buildSearchIndex(contractsObj?: ContractsObj | null): SearchItem[] {
-  if (!contractsObj || typeof contractsObj !== "object") return [];
-
-  const out: SearchItem[] = [];
-
-  Object.values(contractsObj).forEach((rows) => {
-    if (!Array.isArray(rows)) return;
-
-    for (const row of rows) {
-      if (!Array.isArray(row) || row.length < 10) continue;
-
-      const symbol = safeStr(row[2]);
-      const fullName = safeStr(row[3]);
-      const segment = safeStr(row[9]);
-
-      if (!symbol || !fullName || !segment) continue;
-
-      out.push({
-        symbol,
-        fullName,
-        fullNameLower: fullName.toLowerCase(),
-        segment,
-      });
-    }
-  });
-
-  return out;
-}
-
-function searchItems(items: SearchItem[], q: string, limit = 30): SearchItem[] {
-  const query = q.trim().toLowerCase();
-  if (!query) return [];
-
-  const matches = items.filter((it) => it.fullNameLower.includes(query));
-
-  // prefer startsWith
-  matches.sort((a, b) => {
-    const aStarts = a.fullNameLower.startsWith(query) ? 0 : 1;
-    const bStarts = b.fullNameLower.startsWith(query) ? 0 : 1;
-    if (aStarts !== bStarts) return aStarts - bStarts;
-    return a.fullName.length - b.fullName.length;
-  });
-
-  return matches.slice(0, limit);
-}
+import { buildSearchIndex, searchItems, useDebounce } from './commonFunctions';
+import useNotiCountQuery from '../Screens/NotificationScreen/Hooks/useGetNotiCountQuery';
 
 const CommonHeader = (props: CommonHeaderProps) => {
   const [showSearch, setShowSearch] = useState(false);
   const [value, setValue] = useState('');
   const debouncedValue = useDebounce(value, 300);
   const { data } = useCompressQuery();
+  const { data: notiCountData, refetch } = useNotiCountQuery();
+  const notiCount = notiCountData?.data?.data?.unread || 0;
   const contracts: ContractsObj | undefined = data?.data?.data?.contracts;
-
   // ✅ build flattened list once per API update
   const searchIndex = useMemo(() => buildSearchIndex(contracts), [contracts]);
+  // console.log('ContractsObj', contracts);
 
   // ✅ compute results only after debounce
   const results = useMemo(() => {
@@ -102,6 +47,7 @@ const CommonHeader = (props: CommonHeaderProps) => {
         {showSearch && (
           <CommonTextInput
             value={value}
+            autoFocus={true}
             setValue={setValue}
             placeholder="Search here"
             containerStyle={styles.containerStyle}
@@ -116,21 +62,26 @@ const CommonHeader = (props: CommonHeaderProps) => {
               style={styles.searchLogo}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              // ✅ open modal if provided, else fallback to your old screen
-              if (props.onPressBell) {
-                props.onPressBell();
-                return;
-              }
-            }}
-          >
-            <Image
-              source={Images.notification}
-              resizeMode="contain"
-              style={styles.notiLogo}
-            />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity
+              onPress={() => {
+                // ✅ open modal if provided, else fallback to your old screen
+                if (props.onPressBell) {
+                  props.onPressBell();
+                  return;
+                }
+              }}
+            >
+              <Image
+                source={Images.notification}
+                resizeMode="contain"
+                style={styles.notiLogo}
+              />
+            </TouchableOpacity>
+            <View style={styles.notiCountView}>
+              <Text style={styles.notiCountText}>{notiCount}</Text>
+            </View>
+          </View>
         </View>
       </View>
       {/* ✅ Drop-down results */}
@@ -240,7 +191,7 @@ const styles = StyleSheet.create({
     color: mainColors.white
   },
   list: {
-    maxHeight: scaler(600), // ✅ dropdown height (scroll inside this)
+    maxHeight: scaler(650), // ✅ dropdown height (scroll inside this)
   },
   listContent: {
     paddingVertical: 0,
@@ -250,4 +201,18 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     backgroundColor: mainColors.white, // or border color you prefer
   },
+  notiCountView: {
+    borderRadius: 100 / 2,
+    backgroundColor: mainColors.redText,
+    height: scaler(17),
+    width: scaler(15),
+    position: 'absolute',
+    right: scaler(-3),
+    top: scaler(-5),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notiCountText: {
+    color: mainColors.white, fontSize: scaler(10), fontFamily: fontFamily.poppinsBold
+  }
 });

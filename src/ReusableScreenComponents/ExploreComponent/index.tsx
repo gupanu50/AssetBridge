@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react-native/no-inline-styles */
 import {
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -8,14 +9,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Images } from '../../Assets';
 import CommonCard from '../../ReusableComponents/commonCard';
 import {
   NewsItemProps,
   PropCommonCardApiTypes,
 } from '../../ReusableComponents/commonTypes';
-import { fontFamily, isMarketOpenIST, mainColors } from '../../Utils/helper';
+import { fontFamily, getApiErrorMessage, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import CommonNews from '../../ReusableComponents/commonNews';
 import { MoversApiProps } from './types';
@@ -26,6 +27,13 @@ import useTopMoversQuery from '../../Screens/HomeScreen/Hooks/useTopMoversQuery'
 import useTradingBotsQuery from '../../ReusableComponents/Hooks/useTradingBotsQuery';
 import useNewsQuery from '../../ReusableComponents/Hooks/useNewsQuery';
 import RiskDisclosureScreen from '../../ReusableComponents/riskDisclosureModal';
+import snackbarHandler from '../../Utils/snackbarHandler';
+// import PaymentScreen from '../../ReusableComponents/paymentComponent';
+import useCreatePaymentOrderMutation from '../../Screens/MarketPlaceScreen/Hooks/useCreatePaymentOrderMutation';
+import useProfileQuery from '../../Screens/ProfileScreen/Hooks/useProfileQuery';
+import { startRazorpayPayment } from '../../ReusableComponents/paymentComponent';
+import useStartStopBotMutation from '../../Screens/HomeScreen/Hooks/useStartStopBotMutation';
+import useVerifyPaymentMutation from '../../Screens/MarketPlaceScreen/Hooks/usePaymentVerifyMutation';
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 type ExploreProps = {
   navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
@@ -34,114 +42,178 @@ export default function ExploreComponent(props: ExploreProps) {
   const CARD_WIDTH = SCREEN_WIDTH - scaler(30);
   const CARD_GAP = scaler(12); // space between cards
   const [activeMoverTab, setActiveMoverTab] = useState('Gainers');
+  // const [featureIndex, setFeatureIndex] = useState(0);
   const [selectedValue, setSelectedValue] = useState<string>('today');
+  const [moverLimit, setMoverLimit] = useState<'5' | '15'>('5');
   const isMarketHours = isMarketOpenIST();
-  const [showRiskModal, setShowRiskModal] = useState(false)
+  const [showRiskModal, setShowRiskModal] = useState(false);
+  const featureListRef = React.useRef<FlatList<any>>(null);
+  const featureIndexRef = React.useRef(0); // avoids re-renders
+  const { data: profileApiData } = useProfileQuery();
+  const { mutate: startStopBotMutate } = useStartStopBotMutation();
+  const profileData = profileApiData?.data?.data[0]
+  // refs to keep tab visible while sliding
+  // const topTabListRef: any = useRef(null);
+  const { mutate: subscribeMutate } = useCreatePaymentOrderMutation();
+  const ITEM_SIZE = CARD_WIDTH + CARD_GAP;
   const dropDownData = [
     { label: 'Today', value: 'today' },
-    { label: 'Yesterday', value: 'yesterday' },
+    { label: 'Month', value: 'month' },
+    { label: 'Year', value: 'year' }
   ];
-  const { data } = useTopMoversQuery({
+  const { data, refetch: refetchTopMovers } = useTopMoversQuery({
     exchange: 'NSE',
-    limit: '5',
+    limit: moverLimit,
     time: selectedValue,
-    type: activeMoverTab
+    type: activeMoverTab.replace('s', '').toLowerCase(),
   },
     {
-      queryKey: ['topMovers', selectedValue, activeMoverTab],
+      queryKey: ['topMovers', selectedValue, activeMoverTab, moverLimit],
       refetchInterval: isMarketHours ? 3000 : false,
     }
   )
   const moversApiData: MoversApiProps[] = data?.data?.data?.movers ?? [];
+  const { mutate: verifyPaymentMutate } = useVerifyPaymentMutation();
+  const [selectedBotId, setSelectedBotId] = useState<string>('');
   const moversWithViewAll: MoversApiProps[] = React.useMemo(() => {
+    const normalized = moversApiData.map(m => ({ ...m, isViewAll: false }));
+    if (moverLimit === '15') return normalized;
     return [
-      ...moversApiData.map(m => ({ ...m, isViewAll: false })), // normalize
+      ...normalized,
       { id: "__view_all__", isViewAll: true, symbol: '', current_price: 0, absolute_change: 0 },
     ];
-  }, [moversApiData]);
-  const { data: tradingData }: any = useTradingBotsQuery({
+  }, [moversApiData, moverLimit]);
+  const { data: tradingData, refetch }: any = useTradingBotsQuery({
     queryKey: ['/api/v1/strategy/bots/'],
     refetchInterval: isMarketHours ? 3000 : false
   });
   const tradingBotData = tradingData?.data?.data;
+  console.log('Trading Bots Data:', tradingBotData);
   const { data: newsApiData } = useNewsQuery();
-  // console.log('NewsData', newsApiData)
-  const newsData = newsApiData?.data?.results;
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     refetch(); // Manually trigger a refetch of the API data
-  //   }, 15000);
+  const bots = tradingBotData ?? [];
 
-  //   return () => clearInterval(interval); // Clean up the interval on unmount
-  // }, [refetch]);
-  // const featureCards = useMemo(
-  //   () => [
-  //     {
-  //       id: 'f1',
-  //       logo: Images.swiperLogo,
-  //       name: 'TradeMioon Sensex',
-  //       sub: 'Buying {DTE 0,1,2,3}',
-  //       tagLeft: 'Buy',
-  //       tagRight: 'MOMENT',
-  //       ltp: '20,000',
-  //       ltpChange: '+3.1%',
-  //       intraday: '2.22',
-  //       intradayChange: '+1.3%',
-  //       pAndL: '3.11',
-  //       pAndLChange: '-0.37%',
-  //       status: 'RUNNING',
-  //     },
-  //     // add more cards here (it will automatically become swipe-able)
-  //     {
-  //       id: 'f2',
-  //       logo: Images.swiperLogo,
-  //       name: 'TradeMioon Nifty',
-  //       sub: 'Buying {DTE 0,1,2,3}',
-  //       tagLeft: 'Buy',
-  //       tagRight: 'MOMENT',
-  //       ltp: '18,450',
-  //       ltpChange: '+1.2%',
-  //       intraday: '1.90',
-  //       intradayChange: '+0.6%',
-  //       pAndL: '2.01',
-  //       pAndLChange: '+0.22%',
-  //       status: 'RUNNING',
-  //     },
-  //     {
-  //       id: 'f3',
-  //       logo: Images.swiperLogo,
-  //       name: 'TradeMioon Bank',
-  //       sub: 'Buying {DTE 0,1,2,3}',
-  //       tagLeft: 'Buy',
-  //       tagRight: 'MOMENT',
-  //       ltp: '42,110',
-  //       ltpChange: '-0.4%',
-  //       intraday: '1.10',
-  //       intradayChange: '-0.2%',
-  //       pAndL: '1.55',
-  //       pAndLChange: '-0.11%',
-  //       status: 'RUNNING',
-  //     },
-  //   ],
-  //   [], // no dependencies
-  // );
+  const loopedBots = React.useMemo(() => {
+    if (!bots.length) return [];
+    return [...bots, bots[0]]; // 👈 add first item at end
+  }, [bots]);
+  useEffect(() => {
+    if (!bots.length) return;
+
+    const id = setInterval(() => {
+      let next = featureIndexRef.current + 1;
+
+      // move forward to next (including the duplicated last item)
+      featureListRef.current?.scrollToOffset({
+        offset: next * ITEM_SIZE,
+        animated: true,
+      });
+
+      featureIndexRef.current = next;
+    }, 5000);
+
+    return () => clearInterval(id);
+  }, [bots.length, ITEM_SIZE]);
+  const onFeatureScrollEnd = (e: any) => {
+    const x = e.nativeEvent.contentOffset.x;
+    const i = Math.round(x / ITEM_SIZE);
+
+    featureIndexRef.current = i;
+
+    // If we are at the duplicated last item (index = bots.length),
+    // jump to real first item without animation
+    if (bots.length && i === bots.length) {
+      // small delay ensures the animated scroll finishes cleanly
+      setTimeout(() => {
+        featureListRef.current?.scrollToOffset({
+          offset: 0,
+          animated: false, // ✅ instant, no "back swipe"
+        });
+        featureIndexRef.current = 0;
+      }, 50);
+    }
+  };
+  const newsData = newsApiData?.data?.data?.results;
+  // console.log('NewsData', newsData);
+  const handleCardAction = (item: any) => {
+    const isSubscribed = item?.is_subscribed;
+    const runningStatus = item?.running_status;
+
+    // 1. Not subscribed -> open modal
+    if (!isSubscribed) {
+      setSelectedBotId(String(item?.bot_id));
+      setShowRiskModal(true);
+      return;
+    }
+
+    // 2. Already subscribed -> start / stop bot
+    if (!item?.instance_id) {
+      snackbarHandler.errorToast('Instance id not found');
+      return;
+    }
+
+    if (runningStatus === 'pause') {
+      startStopBotMutate(
+        {
+          instance_id: item?.instance_id,
+          type: 'start',
+        },
+        {
+          onSuccess: (res: any) => {
+            console.log('StartBotResponse', res);
+            refetch();
+            snackbarHandler.successToast('Bot started successfully');
+          },
+          onError: (err: any) => {
+            console.log('StartBotError', err);
+            snackbarHandler.errorToast(getApiErrorMessage(err) || 'Failed to start bot');
+          },
+        }
+      );
+      return;
+    }
+
+    if (runningStatus === 'run') {
+      startStopBotMutate(
+        {
+          instance_id: item?.instance_id,
+          type: 'stop',
+        },
+        {
+          onSuccess: (res: any) => {
+            console.log('StopBotResponse', res);
+            refetch();
+            snackbarHandler.successToast('Bot paused successfully');
+          },
+          onError: (err: any) => {
+            console.log('StopBotError', err);
+            snackbarHandler.errorToast(getApiErrorMessage(err) || 'Failed to pause bot');
+          },
+        }
+      );
+      return;
+    }
+  };
   const renderFeatureCard = (item: PropCommonCardApiTypes) => {
     return (
       <CommonCard
         logo={item.logo}
         onPress={() => props?.navigation?.navigate('AlgoMain', { item: item })}
         name={item.name}
-        onPressSubscribe={() => setShowRiskModal(true)}
         sub={item.description}
+        dayPnl={item?.backtest_results?.summary?.day?.net_pnl || '0'}
+        dayReward={item?.backtest_results?.summary?.day?.total_trades || '0'}
+        dayDD={item?.backtest_results?.summary?.day?.max_drawdown || '0'}
         tagLeft={item.tagLeft}
         tagRight={item.tagRight}
-        ltp={item?.backtest_results?.summary?.net_pnl}
+        ltp={item?.backtest_results?.summary?.month?.net_pnl || ''}
         ltpChange={item.ltpChange}
-        intraday={item?.backtest_results?.summary?.total_trades}
+        intraday={item?.backtest_results?.summary?.month?.total_trades || ''}
         intradayChange={item.intradayChange}
-        pAndL={item?.backtest_results?.summary?.max_drawdown}
+        pAndL={item?.backtest_results?.summary?.month?.max_drawdown || ''}
         pAndLChange={item.pAndLChange}
-        status={item.status}
+        is_subscribed={item?.is_subscribed}
+        status={item?.running_status}
+        onPressSubscribe={() => handleCardAction(item)}
       />
     );
   };
@@ -184,6 +256,10 @@ export default function ExploreComponent(props: ExploreProps) {
         <TouchableOpacity
           activeOpacity={0.85}
           style={[styles.moverCard, styles.viewAllCard]}
+          onPress={() => {
+            setMoverLimit('15');       // ✅ increase limit
+            refetchTopMovers();        // ✅ force refetch (as you asked)
+          }}
         >
           <Text style={styles.viewAllText}>View all</Text>
           <View style={styles.viewAllCircle}>
@@ -217,17 +293,68 @@ export default function ExploreComponent(props: ExploreProps) {
     return (
       <CommonNews
         published_at={item.published_at}
-        img={item.img}
+        img={item.image_url}
         title={item.title}
       />
     );
   };
+  const subs = (id: string) => {
+    if (!id) {
+      snackbarHandler.errorToast('Bot id not found');
+      return;
+    }
+    subscribeMutate({
+      bot_id: parseInt(id)
+    }, {
+      onSuccess: async (res: any) => {
+        console.log('PaymentOrderCreateApiSuccess', res);
+        let resData = res?.data?.data;
+        snackbarHandler.successToast('Subscribed successfully!');
+        setShowRiskModal(false);
+        const result = await startRazorpayPayment({
+          amount: Number(resData?.amount),         // ✅ in paise
+          currency: resData?.currency ?? 'INR',
+          id: resData?.provider_order_id,    // ✅ if order flow
+          subscription_id: resData?.subscription_id, // ✅ only if subscription flow
+          email: profileData?.email ?? '',
+          contact: profileData?.contact ?? '',
+          name: `${profileData?.first_name ?? ''} ${profileData?.last_name ?? ''}`.trim(),
+        });
+        if (result.ok) {
+          verifyPaymentMutate({
+            razorpay_order_id: result?.data?.razorpay_order_id,
+            razorpay_payment_id: result?.data?.razorpay_payment_id,
+            razorpay_signature: result?.data?.razorpay_signature
+          }, {
+            onSuccess: (res) => {
+              console.log('ResPaymentVerify', res)
+              snackbarHandler.successToast('Payment is successfully verified');
+              refetch();
+            },
+            onError: (err) => {
+              snackbarHandler.errorToast('Payment is not verified');
+              const message = getApiErrorMessage(err) || 'Payment failed';
+              snackbarHandler.errorToast(message);
+            }
+          })
+        } else {
+          Alert.alert('Payment not successful, Please retry after some time')
+        }
+      },
+      onError: (err: any) => {
+        console.log('PaymentOrderCreateApiError', err);
+        const message = getApiErrorMessage(err) || 'Subscription failed';
+        snackbarHandler.errorToast(message);
+      },
+    });
+  }
   return (
     <View style={styles.mainView}>
       {/* -------------------- BIG CARD (UNCHANGED SECTION) -------------------- */}
       <FlatList
-        data={tradingBotData}
-        keyExtractor={item => item.name}
+        ref={featureListRef}
+        data={loopedBots}
+        keyExtractor={(item, index) => `${item.name}-${index}`}
         renderItem={({ item }) => renderFeatureCard(item)}
         horizontal
         pagingEnabled
@@ -238,10 +365,11 @@ export default function ExploreComponent(props: ExploreProps) {
         contentContainerStyle={{ paddingHorizontal: scaler(10) }}
         ItemSeparatorComponent={() => <View style={{ width: CARD_GAP }} />}
         getItemLayout={(_, index) => ({
-          length: CARD_WIDTH + CARD_GAP,
-          offset: (CARD_WIDTH + CARD_GAP) * index,
+          length: ITEM_SIZE,
+          offset: ITEM_SIZE * index,
           index,
         })}
+        onMomentumScrollEnd={onFeatureScrollEnd}
       />
 
       {/* -------------------- TOP MOVERS (KEEP ALL PARTS) -------------------- */}
@@ -306,7 +434,7 @@ export default function ExploreComponent(props: ExploreProps) {
           value={selectedValue}
           containerStyle={{ borderRadius: 10, borderWidth: 1, borderColor: mainColors.inputBorder, overflow: 'hidden' }}
           selectedTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(10) }}
-          style={{ borderWidth: 1, borderColor: mainColors.inputBorder, height: scaler(25), width: scaler(80), borderRadius: 15, paddingHorizontal: scaler(10) }}
+          style={{ borderWidth: 1, borderColor: mainColors.inputBorder, height: scaler(25), width: selectedValue === 'yesterday' ? scaler(100) : scaler(80), borderRadius: 15, paddingHorizontal: scaler(10) }}
           itemTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(8) }}
           itemContainerStyle={{ backgroundColor: mainColors.black }}
           onChange={item => setSelectedValue(item.value)}
@@ -363,7 +491,7 @@ export default function ExploreComponent(props: ExploreProps) {
           <Text style={{ color: mainColors.mainButton }}>Asset Bridge</Text>
         </Text>
       </View>
-      <RiskDisclosureScreen visible={showRiskModal} setVisible={setShowRiskModal} onPress={() => setShowRiskModal(false)} />
+      <RiskDisclosureScreen visible={showRiskModal} setVisible={setShowRiskModal} onPress={() => subs(selectedBotId)} />
     </View>
   );
 }

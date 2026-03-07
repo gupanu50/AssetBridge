@@ -24,7 +24,7 @@ const HomeScreen = ({ navigation }: Props) => {
   const topTabs = useMemo(
     () => [
       { id: 't1', label: 'Explore' },
-      { id: 't2', label: 'Positions Open(23)' },
+      { id: 't2', label: 'Positions Opened' },
       { id: 't3', label: 'Positions Closed' },
     ],
     [],
@@ -76,7 +76,7 @@ const HomeScreen = ({ navigation }: Props) => {
         {activeTopTab === 'Explore' && (
           <ExploreComponent navigation={navigation} />
         )}
-        {activeTopTab === 'Positions Open(23)' && <PositionsOpenComponent />}
+        {activeTopTab === 'Positions Opened' && <PositionsOpenComponent />}
         {activeTopTab === 'Positions Closed' && <PositionsClosedComponent />}
       </ScrollView>
     </View>

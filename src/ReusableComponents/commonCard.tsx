@@ -15,6 +15,21 @@ import { PropCommonCardTypes } from './commonTypes';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const CommonCard = (props: PropCommonCardTypes) => {
+  const getInitials = (name?: string) => {
+    const n = (name || '').trim();
+    if (!n) return '?';
+
+    const parts = n.split(/\s+/).filter(Boolean);
+
+    // If multiple words => first char of first + first char of last
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    // Single word => first 2 chars
+    const word = parts[0];
+    return word.slice(0, 2).toUpperCase();
+  };
   const [activeDayMonthMoverTab, setActiveDayMonthMoverTab] = useState('Month');
   const ltpColor = String(props.ltpChange || '')
     .trim()
@@ -39,11 +54,9 @@ const CommonCard = (props: PropCommonCardTypes) => {
       <View style={styles.featureCard}>
         <View style={styles.featureTopRow}>
           <View style={styles.featureLeft}>
-            <Image
-              source={props.logo}
-              resizeMode="contain"
-              style={styles.swiperLogo}
-            />
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoInitials}>{getInitials(props.name)}</Text>
+            </View>
             <View style={{ marginLeft: scaler(10), flex: 1 }}>
               <Text style={styles.featureTitle} numberOfLines={1}>
                 {props.name}
@@ -116,7 +129,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>PNL Value</Text>
             <View style={styles.statValueRow}>
-              <Text style={styles.statValue}>{props.ltp}</Text>
+              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? props.dayPnl : props.ltp}</Text>
               <View style={styles.swiperPnlView}>
                 <Image
                   source={Images.swiperUp}
@@ -135,7 +148,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               Reward/Risk Ratio
             </Text>
             <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-              <Text style={styles.statValue}>{props.intraday}</Text>
+              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? props.dayReward : props.intraday}</Text>
               <View style={styles.swiperPnlView}>
                 <Image
                   source={Images.swiperUp}
@@ -159,7 +172,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
           >
             <Text style={[styles.statLabel, { paddingLeft: 5 }]}>Max DD</Text>
             <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-              <Text style={styles.statValue}>{props.pAndL}</Text>
+              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? props.dayDD : props.pAndL}</Text>
               <View style={styles.swiperMaxDDView}>
                 <Image
                   source={Images.swiperDown}
@@ -194,11 +207,25 @@ const CommonCard = (props: PropCommonCardTypes) => {
             <Text style={styles.actionText}>Instrument</Text>
           </View>
           <TouchableOpacity style={styles.actionPillGreen} onPress={props.onPressSubscribe}>
-            <Image
-              source={Images.subscribeBtn}
-              resizeMode="contain"
-              style={styles.imgView}
-            />
+            {(props?.is_subscribed && props?.status === 'pause') ?
+              <Image
+                source={Images.pausedBtn}
+                resizeMode="contain"
+                style={styles.imgView}
+              /> :
+              (props?.is_subscribed && props?.status === 'run') ?
+                <Image
+                  source={Images.runningBtn}
+                  resizeMode="contain"
+                  style={styles.imgView}
+                />
+                :
+                <Image
+                  source={Images.subscribeBtn}
+                  resizeMode="contain"
+                  style={styles.imgView}
+                />
+            }
           </TouchableOpacity>
         </View>
       </View>
@@ -394,5 +421,18 @@ const styles = StyleSheet.create({
     marginTop: scaler(12),
     opacity: 0.6,
   },
-  line: { height: scaler(20), width: scaler(20), alignSelf: 'center' }
+  line: { height: scaler(20), width: scaler(20), alignSelf: 'center' },
+  logoCircle: {
+    height: scaler(30),
+    width: scaler(30),
+    borderRadius: scaler(15),
+    backgroundColor: mainColors.pnlCard, // choose any existing color
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoInitials: {
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.white,
+    fontSize: scaler(12),
+  },
 });

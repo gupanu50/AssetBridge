@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
     },
     srnTitle: {
         fontFamily: fontFamily.poppinsMedium,
-        fontSize: scaler(12),
+        fontSize: scaler(16),
         color: mainColors.white,
         marginLeft: scaler(10)
     },
@@ -80,11 +80,9 @@ export const styles = StyleSheet.create({
         paddingVertical: scaler(5),
     },
     belowBox: {
-        backgroundColor: mainColors.pnlCard,
         borderBottomWidth: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: scaler(10),
         paddingVertical: scaler(10),
         paddingHorizontal: scaler(20),
         borderBottomLeftRadius: 10,

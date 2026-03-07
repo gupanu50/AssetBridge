@@ -1,13 +1,18 @@
 import { JSX } from 'react';
 import { ImageSourcePropType, KeyboardTypeOptions, TextStyle, ViewStyle } from 'react-native';
 import { MainStackScreenProps } from '../Navigation/NavigationTypes/screenTypes';
+import { WatchRow } from '../Screens/WatchListScreen/type';
 export type AnchorRect = { x: number; y: number; width: number; height: number };
 export type PropCommonCardTypes = {
   logo: ImageSourcePropType;
+  is_subscribed?: boolean;
   name: string;
   sub: string;
   tagLeft: string;
   tagRight: string;
+  dayPnl?: string;
+  dayReward?: string;
+  dayDD?: string;
   ltp: string;
   ltpChange: string;
   intraday: string;
@@ -21,6 +26,10 @@ export type PropCommonCardTypes = {
 export type PropCommonCardApiTypes = {
   logo: ImageSourcePropType;
   name: string;
+  is_subscribed: boolean;
+  instance_id: number;
+  running_status: string;
+  bot_id: number;
   sub: string;
   tagLeft: string;
   tagRight: string;
@@ -35,15 +44,29 @@ export type PropCommonCardApiTypes = {
   description: string;
   backtest_results: {
     summary: {
+      day?: {
+        net_pnl: string;
+        total_trades: string;
+        max_drawdown: string;
+      };
+      month?: {
+        net_pnl: string;
+        total_trades: string;
+        max_drawdown: string;
+      };
       net_pnl: string;
       total_trades: string;
       max_drawdown: string;
-    }
+    };
+    daily_pnl: [
+      { cumulative_pnl: number; date: string; pnl: number }
+    ]
   }
 };
 export type NewsItemProps = {
   published_at: string;
-  img?: ImageSourcePropType;
+  img?: string;
+  image_url?: string;
   title: string;
 };
 
@@ -63,7 +86,9 @@ export type inputProps = {
   placeholder?: string;
   style?: ViewStyle | TextStyle;
   containerStyle?: ViewStyle;
+  lines?: number;
   leftImage?: JSX.Element;
+  autoFocus?: boolean;
   rightImage?: JSX.Element;
   max?: number;
   secure?: boolean;
@@ -84,7 +109,10 @@ export type DrawerBackHeaderProps = {
 export type KababProps = {
   visible: boolean,
   setVisible: (value: boolean) => void;
+  refetch: () => void;
   anchor?: AnchorRect | null;
+  item?: WatchRow | null;
+  navigation: MainStackScreenProps<'HomeTab' | 'WatchList' | 'Algo' | 'MarketPlace'>['navigation'];
 }
 
 export type CommonTopBtnSliderProps = {
@@ -116,3 +144,13 @@ export type SearchItem = {
   segment: string;  // row[9]
   exchange?: string;
 };
+
+export type PaymentScreenProps = {
+  amount: number;
+  id: string;
+  currency: string;
+  subscription_id: string;
+  email: string;
+  contact: string;
+  name: string;
+}

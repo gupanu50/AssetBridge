@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Image } from 'react-native';
+import { View, Text, FlatList, Image, Alert } from 'react-native';
 import React, { useMemo, useState } from 'react';
 import { mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
@@ -9,8 +9,10 @@ import { Images } from '../../Assets';
 import usePostionsOpenQuery from '../PositionsOpenComponent/Hooks/usePostionsOpenQuery';
 import moment from 'moment';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
+import { downloadExcelToDownloads } from '../../ReusableComponents/commonFunctions';
+import snackbarHandler from '../../Utils/snackbarHandler';
 const PositionsClosedComponent = () => {
-  const { data } = usePostionsOpenQuery();
+  const { data } = usePostionsOpenQuery('closed');
   const flatData = data?.data?.data?.results;
   const [input, setInput] = useState('');
   console.log('dataClosedPostions', flatData);
@@ -71,7 +73,7 @@ const PositionsClosedComponent = () => {
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>PnL </Text>
               <Text style={[styles.kValue, { color: statusColor }]}>
-                : {item.Status}
+                : {item.realized_pnl}
               </Text>
             </View>
 
@@ -125,6 +127,18 @@ const PositionsClosedComponent = () => {
       order.symbol.toLowerCase().includes(input.toLowerCase())
     );
   }, [input, flatData]);
+  const handleDownload = async (item: any) => {
+    if (item && Array.isArray(item) && item.length > 0) {
+      const res = await downloadExcelToDownloads(item, 'closedPositions');
+      if (res) {
+        snackbarHandler.successToast('File is downloaded successfully');
+      } else {
+        snackbarHandler.errorToast('Failed to download file');
+      }
+    } else {
+      Alert.alert('No data to download');
+    }
+  };
   return (
     <View style={styles.main}>
       <View style={[styles.flexView, styles.lineView]}>
@@ -141,6 +155,7 @@ const PositionsClosedComponent = () => {
         <IconButton
           vectorType="AntDesign"
           name="download"
+          onPress={() => handleDownload(flatData)}
           color={mainColors.mainButton}
           backgroundColor={mainColors.black}
         />
@@ -159,10 +174,10 @@ const PositionsClosedComponent = () => {
           { marginBottom: scaler(10), justifyContent: 'flex-end' },
         ]}
       >
-        <Text style={styles.totalText}>Total</Text>
-        <Text style={styles.totalValueText}>12,58,593.00</Text>
+        {/* <Text style={styles.totalText}>Total</Text>
+        <Text style={styles.totalValueText}>12,58,593.00</Text> */}
       </View>
-      <View style={styles.itemSeperator} />
+      {/* <View style={styles.itemSeperator} /> */}
     </View>
   );
 };

@@ -6,12 +6,16 @@ import {
     Text,
     FlatList,
     StyleSheet,
-    Dimensions,
+    TouchableOpacity,
 } from 'react-native';
 import { fontFamily, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import { NotificationTypeProps } from './types';
 import { s } from './styles';
+import useNotiDataQuery from './Hooks/useGetNotiQuery';
+import moment from 'moment';
+import { ScrollView } from 'react-native-gesture-handler';
+import useReadNotiMutation from './Hooks/useReadNotificationMutation';
 
 type Props = {
     visible: boolean;
@@ -29,50 +33,50 @@ type Props = {
     arrowRightOffset?: number;
 };
 
-const notiData: NotificationTypeProps[] = [
-    {
-        id: 1,
-        heading: 'What is Lorem Ipsum?',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-        time: '15 Minutes ago',
-        isRead: false,
-    },
-    {
-        id: 2,
-        heading: 'What is Lorem Ipsum?',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-        time: '20 Minutes ago',
-        isRead: false,
-    },
-    {
-        id: 3,
-        heading: 'What is Lorem Ipsum?',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-        time: '31 Minutes ago',
-        isRead: true,
-    },
-    {
-        id: 4,
-        heading: 'What is Lorem Ipsum?',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-        time: '1 Hour ago',
-        isRead: true,
-    },
-    {
-        id: 5,
-        heading: 'What is Lorem Ipsum?',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-        time: '3 Hours ago',
-        isRead: true,
-    },
-    {
-        id: 6,
-        heading: 'What is Lorem Ipsum?',
-        desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-        time: '5 Hours ago',
-        isRead: true,
-    },
-];
+// const notiData: NotificationTypeProps[] = [
+//     {
+//         id: 1,
+//         heading: 'What is Lorem Ipsum?',
+//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
+//         time: '15 Minutes ago',
+//         isRead: false,
+//     },
+//     {
+//         id: 2,
+//         heading: 'What is Lorem Ipsum?',
+//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
+//         time: '20 Minutes ago',
+//         isRead: false,
+//     },
+//     {
+//         id: 3,
+//         heading: 'What is Lorem Ipsum?',
+//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
+//         time: '31 Minutes ago',
+//         isRead: true,
+//     },
+//     {
+//         id: 4,
+//         heading: 'What is Lorem Ipsum?',
+//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
+//         time: '1 Hour ago',
+//         isRead: true,
+//     },
+//     {
+//         id: 5,
+//         heading: 'What is Lorem Ipsum?',
+//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
+//         time: '3 Hours ago',
+//         isRead: true,
+//     },
+//     {
+//         id: 6,
+//         heading: 'What is Lorem Ipsum?',
+//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
+//         time: '5 Hours ago',
+//         isRead: true,
+//     },
+// ];
 
 
 const NotificationsModal = ({
@@ -81,34 +85,44 @@ const NotificationsModal = ({
     topOffset = scaler(100),          // adjust as per your header
     arrowRightOffset = scaler(18),   // adjust to match bell icon position
 }: Props) => {
+    const { data } = useNotiDataQuery();
+    const { mutate } = useReadNotiMutation();
+    // console.log('NotiData', data?.data?.data);
+    const notiData = data?.data?.data || [];
+    const handleNotiPress = (item: NotificationTypeProps) => {
+        if (!item.is_read) {
+            mutate({ id: item.id });
+        }
+    };
     const renderNotiData = ({ item }: { item: NotificationTypeProps }) => {
-        const opacity = item.isRead ? 0.4 : 1;
+        const opacity = item.is_read ? 0.4 : 1;
 
         return (
-            <View>
+            <TouchableOpacity onPress={() => handleNotiPress(item)}>
                 <View style={s.flexView}>
                     <Text style={[s.headingText, { opacity }]}>
-                        {item.heading}
+                        {item.title}
                     </Text>
 
                     <Text style={[s.timeText, { opacity }]}>
-                        {item.time}
+                        {moment(item.created_at).fromNow()}
                     </Text>
                 </View>
 
                 <Text style={[s.descText, { opacity }]} numberOfLines={2}>
-                    {item.desc}
+                    {item.message}
                 </Text>
-            </View>
+            </TouchableOpacity>
         );
     };
-
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-            {/* full screen overlay - tap outside to close */}
-            <Pressable style={s.backdrop} onPress={onClose}>
-                {/* Stop closing when user taps inside popover */}
-                <Pressable style={s.popoverWrapper}>
+            <View style={s.backdrop} pointerEvents="box-none">
+                {/* ✅ Tap outside to close */}
+                <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+
+                {/* ✅ Popover container - allow interactions inside */}
+                <View style={s.popoverWrapper} pointerEvents="box-none">
                     {/* Arrow */}
                     <View style={[s.arrow, { right: arrowRightOffset, top: topOffset - scaler(10) }]} />
 
@@ -121,12 +135,15 @@ const NotificationsModal = ({
                             showsVerticalScrollIndicator={false}
                             ItemSeparatorComponent={() => <View style={s.lineSeperator} />}
                             contentContainerStyle={{ paddingBottom: scaler(6) }}
+                            style={{ flex: 1 }}
+                            scrollEnabled
+                            nestedScrollEnabled // ✅ important for Android sometimes
+                            keyboardShouldPersistTaps="handled"
                         />
                     </View>
-                </Pressable>
-            </Pressable>
+                </View>
+            </View>
         </Modal>
     );
-};
-
+}
 export default NotificationsModal;

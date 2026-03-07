@@ -19,6 +19,7 @@ export const s = StyleSheet.create({
         // If you want it centered instead of right aligned, use:
         left: scaler(12), right: scaler(12),
         width: Math.min(SCREEN_W - scaler(24), scaler(380)),
+        maxHeight: SCREEN_H - scaler(140),
         // maxHeight: SCREEN_H * 4,
         height: scaler(650),
         backgroundColor: mainColors.moversCards,

@@ -40,6 +40,8 @@ export const Images = {
   bankLogo: require('./Images/bankLogo.png'),
   algoMarketChart: require('./Images/alsoMarketPlaceChart.png'),
   subscribeBtn: require('./Images/subscribreBtn.png'),
+  runningBtn: require('./Images/runningBtn.png'),
+  pausedBtn: require('./Images/pausedBtn.png'),
   dummyProfile: require('./Images/dummyProfile.png'),
   profileBadge: require('./Images/profileBadge.png'),
   profilePayment: require('./Images/profilePayment.png'),

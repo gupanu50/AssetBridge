@@ -10,11 +10,17 @@ import PositionsOpenComponent from '../../ReusableScreenComponents/PositionsOpen
 import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsClosedComponent'
 import OrderComponent from '../../ReusableScreenComponents/OrdersComponent'
 import { styles } from './styles'
+import usePostionsOpenQuery from '../../ReusableScreenComponents/PositionsOpenComponent/Hooks/usePostionsOpenQuery'
 
 const PortfolioScreen = () => {
     // -------------------- STATE --------------------
     const [activeTopTab, setActiveTopTab] = useState('Opened Positions');
-
+    const { data } = usePostionsOpenQuery('open');
+    const totalData = data?.data?.data?.total_invested_value;
+    const totalPnl = data?.data?.data?.total_pnl;
+    const unrealPnl = data?.data?.data?.total_unrealized_pnl;
+    console.log('DataAllOpenPositions', data?.data?.data)
+    console.log('dataOpenPostions', totalData);
     // refs to keep tab visible while sliding
     const topTabListRef: any = useRef(null);
 
@@ -45,14 +51,14 @@ const PortfolioScreen = () => {
         <View style={styles.container}>
             <View style={styles.main}>
                 <View style={styles.flexView}>
-                    <IconButton
+                    {/* <IconButton
                         vectorType="MaterialCommunityIcons"
                         name="keyboard-backspace"
                         backgroundColor={mainColors.black}
                         color={mainColors.white}
-                    />
+                    /> */}
                     <Text style={[styles.srnTitle, { width: scaler(200) }]}>Portfolio</Text>
-                    {activeTopTab === 'Orders' && (
+                    {/* {activeTopTab === 'Orders' && (
                         <View style={[styles.actionPill, styles.actionPillGreen]}>
                             <Image
                                 source={Images.swiperRunning}
@@ -63,18 +69,18 @@ const PortfolioScreen = () => {
                                 RUNNING
                             </Text>
                         </View>
-                    )}
+                    )} */}
                 </View>
                 <View style={styles.boxView}>
                     <View style={styles.innerBoxView}>
-                        <Text style={styles.amtText}>₹23,22,574,11</Text>
-                        <TouchableOpacity>
+                        <Text style={styles.amtText}>₹{totalData}</Text>
+                        {/* <TouchableOpacity>
                             <Image
                                 source={Images.swiperView}
                                 resizeMode="contain"
                                 style={styles.swiperViewImg}
                             />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
                     <View style={styles.innerBoxView1}>
                         <Image
@@ -82,21 +88,21 @@ const PortfolioScreen = () => {
                             resizeMode="contain"
                             style={styles.swiperUpImg}
                         />
-                        <Text style={styles.overallText}>Overall Loss <Text style={styles.overallText1}>-₹23, 22,574,11</Text> (-25.56%)</Text>
+                        <Text style={styles.overallText}>Overall Loss <Text style={styles.overallText1}>-₹{totalPnl}</Text></Text>
                     </View>
                     <View style={[styles.innerBoxView1, { marginTop: scaler(10) }]}>
                         <View style={[styles.pnlView, { width: scaler(130), marginRight: scaler(10) }]}>
                             <Text style={styles.todayText}>Invested Value</Text>
-                            <Text style={styles.todayValueText}>₹ 5,235,00</Text>
+                            <Text style={styles.todayValueText}>₹ {totalData}</Text>
                         </View>
                         <View style={styles.pnlView}>
                             <Text style={styles.todayText}>Today’s Gain</Text>
-                            <Text style={styles.todayValueText}>₹ 2,0321,00 <Text>(+12.25%)</Text></Text>
+                            <Text style={[styles.todayValueText, { color: unrealPnl < 0 ? mainColors.redText : mainColors.greenText }]}>₹ {unrealPnl}</Text>
                         </View>
                     </View>
                     <View style={styles.belowBox}>
-                        <Image source={Images.portfolioCard} resizeMode='contain' style={styles.img} />
-                        <Text style={styles.analyzeText}>Analyze</Text>
+                        {/* <Image source={Images.portfolioCard} resizeMode='contain' style={styles.img} />
+                        <Text style={styles.analyzeText}>Analyze</Text> */}
                     </View>
                 </View>
             </View>
@@ -117,10 +123,10 @@ const PortfolioScreen = () => {
                 contentContainerStyle={{ flexGrow: 1 }}
             >
                 {activeTopTab === 'Opened Positions' && (
-                    <PositionsOpenComponent isShow={false} />
+                    <PositionsOpenComponent />
                 )}
-                {activeTopTab === 'Closed Positions' && <PositionsClosedComponent isShow={false} />}
-                {activeTopTab === 'Orders' && <OrderComponent isShow={false} />}
+                {activeTopTab === 'Closed Positions' && <PositionsClosedComponent />}
+                {activeTopTab === 'Orders' && <OrderComponent />}
 
             </ScrollView>
         </View>

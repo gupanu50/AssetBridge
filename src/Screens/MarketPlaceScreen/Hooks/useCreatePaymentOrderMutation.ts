@@ -1,23 +1,24 @@
 import { AxiosResponse } from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { fetcher } from '../../../Utils/helper';
-import { apiData, apiResponse } from './types';
-const subscribeBot = async (params: apiData): Promise<AxiosResponse<apiResponse>> => {
+import { apiData } from './types';
+const subscribeBot = async (data: apiData): Promise<AxiosResponse<any>> => {
     return fetcher
         ({
-            url: `api/v1/strategy/user-bots/${params?.id}/${params?.type}/`,
+            url: `api/v1/payments/order/create/`,
             method: 'POST',
+            data,
         });
 };
 
-function useSubscriptionMutation() {
+function useCreatePaymentOrderMutation() {
     return useMutation({
         mutationFn: (data: apiData) => subscribeBot(data),
         onSuccess: () => { },
         onError: errr => {
-            console.log('SubscriptionApiError', errr);
+            console.log('PaymentOrderCreateApiError', errr);
         },
     });
 }
 
-export default useSubscriptionMutation;
+export default useCreatePaymentOrderMutation;

@@ -51,6 +51,15 @@ export const styles = StyleSheet.create({
         marginBottom: scaler(5)
     },
     messageContainerStyle: {
-        height: scaler(150)
-    }
+        height: scaler(150),
+        borderWidth: 0,
+        verticalAlign: 'top'
+    },
+    largeInputView: {
+        borderWidth: 1,
+        height: scaler(150),
+        borderRadius: 10,
+        borderColor: mainColors.inputBorder,
+        overflow: 'hidden',
+    },
 })

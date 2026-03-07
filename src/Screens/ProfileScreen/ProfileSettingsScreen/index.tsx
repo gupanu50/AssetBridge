@@ -12,6 +12,7 @@ import CommonDrawerBackHeader from '../../../ReusableComponents/commonDrawerBack
 import { MainStackScreenProps } from '../../../Navigation/NavigationTypes/screenTypes'
 import useChangePasswordProfileMutation from '../Hooks/useChangePasswordMutation'
 import snackbarHandler from '../../../Utils/snackbarHandler'
+import useUpdateProfileMutation from '../Hooks/useUpdateProfileMutation'
 type Props = MainStackScreenProps<'ProfileSettings'>;
 const ProfileSettingsScreen = ({ navigation, route }: Props) => {
     const [mail, setMail] = useState('');
@@ -24,6 +25,7 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
     const [showTooltip, setShowTooltip] = useState(false);
     const [secureText, setSecureText] = useState(true);
     const { mutate } = useChangePasswordProfileMutation();
+    const { mutate: updateMutate } = useUpdateProfileMutation();
     const [secureText1, setSecureText1] = useState(true);
     const [secureText2, setSecureText2] = useState(true);
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
@@ -52,6 +54,25 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
                     setOldPass('');
                     setNewPass('');
                     setRePass('');
+                },
+                onError: er => {
+                    const msg = getApiErrorMessage(er)
+                    snackbarHandler.errorToast(msg);
+                },
+            },)
+    }
+    const onUpdateBtnPressed = () => {
+        if (!mail) {
+            snackbarHandler.errorToast('Please enter email');
+            return;
+        }
+        updateMutate({
+            email: mail,
+        },
+            {
+                onSuccess: () => {
+                    snackbarHandler.successToast('Email Update Successfully')
+                    setMail('');
                 },
                 onError: er => {
                     const msg = getApiErrorMessage(er)
@@ -161,7 +182,7 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
                                 style={styles.eyeIcon}
                             >
                                 <IconButton
-                                    onPress={() => { }}
+                                    onPress={() => { mail ? setMail('') : null }}
                                     name={mail ? 'close' : 'email-outline'}
                                     vectorType="MaterialCommunityIcons"
                                     size={scaler(28)}
@@ -170,6 +191,7 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
                             </TouchableOpacity>
                         }
                     />
+                    <CommonButton label='Save Changes' extraStyle={styles.saveBtn} onPress={() => onUpdateBtnPressed()} />
                     <View style={[styles.lineHeight, { height: scaler(35) }]} />
                     <Text style={styles.addAddress}>Manage Password</Text>
                 </View>

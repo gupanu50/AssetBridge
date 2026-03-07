@@ -1,10 +1,10 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { FlatList, Image, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import scaler from '../../Utils/scaler';
 import CommonHeader from '../../ReusableComponents/commonHeader';
 import { Images } from '../../Assets';
-import { TopTab, TopTabApi, WatchRow } from './type';
+import { AddWatchlistItemProps, TopTab, TopTabApi, WatchRow } from './type';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
@@ -17,8 +17,15 @@ import NotificationsModal from '../NotificationScreen';
 import { getLastByKey, onWsMessage, pauseMarketFeed, registerSubscription, resumeMarketFeed, SubscribePayload, unregisterSubscription } from '../../Utils/ws/marketSocket';
 import { computeChange, makeKey } from '../../Utils/ws/commonWebSocketFunctions';
 import { buildWsKey, mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
-import { isMarketOpenIST } from '../../Utils/helper';
+import { getApiErrorMessage, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import NoWatchListData from './NoWatchListData';
+import { buildSearchIndex, searchItems, useDebounce } from '../../ReusableComponents/commonFunctions';
+import useCompressQuery from '../HomeScreen/Hooks/useCompressQuery';
+import { ContractsObj } from '../../ReusableComponents/commonTypes';
+import IconButton from '../../ReusableComponents/iconButton';
+import useAddItemsWatchlistMutation from './Hooks/useAddWatchlistItemsMutation';
+import { addApiData } from './Hooks/types';
+import snackbarHandler from '../../Utils/snackbarHandler';
 type Props = MainStackScreenProps<'WatchList'>;
 type AnchorRect = { x: number; y: number; width: number; height: number };
 const WatchListScreen = ({ navigation }: Props) => {
@@ -26,17 +33,39 @@ const WatchListScreen = ({ navigation }: Props) => {
   const [input, setInput] = useState('');
   const OWNER_ID = "watchlist";
   const [visible, setVisible] = useState(false);
-  const { data } = useWatchlistQuery();
+  const [selectedWatchItem, setSelectedWatchItem] = useState<WatchRow | null>(null);
+  const { data, refetch } = useWatchlistQuery();
+  // const [watchlistId, setWatchlistId] = useState<number>();
   const [activeTopTab, setActiveTopTab] = useState(null);
   const watchListApiData = data?.data?.data;
+  console.log('WatchListData', watchListApiData)
   const [anchor, setAnchor] = useState<AnchorRect | null>(null);
   const [showNoti, setShowNoti] = useState(false);
   const [tick, setTick] = useState(0);
+  const debouncedValue = useDebounce(input, 300);
+  const { data: compressData } = useCompressQuery();
+  const { mutate } = useAddItemsWatchlistMutation();
+  const contracts: ContractsObj | undefined = compressData?.data?.data?.contracts;
+  // ✅ build flattened list once per API update
+  const searchIndex = useMemo(() => buildSearchIndex(contracts), [contracts]);
+  // console.log('ContractsObjWatchlist', contracts, debouncedValue);
+
+  // ✅ compute results only after debounce
+  const results = useMemo(() => {
+    return searchItems(searchIndex, debouncedValue, 30);
+  }, [searchIndex, debouncedValue]);
+  // console.log('ResultsWatchlist', results, watchListApiData);
   useEffect(() => {
     if (watchListApiData?.length && !activeTopTab) {
       setActiveTopTab(watchListApiData[0].name);
     }
   }, [watchListApiData, activeTopTab]);
+  const selectedWatchlist = useMemo(() => {
+    if (!watchListApiData?.length || !activeTopTab) return null;
+    return watchListApiData.find((item: any) => item?.name === activeTopTab) || null;
+  }, [watchListApiData, activeTopTab]);
+
+  const watchlistId = selectedWatchlist?.id;
   const renderTopTab = ({ item, index }: { item: TopTabApi; index: number }) => {
     const isActive = activeTopTab === item.name;
     return (
@@ -49,31 +78,37 @@ const WatchListScreen = ({ navigation }: Props) => {
       />
     );
   };
-  const openMenuAt = (rect: AnchorRect) => {
+  const openMenuAt = (rect: AnchorRect, item: WatchRow) => {
     setAnchor(rect);
+    setSelectedWatchItem(item);
     setVisible(true);
   };
 
-  // Filtering watchlist items based on search input, but not watchlist names
-  const filteredWatchListData = useMemo(() => {
-    if (!input) return watchListApiData; // No filtering if search input is empty
-
-    return watchListApiData.map((watchlist: any) => ({
-      ...watchlist,
-      items: watchlist.items.filter((item: any) => {
-        const symbolMatch = item.symbol.toLowerCase().includes(input.toLowerCase());
-        return symbolMatch;
-      }),
-    })).filter((watchlist: any) => watchlist.items.length > 0); // Only keep watchlists with matching items
-  }, [input, watchListApiData]);
-
+  const addItemsWatchlist = async (item: AddWatchlistItemProps) => {
+    mutate({
+      watchlist: watchlistId || 0,
+      symbol: item?.symbol || '',
+      exchange: item?.segment || '',
+      segment: item?.segment || '',
+    }, {
+      onSuccess: () => {
+        snackbarHandler.successToast('Item added to watchlist');
+        setInput('');
+        refetch();
+      },
+      onError: (err) => {
+        const msg = getApiErrorMessage(err)
+        snackbarHandler.errorToast(msg);
+      }
+    })
+  }
   const wsPayload: SubscribePayload | null = useMemo(() => {
-    if (!Array.isArray(filteredWatchListData) || !filteredWatchListData.length) return null;
+    if (!Array.isArray(watchListApiData) || !watchListApiData.length) return null;
 
     // seg__type -> symbols set
     const bucket = new Map<string, { segment: string; subscription_type: string; symbols: Set<string> }>();
 
-    for (const wl of filteredWatchListData) {
+    for (const wl of watchListApiData) {
       const items = wl?.items || [];
       for (const it of items) {
         const seg = String(it?.segment || "").trim();
@@ -98,7 +133,7 @@ const WatchListScreen = ({ navigation }: Props) => {
     }));
     if (!dataArr.length) return null;
     return { type: "subscribe", data: dataArr };
-  }, [filteredWatchListData]);
+  }, [watchListApiData]);
   useEffect(() => {
     if (!wsPayload) return;
 
@@ -154,12 +189,12 @@ const WatchListScreen = ({ navigation }: Props) => {
     return () => off();
   }, []);
   const activeWatchRows: WatchRow[] = useMemo(() => {
-    if (!Array.isArray(filteredWatchListData) || !filteredWatchListData.length) return [];
+    if (!Array.isArray(watchListApiData) || !watchListApiData.length) return [];
 
-    const wl = filteredWatchListData.find((x: any) => x?.name === activeTopTab) || filteredWatchListData[0];
+    const wl = watchListApiData.find((x: any) => x?.name === activeTopTab) || watchListApiData[0];
     const items = wl?.items || [];
     return items.map((it: any) => ({ items: [it] }));
-  }, [filteredWatchListData, activeTopTab]);
+  }, [watchListApiData, activeTopTab]);
   // ✅ NEW: row UI
   const renderWatchRow = ({ item }: { item: WatchRow }) => {
     const base = item?.items?.[0];
@@ -221,6 +256,7 @@ const WatchListScreen = ({ navigation }: Props) => {
               <CommonTextInput
                 value={input}
                 setValue={setInput}
+                placeholder='Search here'
                 leftImage={
                   <View style={styles.searchView}>
                     <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
@@ -229,14 +265,44 @@ const WatchListScreen = ({ navigation }: Props) => {
                 containerStyle={{ height: scaler(38), marginTop: scaler(15), borderRadius: 25, borderColor: '#202020' }}
                 style={{ fontSize: scaler(11) }}
               />
-              <TouchableOpacity style={styles.settingsTouch}>
-                <Image
-                  source={Images.settingsWatchlist}
-                  resizeMode="contain"
-                  style={styles.settingsImg}
-                />
-              </TouchableOpacity>
             </View>
+            {true && debouncedValue.trim().length > 0 && (
+              <View style={styles.dropdown}>
+                {results.length === 0 ? (
+                  <Text style={styles.noResult}>No match found</Text>
+                ) : (
+                  <FlatList
+                    data={results}
+                    keyExtractor={(it) => `${it.segment}:${it.symbol}:${it.fullName}`}
+                    keyboardShouldPersistTaps="handled"
+                    initialNumToRender={15}
+                    maxToRenderPerBatch={20}
+                    windowSize={7}
+                    removeClippedSubviews
+                    style={styles.list}
+                    contentContainerStyle={styles.listContent}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity style={styles.row} onPress={() => { }}>
+                        <View>
+                          <Text style={styles.fullName}>{item.fullName}</Text>
+                          <Text style={styles.subText}>
+                            {item.symbol} • {item.segment}
+                          </Text>
+                        </View>
+                        <IconButton
+                          vectorType='MaterialIcons'
+                          name='add-circle-outline'
+                          size={scaler(24)}
+                          color={mainColors.white}
+                          onPress={() => addItemsWatchlist(item)}
+                        />
+                      </TouchableOpacity>
+                    )}
+                    ItemSeparatorComponent={() => <View style={styles.separator} />}
+                  />
+                )}
+              </View>
+            )}
             <View style={styles.watchListWrap}>
               <FlatList
                 data={activeWatchRows}
@@ -254,7 +320,7 @@ const WatchListScreen = ({ navigation }: Props) => {
         </View> :
         <NoWatchListData />
       }
-      <CommonKababMenu visible={visible} setVisible={setVisible} anchor={anchor} />
+      <CommonKababMenu visible={visible} setVisible={setVisible} anchor={anchor} item={selectedWatchItem} navigation={navigation} refetch={refetch} />
     </View>
   );
 };

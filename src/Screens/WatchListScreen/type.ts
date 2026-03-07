@@ -5,7 +5,7 @@ export type TopTab = {
 
 export type WatchRow = {
   items: any
-  id: string;
+  id: number;
   symbol: string;
   exchange: string;
   price: string;
@@ -14,6 +14,13 @@ export type WatchRow = {
 };
 
 export type TopTabApi = {
-  id: string;
+  id: number;
   name: string;
 };
+
+export type AddWatchlistItemProps = {
+  watchlist?: number;
+  symbol?: string;
+  exchange?: string;
+  segment?: string;
+}

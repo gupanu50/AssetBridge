@@ -82,6 +82,7 @@ export const styles = StyleSheet.create({
     noSharesText: {
         fontFamily: fontFamily.poppinsRegular,
         fontSize: scaler(12),
+        marginVertical: scaler(10),
         color: mainColors.inputLabel,
     },
     maxQText: {

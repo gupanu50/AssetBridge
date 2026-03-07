@@ -173,7 +173,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: scaler(10),
     paddingVertical: scaler(5),
     borderRadius: 15,
-    backgroundColor: mainColors.mainButton,
+    backgroundColor: mainColors.redText,
   },
   exitText: {
     fontFamily: fontFamily.poppinsRegular,

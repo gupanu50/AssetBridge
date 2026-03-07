@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Image, Alert } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatItem } from './types';
 import { isMarketOpenIST, mainColors } from '../../Utils/helper';
@@ -14,11 +14,14 @@ import { getLastByKey, onWsMessage, pauseMarketFeed, registerSubscription, resum
 import { buildWsKey, mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
 import { computeChange } from '../../Utils/ws/commonWebSocketFunctions';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
+import { downloadExcelToDownloads } from '../../ReusableComponents/commonFunctions';
+import snackbarHandler from '../../Utils/snackbarHandler';
 
 const OrderComponent = () => {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const { data, error } = useOrdersQuery();
   const orderData = data?.data?.data?.results;
+  console.log('OrderData', orderData);
   const ORDER_OWNER_ID = "orderComponent"; // Use a unique ID for this screen
   const [tick, setTick] = useState(0);
   const [input, setInput] = useState('');
@@ -110,34 +113,6 @@ const OrderComponent = () => {
 
     return () => off();
   }, []);
-  const flatData = [
-    {
-      id: 1,
-      name: 'HDFC',
-      exchange: 'NSE',
-      bs: 'Buy',
-      DateTime: '21/09/2025  07:36:02',
-      Qty: '0/1',
-      LTP: '245.55',
-      Product: 'CNC',
-      Status: 'Filled',
-      Price: '245.00',
-      Source: 'Manual',
-    },
-    {
-      id: 2,
-      name: 'Lorem Ipsum',
-      exchange: 'NSE',
-      bs: 'Sell',
-      DateTime: '21/09/2025  07:36:02',
-      Qty: '0/1',
-      LTP: '2450.55',
-      Product: 'CNC',
-      Status: 'Pending',
-      Price: '2450.00',
-      Source: 'Automated',
-    },
-  ];
   const toggleRow = (id: number) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -246,7 +221,7 @@ const OrderComponent = () => {
 
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Price</Text>
-              <Text style={styles.kValue}>: {item.limit_price}</Text>
+              <Text style={styles.kValue}>: {item.average_price}</Text>
             </View>
 
             <View style={styles.kvRow}>
@@ -259,6 +234,18 @@ const OrderComponent = () => {
         </View>
       </View>
     );
+  };
+  const handleDownload = async (item: any) => {
+    if (item && Array.isArray(item) && item.length > 0) {
+      const res = await downloadExcelToDownloads(item, 'orders');
+      if (res) {
+        snackbarHandler.successToast('File is downloaded successfully');
+      } else {
+        snackbarHandler.errorToast('Failed to download file');
+      }
+    } else {
+      Alert.alert('No data to download');
+    }
   };
   return (
     <View style={styles.main}>
@@ -283,6 +270,7 @@ const OrderComponent = () => {
         </View>
         <IconButton
           vectorType="AntDesign"
+          onPress={() => handleDownload(orderData)}
           name="download"
           color={mainColors.mainButton}
           backgroundColor={mainColors.black}

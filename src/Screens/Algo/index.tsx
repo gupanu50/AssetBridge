@@ -10,10 +10,14 @@ import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTyp
 import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
 import NoAlgoData from '../../ReusableScreenComponents/MyAlgoComponent/NoAlgoData';
 import NotificationsModal from '../NotificationScreen';
+import useSubscribeBotsQuery from './Hooks/useSubscribeBotsQuery';
 type Props = MainStackScreenProps<'Algo' | 'AlgoMain'>;
 const AlgoScreen = ({ navigation }: Props) => {
   const topTabListRef = useRef(null);
   const [activeTopTab, setActiveTopTab] = useState('My Algo');
+  const { data } = useSubscribeBotsQuery();
+  console.log('DataUserBots', data?.data?.data);
+  const subsData = data?.data?.data;
   const [showNoti, setShowNoti] = useState(false);
   // -------------------- DATA --------------------
   // Tabs exactly like image (slidable) + counts
@@ -66,7 +70,8 @@ const AlgoScreen = ({ navigation }: Props) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: scaler(30) }}
       >
-        {activeTopTab === 'My Algo' && <NoAlgoData navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} />}
+        {(activeTopTab === 'My Algo' && subsData?.length == 0) && <NoAlgoData onPress={() => setActiveTopTab('Market Place')} />}
+        {(activeTopTab === 'My Algo' && subsData?.length > 0) && <MyAlgoComponent navigation={navigation as MainStackScreenProps<'Algo'>['navigation']} subsData={subsData} />}
         {activeTopTab === 'Market Place' && <AlgoMarketPlaceComponent navigation={navigation as MainStackScreenProps<'AlgoMain'>['navigation']} />}
       </ScrollView>
     </View>

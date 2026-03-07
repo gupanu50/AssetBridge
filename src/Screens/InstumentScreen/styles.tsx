@@ -4,6 +4,19 @@ import scaler from '../../Utils/scaler';
 const { height: screenHeight } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
+  logoCircle: {
+    height: scaler(30),
+    width: scaler(30),
+    borderRadius: scaler(15),
+    backgroundColor: mainColors.pnlCard, // choose any existing color
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoInitials: {
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.white,
+    fontSize: scaler(12),
+  },
   conatiner: {
     flex: 1,
     backgroundColor: mainColors.black,

@@ -5,9 +5,10 @@ import scaler from '../Utils/scaler';
 import { inputProps } from './commonTypes';
 
 const CommonTextInput = (props: inputProps) => {
+  const isMultiline = props?.multiline || false;
   return (
     <View>
-      <View style={[styles.container, props?.containerStyle,
+      <View style={[styles.container, props?.containerStyle, isMultiline && styles.multilineContainer,
       { borderColor: props?.errorMessage ? mainColors.redText : mainColors.inputBorder }]}>
         {props?.leftImage && props?.leftImage}
         <TextInput
@@ -15,8 +16,11 @@ const CommonTextInput = (props: inputProps) => {
           placeholderTextColor={props?.errorMessage ? mainColors.redText : mainColors.inputLabel}
           keyboardType={props.keyboardType || 'default'}
           returnKeyType="done"
+          autoFocus={props.autoFocus || false}
+          numberOfLines={props?.lines || 1}
+          textAlignVertical={isMultiline ? 'top' : 'center'}
           multiline={props?.multiline || false}
-          style={[styles.inputStyle, props?.style, { color: props?.errorMessage ? mainColors.redText : mainColors.inputLabel }]}
+          style={[styles.inputStyle, isMultiline && styles.multilineInput, props?.style, { color: props?.errorMessage ? mainColors.redText : mainColors.inputLabel }]}
           maxLength={props?.max || 10000}
           secureTextEntry={props?.secure || false}
           onChangeText={props.setValue}
@@ -49,5 +53,13 @@ const styles = StyleSheet.create({
     fontSize: scaler(11),
     color: mainColors.sellButton,
     paddingTop: scaler(5)
-  }
+  },
+  multilineContainer: {
+    alignItems: 'flex-start',
+  },
+  multilineInput: {
+    height: '100%',
+    paddingTop: scaler(12),
+    paddingBottom: scaler(12),
+  },
 });

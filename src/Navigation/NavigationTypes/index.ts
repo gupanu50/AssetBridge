@@ -15,6 +15,7 @@ export type MainStackParamList = {
     cardData: {
       name: string;
       bot_id: string;
+      is_subscribed: boolean;
       description: string;
       minimum_capital_required: string;
       backtest_results: {

@@ -34,7 +34,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
   const [selectedLabel, setSelectedLabel] = useState<string>('1D');
   const paramItem = route?.params?.item;
   const paramNav = route?.params?.nav;
-  console.log('ParamItemsInstrumentScreen', paramItem, route?.params)
+  console.log('ParamItemsInstrumentScreen', paramItem, paramNav)
   const topTabListRef: any = useRef(null);
   const isMarketHours = isMarketOpenIST();
   const [activeTopTab, setActiveTopTab] = useState('Opened Positions');
@@ -206,18 +206,30 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     }
     navigation.navigate('BuySellOrder', { buySelldata: routeParamsData })
   }
+  const getInitials = (name?: string) => {
+    const n = (name || '').trim();
+    if (!n) return '?';
 
+    const parts = n.split(/\s+/).filter(Boolean);
+
+    // If multiple words => first char of first + first char of last
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    // Single word => first 2 chars
+    const word = parts[0];
+    return word.slice(0, 2).toUpperCase();
+  };
   return (
     <View style={styles.conatiner}>
       <CommonBackHeader navigation={navigation} />
       <ScrollView>
         <View style={styles.main}>
           <View style={styles.flexView}>
-            <Image
-              source={Images.swiperLogo}
-              resizeMode="contain"
-              style={styles.logoImg}
-            />
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoInitials}>{getInitials(paramItem?.symbol)}</Text>
+            </View>
             <View style={[styles.innerFlexView, styles.onlyWidth]}>
               <Text style={styles.headingText}>{paramItem?.symbol}</Text>
               <View style={styles.flexView}>
@@ -243,14 +255,14 @@ const InstumentScreen = ({ navigation, route }: Props) => {
                 </View>
               </View>
             </View>
-            <IconButton
+            {paramItem?.segment ? null : <IconButton
               onPress={() => navigation.navigate('OptionsChain', { segment: paramItem?.segment ? paramItem?.segment : paramItem?.exchange, symbol: paramItem?.symbol })}
               vectorType="MaterialCommunityIcons"
               size={scaler(20)}
               name="link-variant"
               backgroundColor={mainColors.black}
               color={mainColors.white}
-            />
+            />}
           </View>
           <View style={[styles.flexView, styles.onlyMarginVertical]}>
             <View>
@@ -320,7 +332,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
         {activeTopTab === 'Opened Positions' && <PositionsOpenComponent />}
         {activeTopTab === 'Closed Positions' && <PositionsClosedComponent />}
       </ScrollView>
-      {true && <View style={styles.buttonFlexView}>
+      {paramItem?.segment && <View style={styles.buttonFlexView}>
         <CommonButton
           label="Buy"
           backgroundColor={mainColors.black}

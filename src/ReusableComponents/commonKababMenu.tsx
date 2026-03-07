@@ -3,11 +3,14 @@ import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithout
 import { fontFamily, mainColors } from '../Utils/helper';
 import scaler from '../Utils/scaler';
 import { KababProps } from './commonTypes';
+import useDeleteItemWatchlistMutation from '../Screens/WatchListScreen/Hooks/useDeleteWatchlistItemMutation';
 
 const CommonKababMenu = (props: KababProps) => {
     const MENU_W = scaler(90);
+    console.log('KababMenuProps', props);
     const MENU_H = scaler(190); // approx height of menu
     const GAP = scaler(2);
+    const { mutate } = useDeleteItemWatchlistMutation();
     const close = () => props?.setVisible(false);
     const { left, top } = useMemo(() => {
         const { height: SH } = Dimensions.get('screen');
@@ -27,33 +30,57 @@ const CommonKababMenu = (props: KababProps) => {
         return { left: l, top: t };
     }, [props.anchor]);
 
-    const onPressItem = () => close();
+    const onPressItemBuySell = (label: string) => {
+        const routeParamsData = {
+            paramItem: props.item,
+            nav: '',
+            buynav: label
+        }
+        props?.navigation.navigate('BuySellOrder', { buySelldata: routeParamsData })
+        close();
+    };
+    const onDelete = () => {
+        const id = props?.item?.id;
+        if (!id) return;
 
+        mutate(id, {
+            onSuccess: () => {
+                props?.refetch(); // ✅ only after success response
+                close();
+            },
+            onError: (err) => {
+                // console.log('DeleteWatchlistItemError', err);
+                props?.refetch(); // ✅ only after failure response
+                close();
+                // you can show a toast or alert here if you want
+            }
+        });
+    };
     return (
         <Modal visible={props.visible} transparent animationType="fade" onRequestClose={close}>
             <TouchableWithoutFeedback onPress={close}>
                 <View style={styles.backdrop}>
                     <TouchableWithoutFeedback>
                         <View style={[styles.menuCard, { left, top, width: MENU_W }]}>
-                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={onPressItem}>
+                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={() => onPressItemBuySell('Buy')}>
                                 <Text style={[styles.itemText, styles.buyText]}>Buy</Text>
                             </TouchableOpacity>
 
                             <View style={styles.line} />
 
-                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={onPressItem}>
+                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={() => onPressItemBuySell('Sell')}>
                                 <Text style={[styles.itemText, styles.redText]}>Sell</Text>
                             </TouchableOpacity>
 
                             <View style={styles.line} />
 
-                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={onPressItem}>
+                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={() => { close(), props?.navigation.navigate('TradingView', { symbol: props?.item?.symbol || '' }) }}>
                                 <Text style={styles.itemText}>Chart</Text>
                             </TouchableOpacity>
 
                             <View style={styles.line} />
 
-                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={onPressItem}>
+                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={() => onDelete()}>
                                 <Text style={styles.itemText}>Delete</Text>
                             </TouchableOpacity>
                         </View>

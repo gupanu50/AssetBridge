@@ -9,38 +9,40 @@ import { Images } from '../../Assets'
 import FundsWithdrawalComponent from '../../ReusableScreenComponents/FundsWithdrawalTransactionHistoryComponent'
 import { styles } from './styles'
 import FundsAddedComponent from '../../ReusableScreenComponents/FundsAddedTransactionHistory'
-import { Text } from 'react-native-gesture-handler'
+// import { Text } from 'react-native-gesture-handler'
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
+// import useTransactionQuery from '../ProfileScreen/Hooks/useTransactionSummary'
 type Props = MainStackScreenProps<'TransactionHistory'>;
 const TransactionHistoryScreen = ({ navigation }: Props) => {
-    const [activeTopTab, setActiveTopTab] = useState('Funds Added');
-    const topTabListRef: any = useRef(null);
-    const renderTopTab = ({ item, index }: { item: TopTabProps; index: number }) => {
-        const isActive = activeTopTab === item.label;
-        return (
-            <CommonTabSlider
-                activeTab="Funds Added"
-                index={index}
-                label={item?.label}
-                style={styles.sliderView}
-                isRightText={item?.isRightText}
-                isActive={isActive}
-                setIsActive={setActiveTopTab}
-            />
-        );
-    };
-    const topTabs = useMemo(
-        () => [
-            { id: 't1', label: 'Funds Added', isRightText: false },
-            { id: 't2', label: 'Funds Withdrawal', isRightText: false },
-        ],
-        [],
-    );
+    // const [activeTopTab, setActiveTopTab] = useState('Funds Added');
+
+    // const topTabListRef: any = useRef(null);
+    // const renderTopTab = ({ item, index }: { item: TopTabProps; index: number }) => {
+    //     const isActive = activeTopTab === item.label;
+    //     return (
+    //         <CommonTabSlider
+    //             activeTab="Funds Added"
+    //             index={index}
+    //             label={item?.label}
+    //             style={styles.sliderView}
+    //             isRightText={item?.isRightText}
+    //             isActive={isActive}
+    //             setIsActive={setActiveTopTab}
+    //         />
+    //     );
+    // };
+    // const topTabs = useMemo(
+    //     () => [
+    //         { id: 't1', label: 'Funds Added', isRightText: false },
+    //         { id: 't2', label: 'Funds Withdrawal', isRightText: false },
+    //     ],
+    //     [],
+    // );
     return (
         <View style={styles.conatiner}>
             <View style={styles.main}>
-                <CommonDrawerBackHeader title='Transaction History' isShowInfoIcon={true} navigation={navigation} />
-                <View style={styles.topTabsWrap}>
+                <CommonDrawerBackHeader title='Transaction History' isShowInfoIcon={false} navigation={navigation} />
+                {/* <View style={styles.topTabsWrap}>
                     <FlatList
                         ref={topTabListRef}
                         data={topTabs}
@@ -51,8 +53,8 @@ const TransactionHistoryScreen = ({ navigation }: Props) => {
                         contentContainerStyle={styles.topTabsContent}
                         onScrollToIndexFailed={() => { }}
                     />
-                </View>
-                <View style={styles.searchView}>
+                </View> */}
+                {/* <View style={styles.searchView}>
                     <Image source={Images.search} resizeMode='contain' style={styles.searchImg} />
                     <Text style={styles.searchText}>Search transactions by bank or amount</Text>
                     <TouchableOpacity style={styles.settingsTouch}>
@@ -62,9 +64,9 @@ const TransactionHistoryScreen = ({ navigation }: Props) => {
                             style={styles.settingsImg}
                         />
                     </TouchableOpacity>
-                </View>
-                {activeTopTab === 'Funds Withdrawal' && <FundsWithdrawalComponent />}
-                {activeTopTab === 'Funds Added' && <FundsAddedComponent />}
+                </View> */}
+                {/* {activeTopTab === 'Funds Wihdrawal' && <FundsWithdrawalComponent />} */}
+                <FundsAddedComponent />
             </View>
         </View>
     )

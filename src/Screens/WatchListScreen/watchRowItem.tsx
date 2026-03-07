@@ -10,7 +10,7 @@ type AnchorRect = { x: number; y: number; width: number; height: number };
 
 type RowProps = {
     item: WatchRow;
-    onOpenMenu: (rect: AnchorRect) => void;
+    onOpenMenu: (rect: AnchorRect, item: WatchRow) => void;
     onPressRow: () => void;
 };
 
@@ -19,7 +19,7 @@ const WatchRowItem = ({ item, onOpenMenu, onPressRow }: RowProps) => {
 
     const openMenu = () => {
         dotsRef.current?.measureInWindow((x, y, width, height) => {
-            onOpenMenu({ x, y, width, height });
+            onOpenMenu({ x, y, width, height }, item);
         });
     };
 

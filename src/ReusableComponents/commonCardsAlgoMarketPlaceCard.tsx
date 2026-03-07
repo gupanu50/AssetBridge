@@ -18,6 +18,21 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 
 const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
+  const getInitials = (name?: string) => {
+    const n = (name || '').trim();
+    if (!n) return '?';
+
+    const parts = n.split(/\s+/).filter(Boolean);
+
+    // If multiple words => first char of first + first char of last
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    // Single word => first 2 chars
+    const word = parts[0];
+    return word.slice(0, 2).toUpperCase();
+  };
   type Point = { timestamp: number; value: number };
   const DAY = 24 * 60 * 60 * 1000;
 
@@ -124,11 +139,9 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
       <View style={styles.featureCard}>
         <View style={styles.featureTopRow}>
           <View style={styles.featureLeft}>
-            <Image
-              source={props.logo}
-              resizeMode="contain"
-              style={styles.swiperLogo}
-            />
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoInitials}>{getInitials(props.name)}</Text>
+            </View>
             <View style={{ marginLeft: scaler(10), flex: 1 }}>
               <Text style={styles.featureTitle} numberOfLines={1}>
                 {props.name}
@@ -308,11 +321,25 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
             <Text style={styles.actionText}>Instrument</Text>
           </View>
           <TouchableOpacity style={[styles.actionPillGreen]} onPress={props.onPressSubscribe}>
-            <Image
-              source={Images.subscribeBtn}
-              resizeMode="contain"
-              style={styles.imgView}
-            />
+            {(props?.is_subscribed && props?.status === 'pause') ?
+              <Image
+                source={Images.pausedBtn}
+                resizeMode="contain"
+                style={styles.imgView}
+              /> :
+              (props?.is_subscribed && props?.status === 'run') ?
+                <Image
+                  source={Images.runningBtn}
+                  resizeMode="contain"
+                  style={styles.imgView}
+                />
+                :
+                <Image
+                  source={Images.subscribeBtn}
+                  resizeMode="contain"
+                  style={styles.imgView}
+                />
+            }
           </TouchableOpacity>
         </View>
       </View>
@@ -323,6 +350,19 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
 export default CommonAlgoMarketPlaceCard;
 
 const styles = StyleSheet.create({
+  logoCircle: {
+    height: scaler(30),
+    width: scaler(30),
+    borderRadius: scaler(15),
+    backgroundColor: mainColors.pnlCard, // choose any existing color
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoInitials: {
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.white,
+    fontSize: scaler(12),
+  },
   imgView: {
     height: '100%', width: '100%'
   },

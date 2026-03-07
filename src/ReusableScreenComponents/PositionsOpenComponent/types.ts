@@ -16,6 +16,7 @@ export type FlatItem = {
   exchange: string;
   direction: string;
   entry_time: string;
+  unrealized_pnl: number;
   quantity: string;
   entry_price: string;
   product_type: string;

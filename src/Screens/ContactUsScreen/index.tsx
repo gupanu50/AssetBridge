@@ -57,13 +57,16 @@ const ContactUsScreen = ({ navigation }: Props) => {
                     <Text style={styles.subjectText}>Subject</Text>
                     <CommonTextInput value={value} setValue={(text) => { setValueError(''); setValue(text) }} placeholder='e.g. Elon Musk' errorMessage={valueError} />
                     <Text style={styles.messageText}>Your Message</Text>
-                    <CommonTextInput
-                        value={message}
-                        setValue={(text) => { setMessageError(''); setMessage(text) }}
-                        placeholder='e.g. Elon Musk'
-                        multiline={true}
-                        errorMessage={messageError}
-                        containerStyle={styles.messageContainerStyle} />
+                    <View style={styles.largeInputView}>
+                        <CommonTextInput
+                            value={message}
+                            setValue={(text) => { setMessageError(''); setMessage(text) }}
+                            placeholder='Write your message here'
+                            multiline={true}
+                            lines={5}
+                            errorMessage={messageError}
+                            containerStyle={styles.messageContainerStyle} />
+                    </View>
                     <CommonButton label='Send Message' onPress={() => btnPressed()} extraStyle={{ marginTop: scaler(35) }} />
                 </KeyboardAwareScrollView>
             </View>

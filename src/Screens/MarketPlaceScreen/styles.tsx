@@ -3,6 +3,20 @@ import { fontFamily, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 
 export const styles = StyleSheet.create({
+  logoCircle: {
+    height: scaler(30),
+    width: scaler(30),
+    marginLeft: scaler(10),
+    borderRadius: scaler(15),
+    backgroundColor: mainColors.pnlCard, // choose any existing color
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoInitials: {
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.white,
+    fontSize: scaler(12),
+  },
   container: {
     flex: 1,
     backgroundColor: mainColors.black,
@@ -179,7 +193,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: mainColors.inputBorder,
     borderRadius: 15,
-    marginLeft: scaler(145),
+    marginLeft: scaler(240),
     alignItems: 'center',
     paddingHorizontal: scaler(5),
     flexDirection: 'row',
@@ -213,6 +227,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: scaler(4),
+    height: scaler(28)
   },
   statValue: {
     fontFamily: fontFamily.poppinsSemiBold,
@@ -399,5 +414,8 @@ export const styles = StyleSheet.create({
     paddingVertical: scaler(2),
     borderRadius: 25,
     marginRight: scaler(20),
+  },
+  unSubs: {
+    marginTop: scaler(20)
   }
 });

@@ -141,15 +141,14 @@ const ProfileScreen = ({ navigation }: Props) => {
             {/* Menu */}
             <MenuItem icon={Images.tabProfile} label="Profile Settings" onPress={() => navigation.navigate('ProfileSettings', { profileData: profileData })} />
             <View style={styles.hr} />
-            <MenuItem icon={Images.profilePayment} label="Payment Methods" onPress={() => navigation.navigate('PaymentMethod')} />
-            <View style={styles.hr} />
+            {/* <MenuItem icon={Images.profilePayment} label="Payment Methods" onPress={() => navigation.navigate('PaymentMethod')} /> */}
             <MenuItem icon={Images.profileHistory} label="Transaction History" onPress={() => navigation.navigate('TransactionHistory')} />
             <View style={styles.hr} />
             <MenuItem icon={Images.profileContact} label="Contact Us" onPress={() => navigation.navigate('ContactUs')} />
             <View style={styles.hr} />
             <MenuItem icon={Images.profileLogout} label="Logout" onPress={() => logoutUser()} />
             <View style={styles.hr} />
-            {/* Refer Card */}
+            {/* Refer Card
             <View style={styles.referCard}>
                 <View style={styles.referLeft}>
                     <View style={styles.referIconCircle}>
@@ -161,7 +160,7 @@ const ProfileScreen = ({ navigation }: Props) => {
                     <Text style={styles.referSub}>Refer & Earn ₹ 500</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={scaler(18)} color={mainColors.white} />
-            </View>
+            </View> */}
 
             {/* Footer Logo */}
             <View style={styles.footer}>

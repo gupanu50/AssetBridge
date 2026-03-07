@@ -6,8 +6,8 @@ export const styles = StyleSheet.create({
     container: {
         paddingHorizontal: scaler(16),
         paddingTop: scaler(8),
+        flex: 1,
         backgroundColor: mainColors.black,
-        paddingBottom: scaler(22),
     },
 
     headerRow: {

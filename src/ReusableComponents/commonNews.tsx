@@ -3,13 +3,14 @@ import React from 'react';
 import { NewsItemProps } from './commonTypes';
 import { fontFamily, mainColors } from '../Utils/helper';
 import scaler from '../Utils/scaler';
+import moment from 'moment';
 
 const CommonNews = (props: NewsItemProps) => {
   return (
     <TouchableOpacity activeOpacity={0.85} style={[styles.newsItem]}>
       <View style={styles.newsLeft}>
-        <Image source={props.img} resizeMode="contain" style={styles.newsImg} />
-        <Text style={styles.newsTime}>{props.published_at}</Text>
+        <Image source={{ uri: props.img }} resizeMode="contain" style={styles.newsImg} />
+        <Text style={styles.newsTime}>{moment(props.published_at).fromNow()}</Text>
       </View>
 
       <View style={styles.newsRight}>
@@ -49,6 +50,7 @@ const styles = StyleSheet.create({
   newsRight: {
     flex: 1,
     justifyContent: 'center',
+    marginTop: scaler(15)
   },
   newsTitle: {
     fontFamily: fontFamily.poppinsMedium,

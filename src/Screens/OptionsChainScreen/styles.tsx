@@ -69,6 +69,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     minHeight: scaler(44),
+    paddingVertical: scaler(6),
   },
 
   cellLeft: { flex: 1 },
@@ -125,5 +126,96 @@ export const styles = StyleSheet.create({
     color: mainColors.white,
     fontSize: scaler(12),
     marginTop: scaler(2),
+  },
+  datePicker: {
+    width: 150, // adjust the width as per your design
+    height: 40,
+    backgroundColor: mainColors.white,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+  },
+  tickTrack: {
+    marginTop: scaler(6),
+    height: scaler(3),
+    width: scaler(45),
+    borderRadius: scaler(2),
+    backgroundColor: "rgba(255,255,255,0.10)",
+    overflow: "hidden",
+    alignSelf: "center",
+  },
+  tickBar: {
+    height: "20%",
+    borderRadius: scaler(2),
+  },
+  tooltipWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: '50%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tooltipBox: {
+    backgroundColor: 'rgba(60,60,60,0.92)',
+    paddingHorizontal: scaler(14),
+    paddingVertical: scaler(8),
+    borderRadius: scaler(10),
+  },
+  tooltipText: {
+    color: mainColors.white,
+    fontSize: scaler(11),
+    fontFamily: fontFamily.poppinsRegular,
+  },
+  centerDividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: scaler(8),    // ✅ controls space above/below divider
+  },
+
+  centerDividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+  },
+
+  centerDividerPill: {
+    marginHorizontal: scaler(12), // ✅ space between line and pill
+    paddingHorizontal: scaler(14),
+    paddingVertical: scaler(7),
+    borderRadius: scaler(12),
+    backgroundColor: 'rgba(90,90,90,0.9)',
+  },
+
+  centerDividerText: {
+    color: mainColors.white,
+    fontSize: scaler(11),
+    fontFamily: fontFamily.poppinsRegular,
+  },
+  tickTrack2: {
+    marginTop: scaler(6),
+    width: scaler(70),          // adjust to match figma
+    height: scaler(3),
+    borderRadius: scaler(2),
+    backgroundColor: "rgba(255,255,255,0.12)",
+    overflow: "hidden",
+    position: "relative",
+  },
+
+  tickLeftRed: {
+    position: "absolute",
+    left: "50%",
+    top: 0,
+    bottom: 0,
+    backgroundColor: mainColors.red,
+    transform: [{ translateX: -1 }], // tiny center gap effect
+  },
+
+  tickRightGreen: {
+    position: "absolute",
+    right: "50%",
+    top: 0,
+    bottom: 0,
+    backgroundColor: mainColors.green,
+    transform: [{ translateX: 1 }], // tiny center gap effect
   },
 });

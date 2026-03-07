@@ -5,7 +5,7 @@ import scaler from "../../Utils/scaler";
 export const styles = StyleSheet.create({
     container: {
         backgroundColor: mainColors.black,
-        height: scaler(570),
+        height: scaler(650),
     },
     transactionContainer: {
         marginTop: scaler(10),
@@ -67,6 +67,7 @@ export const styles = StyleSheet.create({
         fontFamily: fontFamily.poppinsRegular,
         fontSize: scaler(10),
         justifyContent: 'center',
+        alignItems: 'center',
         marginLeft: scaler(5),
         color: mainColors.greenText
     },
@@ -98,5 +99,19 @@ export const styles = StyleSheet.create({
         height: scaler(2),
         borderBottomWidth: 0.6,
         borderColor: mainColors.inputBorder
-    }
+    },
+    logoCircle: {
+        height: scaler(30),
+        width: scaler(30),
+        alignSelf: 'center',
+        borderRadius: scaler(15),
+        backgroundColor: mainColors.pnlCard, // choose any existing color
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    logoInitials: {
+        fontFamily: fontFamily.poppinsMedium,
+        color: mainColors.white,
+        fontSize: scaler(12),
+    },
 })

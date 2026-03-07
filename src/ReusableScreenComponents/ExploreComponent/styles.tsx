@@ -3,6 +3,19 @@ import scaler from '../../Utils/scaler';
 import { fontFamily, mainColors } from '../../Utils/helper';
 
 export const styles = StyleSheet.create({
+  logoCircle: {
+    height: scaler(30),
+    width: scaler(30),
+    borderRadius: scaler(15),
+    backgroundColor: mainColors.pnlCard, // choose any existing color
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoInitials: {
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.white,
+    fontSize: scaler(12),
+  },
   sectionHeaderRow: {
     marginTop: scaler(14),
     flexDirection: 'row',

@@ -10,6 +10,7 @@ export type FlatItem = {
   symbol: string;
   exchange: string;
   side: string;
+  average_price: number;
   submitted_at: string;
   quantity: string;
   LTP: string;

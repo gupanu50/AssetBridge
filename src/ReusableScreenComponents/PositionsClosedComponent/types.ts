@@ -9,6 +9,7 @@ export type FlatItem = {
   id: number;
   symbol: string;
   exchange: string;
+  realized_pnl: number;
   direction: string;
   entry_time: string;
   quantity: string;

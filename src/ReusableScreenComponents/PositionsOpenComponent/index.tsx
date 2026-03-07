@@ -1,10 +1,9 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useMemo, useState } from 'react';
-import { isMarketOpenIST, mainColors } from '../../Utils/helper';
+import { Alert, FlatList, Image, Platform, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { getApiErrorMessage, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
-import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
 import scaler from '../../Utils/scaler';
 import { FlatItem } from './types';
@@ -15,15 +14,40 @@ import { getLastByKey, onWsMessage, pauseMarketFeed, registerSubscription, resum
 import { buildWsKey, mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
 import { computeChange } from '../../Utils/ws/commonWebSocketFunctions';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
+import { downloadExcelToDownloads } from '../../ReusableComponents/commonFunctions';
+import snackbarHandler from '../../Utils/snackbarHandler';
+import useExitPostionsMutation from './Hooks/useExitPostionsMutation';
 
 const PositionsOpenComponent = () => {
-  const { data } = usePostionsOpenQuery();
+  const { data, refetch } = usePostionsOpenQuery('open');
   const flatData = data?.data?.data?.results;
-  console.log('dataOpenPostions', flatData);
+  const totalData = data?.data?.data?.total_invested_value;
+  console.log('DataAllOpenPositions', data?.data?.data)
+  console.log('dataOpenPostions', flatData, totalData);
   const ORDER_OWNER_ID = "openPostions";
   const [tick, setTick] = useState(0);
   const [input, setInput] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const { mutate } = useExitPostionsMutation();
+  const exitPositions = async () => {
+    const ids = Array.from(selectedIds);
+
+    console.log('SelectedIds Array', ids);
+    console.log('SelectedIds', selectedIds)
+    mutate({
+      position_ids: ids
+    }, {
+      onSuccess: (res) => {
+        snackbarHandler.successToast('Exit order placed successfully');
+        refetch();
+      },
+      onError: (err) => {
+        console.log('ErrorExitPositions', err);
+        const message = getApiErrorMessage(err);
+        snackbarHandler.errorToast(message);
+      }
+    })
+  };
   const wsPayload: SubscribePayload | null = useMemo(() => {
     if (!Array.isArray(flatData) || !flatData.length) return null;
 
@@ -54,7 +78,20 @@ const PositionsOpenComponent = () => {
     if (!dataArr.length) return null;
     return { type: "subscribe", data: dataArr };
   }, [flatData]);
+  console.log('WS Payload', wsPayload);
 
+  const handleDownload = async (item: any) => {
+    if (item && Array.isArray(item) && item.length > 0) {
+      const res = await downloadExcelToDownloads(item, 'openPositions');
+      if (res) {
+        snackbarHandler.successToast('File is downloaded successfully');
+      } else {
+        snackbarHandler.errorToast('Failed to download file');
+      }
+    } else {
+      Alert.alert('No data to download');
+    }
+  };
   useEffect(() => {
     if (!wsPayload) return;
 
@@ -213,7 +250,7 @@ const PositionsOpenComponent = () => {
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Unrealized PnL </Text>
               <Text style={[styles.kValue, { color: statusColor }]}>
-                : {item.Status}
+                : {item.unrealized_pnl}
               </Text>
             </View>
 
@@ -279,6 +316,7 @@ const PositionsOpenComponent = () => {
         <IconButton
           vectorType="AntDesign"
           name="download"
+          onPress={() => handleDownload(flatData)}
           color={mainColors.mainButton}
           backgroundColor={mainColors.black}
         />
@@ -297,13 +335,13 @@ const PositionsOpenComponent = () => {
           { marginBottom: scaler(10), alignItems: 'center' },
         ]}
       >
-        {isAllSelected ? <View style={styles.exitView}>
-          <Text style={styles.exitText}>Exit 2 Positions</Text>
-        </View> : <View style={{ width: scaler(100) }} />}
+        {selectedIds.size ? <TouchableOpacity style={styles.exitView} onPress={() => exitPositions()}>
+          <Text style={styles.exitText}>{`Exit ${selectedIds.size} Positions`}</Text>
+        </TouchableOpacity> : <View style={{ width: scaler(100) }} />}
         <Text style={styles.totalText}>Total</Text>
-        <Text style={styles.totalValueText}>12,58,593.00</Text>
+        <Text style={styles.totalValueText}>{totalData}</Text>
       </View>
-      <View style={styles.itemSeperator} />
+      {/* <View style={styles.itemSeperator} /> */}
     </View>
   );
 };

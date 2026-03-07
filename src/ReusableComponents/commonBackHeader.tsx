@@ -19,19 +19,20 @@ const CommonBackHeader = (props: CommonBackHeaderProps) => {
           color={mainColors.white}
         />
         <View style={styles.flexView}>
-          <IconButton
+          {/* <IconButton
             vectorType="MaterialCommunityIcons"
             name="bookmark-outline"
             backgroundColor={mainColors.black}
             color={mainColors.white}
-          />
-          <IconButton
+          /> */}
+          {/* <IconButton
             vectorType="MaterialIcons"
             name="search"
             backgroundColor={mainColors.black}
+            onPress={() => props.navigation?.goBack()}
             color={mainColors.white}
             style={styles.searchIcon}
-          />
+          /> */}
         </View>
       </View>
     </View>

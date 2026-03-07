@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   flexView: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
   },
   settingsImg: {
     height: scaler(20),
@@ -125,5 +125,49 @@ export const styles = StyleSheet.create({
     height: scaler(7),
     width: scaler(7),
     marginLeft: scaler(6),
+  },
+  dropdown: {
+    marginHorizontal: scaler(12),
+    marginTop: scaler(4),
+    borderRadius: scaler(12),
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  noResult: {
+    paddingVertical: scaler(12),
+    paddingHorizontal: scaler(12),
+    fontFamily: fontFamily.poppinsRegular,
+    opacity: 0.6,
+    color: mainColors.white
+  },
+  list: {
+    maxHeight: scaler(600), // ✅ dropdown height (scroll inside this)
+  },
+  listContent: {
+    paddingVertical: 0,
+  },
+  separator: {
+    height: 0.5,
+    opacity: 0.5,
+    backgroundColor: mainColors.white, // or border color you prefer
+  },
+  row: {
+    paddingVertical: scaler(10),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: scaler(12),
+    borderBottomWidth: 0.5,
+  },
+  fullName: {
+    fontSize: scaler(14),
+    fontFamily: fontFamily.poppinsMedium,
+    color: mainColors.white
+  },
+  subText: {
+    marginTop: scaler(2),
+    opacity: 0.6,
+    fontFamily: fontFamily.poppinsRegular,
+    fontSize: scaler(11),
+    color: mainColors.white
   },
 });

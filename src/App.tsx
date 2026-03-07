@@ -38,6 +38,6 @@ const styles = StyleSheet.create({
   },
   safeView: {
     flex: 1,
-    backgroundColor: '#2C278C',
+    backgroundColor: 'transparent',
   },
 });

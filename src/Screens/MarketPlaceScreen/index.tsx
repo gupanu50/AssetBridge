@@ -30,33 +30,92 @@ import MarketPlaceOverviewComponent from '../../ReusableScreenComponents/MarketP
 import MarketPlaceTradesComponent from '../../ReusableScreenComponents/MarketPlaceTradesComponent';
 import MarketPlacePnlCalendarComponent from '../../ReusableScreenComponents/MarketPlacePnLCalendarComponent';
 import RiskDisclosureScreen from '../../ReusableComponents/riskDisclosureModal';
-import useSubscriptionMutation from './Hooks/useSubscribeMutation';
 import snackbarHandler from '../../Utils/snackbarHandler';
+import useCreatePaymentOrderMutation from './Hooks/useCreatePaymentOrderMutation';
+// import PaymentScreen, { startRazorpayPayment } from '../../ReusableComponents/paymentComponent';
+import useProfileQuery from '../ProfileScreen/Hooks/useProfileQuery';
+import { startRazorpayPayment } from '../../ReusableComponents/paymentComponent';
+import useVerifyPaymentMutation from './Hooks/usePaymentVerifyMutation';
+import CommonTextInput from '../../ReusableComponents/commonTextInput';
 type Props = MainStackScreenProps<'MarketPlace'>;
 const MarketPlaceScreen = ({ navigation, route }: Props) => {
   const [activeTopTab, setActiveTopTab] = useState('Overview');
+  const [brokerage, setBrokerage] = useState('100');
+  const [slipage, setSlipage] = useState('15');
+  const { data } = useProfileQuery();
+  const getInitials = (name?: string) => {
+    const n = (name || '').trim();
+    if (!n) return '?';
+
+    const parts = n.split(/\s+/).filter(Boolean);
+
+    // If multiple words => first char of first + first char of last
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    // Single word => first 2 chars
+    const word = parts[0];
+    return word.slice(0, 2).toUpperCase();
+  };
+  const profileData = data?.data?.data[0]
   // refs to keep tab visible while sliding
   const topTabListRef: any = useRef(null);
-  const { mutate: subscribeMutate } = useSubscriptionMutation();
+  const { mutate: subscribeMutate } = useCreatePaymentOrderMutation();
+  const { mutate: verifyPaymentMutate } = useVerifyPaymentMutation();
   const subs = () => {
     subscribeMutate({
-      id: route?.params?.cardData?.bot_id,
-      type: 'start'
-    },
-      {
-        onSuccess: (response: any) => {
-          snackbarHandler.successToast(response?.data?.message);
-        },
-        onError: er => {
-          const msg = getApiErrorMessage(er)
-          snackbarHandler.errorToast(msg);
-        },
-      },)
+      bot_id: parseInt(route?.params?.cardData?.bot_id)
+    }, {
+      onSuccess: async (res) => {
+        console.log('PaymentOrderCreateApiSuccess', res);
+        let resData = res?.data?.data;
+        // snackbarHandler.successToast('Subscribed successfully!');
+        setShowRiskModal(false);
+        const result = await startRazorpayPayment({
+          amount: Number(resData?.amount),         // ✅ in paise
+          currency: resData?.currency ?? 'INR',
+          id: resData?.provider_order_id,    // ✅ if order flow
+          subscription_id: resData?.subscription_id, // ✅ only if subscription flow
+          email: profileData?.email ?? '',
+          contact: profileData?.contact ?? '',
+          name: `${profileData?.first_name ?? ''} ${profileData?.last_name ?? ''}`.trim(),
+        });
+        console.log('ResultRazorPay', result?.data);
+        console.log('RazorPayIds', result?.data?.razorpay_order_id, result?.data?.razorpay_payment_id, result?.data?.razorpay_signature)
+        if (result.ok) {
+          verifyPaymentMutate({
+            razorpay_order_id: result?.data?.razorpay_order_id,
+            razorpay_payment_id: result?.data?.razorpay_payment_id,
+            razorpay_signature: result?.data?.razorpay_signature
+          }, {
+            onSuccess: (res) => {
+              console.log('ResPaymentVerify', res)
+              snackbarHandler.successToast('Payment is successfully verified');
+              navigation.goBack();
+            },
+            onError: (err) => {
+              snackbarHandler.errorToast('Payment is not verified');
+              const message = getApiErrorMessage(err) || 'Payment failed';
+              snackbarHandler.errorToast(message);
+            }
+          })
+        } else {
+          Alert.alert('Payment not successful, Please retry after some time')
+        }
+      },
+      onError: (err) => {
+        console.log('PaymentOrderCreateApiError', err);
+        const message = getApiErrorMessage(err) || 'Subscription failed';
+        snackbarHandler.errorToast(message);
+      },
+    });
   }
   console.log('MarketPlaceRouteParams', route?.params?.cardData)
   type Point = { timestamp: number; value: number };
   const DAY = 24 * 60 * 60 * 1000;
   const cardData = route?.params?.cardData;
+  console.log('CardDataMarketPlaceScreen', cardData)
   const genSeries = (
     points: number,
     startValue: number,
@@ -144,12 +203,8 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
           <CommonTopBtnSlider navigation={navigation} />
         </View>
         <View style={styles.boxNameView}>
-          <View style={styles.imgView}>
-            <Image
-              source={Images.swiperLogo}
-              style={styles.logoImg}
-              resizeMode="contain"
-            />
+          <View style={styles.logoCircle}>
+            <Text style={styles.logoInitials}>{getInitials(cardData?.name)}</Text>
           </View>
           <View>
             <Text style={styles.headingText}>
@@ -282,14 +337,14 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
               results. Lorem Ipsum some dummy text
             </Text>
             <View style={styles.whatsView}>
-              <Text style={styles.whatsText}>What's this?</Text>
+              {/* <Text style={styles.whatsText}>What's this?</Text>
               <IconButton
                 vectorType="MaterialCommunityIcons"
                 name="information-outline"
                 size={scaler(20)}
                 color={mainColors.mainButton}
                 backgroundColor={mainColors.black}
-              />
+              /> */}
               <View style={styles.addView}>
                 <Text style={styles.addText}>Add</Text>
                 <Switch
@@ -306,14 +361,29 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
               <View style={styles.statBox}>
                 <Text style={styles.statLabel}>Brokerage</Text>
                 <View style={styles.statValueRow}>
-                  <Text style={styles.statValue}>{100}</Text>
-                  <View style={styles.swiperPnlView}>
+                  {isEnabled ? <CommonTextInput
+                    value={brokerage}
+                    setValue={setBrokerage}
+                    style={{
+                      color: mainColors.white,
+                      paddingLeft: scaler(5),
+                      fontSize: scaler(13),
+                      width: '60%',
+                      height: scaler(38)
+                    }}
+                    containerStyle={{
+                      height: scaler(25),
+                      borderWidth: 0
+                    }}
+                    placeholder='Enter Brokerage'
+                  /> : <Text style={styles.statValue}>{100}</Text>}
+                  {isEnabled && <View style={styles.swiperPnlView}>
                     <Image
                       source={Images.marketPlaceEdit}
                       resizeMode="contain"
                       style={styles.swiperUpImg}
                     />
-                  </View>
+                  </View>}
                 </View>
               </View>
 
@@ -338,7 +408,32 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
                   Slippage
                 </Text>
                 <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-                  <Text style={styles.statValue}>30%</Text>
+                  {/* <Text style={styles.statValue}>30%</Text> */}
+                  {isEnabled ?
+                    <CommonTextInput
+                      value={slipage}
+                      setValue={setSlipage}
+                      style={{
+                        color: mainColors.white,
+                        paddingLeft: scaler(5),
+                        fontSize: scaler(12),
+                        width: '60%',
+                        height: scaler(35)
+                      }}
+                      containerStyle={{
+                        height: scaler(25),
+                        borderWidth: 0
+                      }}
+                      placeholder='Enter Brokerage'
+                    /> :
+                    <Text style={styles.statValue}>30%</Text>}
+                  {isEnabled && <View style={styles.swiperPnlView}>
+                    <Image
+                      source={Images.marketPlaceEdit}
+                      resizeMode="contain"
+                      style={styles.swiperUpImg}
+                    />
+                  </View>}
                 </View>
               </View>
             </View>
@@ -364,11 +459,19 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
               />
             </View>
           </View>
-          <TouchableOpacity onPress={() => setShowRiskModal(true)}>
-            <ImageBackground source={Images.subscribeBg} style={styles.subs}>
-              <Text style={styles.subsText}>SUBSCRIBE</Text>
-            </ImageBackground>
-          </TouchableOpacity>
+          {cardData?.is_subscribed ?
+            <CommonButton
+              label='Subscribe'
+              extraStyle={styles.unSubs}
+              backgroundColor='#191919'
+              disabled={true}
+            />
+            :
+            < TouchableOpacity onPress={() => setShowRiskModal(true)}>
+              <ImageBackground source={Images.subscribeBg} style={styles.subs}>
+                <Text style={styles.subsText}>SUBSCRIBE</Text>
+              </ImageBackground>
+            </TouchableOpacity>}
           <View style={styles.topTabsWrap}>
             <FlatList
               ref={topTabListRef}
@@ -391,9 +494,9 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
             />}
           {activeTopTab === 'Trades' && <MarketPlaceTradesComponent trades={cardData?.backtest_results?.trade_logic} pageSize={3} otherData={cardData} />}
         </View>
-      </ScrollView>
+      </ScrollView >
       <RiskDisclosureScreen visible={showRiskModal} setVisible={setShowRiskModal} onPress={subs} />
-    </View>
+    </View >
   );
 };
 
