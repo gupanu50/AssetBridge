@@ -10,6 +10,11 @@ export type OverViewProps = {
                 net_pnl: number;
                 total_trades: number;
                 win_rate: number;
+                avg_pnl_trade: number;
+                rr_ratio: number;
+                max_loss: number;
+                max_profit: number;
+                expectancy_ratio: number;
             }
         }
     }

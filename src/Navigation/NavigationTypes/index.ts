@@ -15,6 +15,9 @@ export type MainStackParamList = {
     cardData: {
       name: string;
       bot_id: string;
+      tags: {
+        description: string;
+      };
       is_subscribed: boolean;
       description: string;
       minimum_capital_required: string;
@@ -23,8 +26,15 @@ export type MainStackParamList = {
           start_date: string;
           max_drawdown: number;
           net_pnl: number;
+          avg_pnl_trade: number;
           total_trades: number;
           win_rate: number;
+          recommended_trade_start_date: string;
+          recommended_trade_end_date: string;
+          rr_ratio: number;
+          max_loss: number;
+          max_profit: number;
+          expectancy_ratio: number;
         },
         trade_logic: [];
         daily_pnl: []

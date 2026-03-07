@@ -103,7 +103,7 @@ const MyAlgoComponent = ({ navigation, subsData }: MyAlgoProps) => {
           logo={item.logo}
           onPress={() => navigation?.navigate('AlgoMain', { item: item?.bot })}
           name={item?.bot?.name}
-          sub={item?.bot?.description}
+          sub={item?.bot?.tags?.description}
           dayPnl={item?.users_result?.today_realized_pnl || '0'}
           dayReward={item?.users_result?.today_reward_risk_ratio || '0'}
           dayDD={item?.users_result?.today_max_drawdown || '0'}

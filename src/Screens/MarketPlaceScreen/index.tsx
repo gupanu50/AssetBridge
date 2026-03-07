@@ -210,7 +210,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
             <Text style={styles.headingText}>
               {cardData?.name}
             </Text>
-            <Text style={styles.subHeadingText}>{cardData.description}</Text>
+            <Text style={styles.subHeadingText}>{cardData?.tags?.description}</Text>
           </View>
         </View>
         <View style={styles.mainView}>
@@ -224,7 +224,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
             <Text style={styles.subHeadingPubText}>:{'  '} {cardData?.minimum_capital_required}</Text>
           </View>
           <View style={[styles.publishedView, { marginTop: scaler(10) }]}>
-            <Text style={styles.headingPubText}>Activate on {'     '}</Text>
+            {/* <Text style={styles.headingPubText}>Activate on {'     '}</Text>
             <View style={styles.activatedValueView}>
               <Text style={styles.subHeadingPubText}>:{'  '}</Text>
               <View style={styles.activatedValueView1}>
@@ -248,7 +248,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
               <View style={styles.activatedValueView1}>
                 <Text style={styles.activatedValueText}>S</Text>
               </View>
-            </View>
+            </View> */}
           </View>
           <View style={styles.lineView} />
           <View style={styles.featureActionsRow}>
@@ -330,7 +330,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
           </View>
           <View style={styles.lineView} />
           <Text style={styles.recomText}>Recommended Trade Log Summary</Text>
-          <Text style={styles.recomDateText}>(20 Nov 25 - 01 Dec 25)</Text>
+          <Text style={styles.recomDateText}>{`(${cardData?.backtest_results?.summary?.recommended_trade_start_date} - ${cardData?.backtest_results?.summary?.recommended_trade_end_date})`}</Text>
           <View style={styles.radioBox}>
             <Text style={styles.brokerageText}>
               Brokerage, Taxes, and Slippage not included. Add to update your

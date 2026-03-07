@@ -227,7 +227,7 @@ const OrderComponent = () => {
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Source</Text>
               <View style={styles.pill}>
-                <Text style={styles.pillText}>{item.Source}</Text>
+                <Text style={styles.pillText}>{item.source_type}</Text>
               </View>
             </View>
           </View>

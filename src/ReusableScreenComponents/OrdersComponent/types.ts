@@ -9,6 +9,7 @@ export type FlatItem = {
   id: number;
   symbol: string;
   exchange: string;
+  source_type?: string;
   side: string;
   average_price: number;
   submitted_at: string;

@@ -9,15 +9,14 @@ import { OverViewProps } from './types';
 const MarketPlaceOverviewComponent = (props: OverViewProps) => {
     const [aboutExpanded, setAboutExpanded] = useState(true);
     const [disclaimerExpanded, setDisclaimerExpanded] = useState(true);
-    const aboutBullets = useMemo(
-        () => [
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-            "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type",
-            'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-            'It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum',
-        ],
-        [],
-    );
+    const aboutBullets = useMemo(() => {
+        const rawDescription = props?.cardData?.description || '';
+
+        return rawDescription
+            .split('|')
+            .map((item: string) => item.replace(/\r?\n/g, '').trim())
+            .filter(Boolean);
+    }, [props?.cardData?.description]);
 
     const disclaimerBullets = useMemo(
         () => [
@@ -82,14 +81,14 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
                         </Text>
                     </View>
 
-                    <View style={styles.summaryCol}>
+                    {/* <View style={styles.summaryCol}>
                         <Text style={styles.summaryLabel}>Overall PnL</Text>
                         <Text
                             style={[styles.summaryValue, { color: mainColors.red }]}
                         >
                             ₹ -32,000
                         </Text>
-                    </View>
+                    </View> */}
                 </View>
 
                 {/* Win/Loss bar */}
@@ -120,7 +119,7 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
 
                     <View style={styles.summaryCol}>
                         <Text style={styles.summaryLabel}>Average PnL / Trade</Text>
-                        <Text style={styles.summaryValuePlain}>₹ 18,000</Text>
+                        <Text style={styles.summaryValuePlain}>₹ {props?.cardData?.backtest_results?.summary?.avg_pnl_trade}</Text>
                     </View>
                 </View>
 
@@ -132,12 +131,12 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
                         <Text style={styles.summaryLabel}>
                             Reward to Risk Ratio
                         </Text>
-                        <Text style={styles.summaryValuePlain}>2.30</Text>
+                        <Text style={styles.summaryValuePlain}>{props?.cardData?.backtest_results?.summary?.rr_ratio}</Text>
                     </View>
 
                     <View style={styles.summaryCol}>
                         <Text style={styles.summaryLabel}>Expectancy Ratio</Text>
-                        <Text style={styles.summaryValuePlain}>0.99</Text>
+                        <Text style={styles.summaryValuePlain}>{props?.cardData?.backtest_results?.summary?.expectancy_ratio}</Text>
                     </View>
                 </View>
 
@@ -150,7 +149,7 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
                         <Text
                             style={[styles.summaryValue, { color: mainColors.greenText }]}
                         >
-                            ₹ 99,000
+                            ₹ {props?.cardData?.backtest_results?.summary?.max_profit}
                         </Text>
                     </View>
 
@@ -159,7 +158,7 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
                         <Text
                             style={[styles.summaryValue, { color: mainColors.redText }]}
                         >
-                            ₹ -54,000
+                            ₹ -{props?.cardData?.backtest_results?.summary?.max_loss}
                         </Text>
                     </View>
                 </View>

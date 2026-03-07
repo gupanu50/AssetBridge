@@ -214,7 +214,7 @@ const PositionsOpenComponent = () => {
             <Text style={styles.exchangeBadgeText}>{item.exchange}</Text>
           </View>
           <View style={styles.pillManAut}>
-            <Text style={styles.pillText}>{item.Source}</Text>
+            <Text style={styles.pillText}>{item.source_type}</Text>
           </View>
         </View>
 

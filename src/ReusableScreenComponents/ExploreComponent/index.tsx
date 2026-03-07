@@ -199,7 +199,7 @@ export default function ExploreComponent(props: ExploreProps) {
         logo={item.logo}
         onPress={() => props?.navigation?.navigate('AlgoMain', { item: item })}
         name={item.name}
-        sub={item.description}
+        sub={item?.tags?.description || ''}
         dayPnl={item?.backtest_results?.summary?.day?.net_pnl || '0'}
         dayReward={item?.backtest_results?.summary?.day?.total_trades || '0'}
         dayDD={item?.backtest_results?.summary?.day?.max_drawdown || '0'}

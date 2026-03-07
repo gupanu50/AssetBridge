@@ -26,6 +26,9 @@ export type PropCommonCardTypes = {
 export type PropCommonCardApiTypes = {
   logo: ImageSourcePropType;
   name: string;
+  tags?: {
+    description: string;
+  };
   is_subscribed: boolean;
   instance_id: number;
   running_status: string;

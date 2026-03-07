@@ -149,7 +149,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
           logo={item.logo}
           name={item.name}
           onPress={() => navigation?.navigate('MarketPlace', { cardData: item })}
-          sub={item.description}
+          sub={item?.tags?.description}
           onPressSubscribe={() => handleCardAction(item)}
           tagLeft={item.tagLeft}
           tagRight={item.tagRight}
