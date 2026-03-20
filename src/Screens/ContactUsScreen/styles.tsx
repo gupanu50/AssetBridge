@@ -3,6 +3,9 @@ import { fontFamily, mainColors } from "../../Utils/helper";
 import scaler from "../../Utils/scaler";
 
 export const styles = StyleSheet.create({
+    eyeIcon: {
+        alignSelf: 'center',
+    },
     conatiner: {
         flex: 1,
         backgroundColor: mainColors.black

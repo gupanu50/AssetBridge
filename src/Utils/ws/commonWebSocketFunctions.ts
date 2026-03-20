@@ -20,7 +20,27 @@ export function computeChange(payload: any): { ltp?: number; abs?: number; pct?:
 
     return { ltp, abs, pct };
 }
+export function computeChange1(
+    payload: any,
+    previousClose?: number
+): { ltp?: number; abs?: number; pct?: number } {
+    if (!payload) return {};
 
+    const ltp = toNum(payload.ltp ?? payload.current_price ?? payload.price);
+    const prevClose = toNum(previousClose);
+
+    const abs =
+        ltp != null && prevClose != null
+            ? ltp - prevClose
+            : undefined;
+
+    const pct =
+        abs != null && prevClose != null && prevClose !== 0
+            ? (abs / prevClose) * 100
+            : undefined;
+
+    return { ltp, abs, pct };
+}
 export function formatNumber(n?: number, decimals = 2) {
     if (n == null) return '--';
     return n.toFixed(decimals);

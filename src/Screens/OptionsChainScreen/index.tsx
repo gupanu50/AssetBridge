@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   Pressable,
+  Alert,
 } from 'react-native';
 import { fontFamily, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
@@ -28,18 +29,18 @@ type Row = {
   midTick: 'green' | 'red' | 'none';
 };
 
-const fmtMoney = (v: number) => `${v.toFixed(2)}`;
+const fmtMoney = (v: number) => `${v?.toFixed(2)}`;
 // const fmtPct = (v: number) => `${v >= 0 ? '' : ''}${v.toFixed(2)}%`;
 type Props = MainStackScreenProps<'OptionsChain'>;
 export default function OptionsChainScreen({ navigation, route }: Props) {
-  console.log('RouteOptionsChaain', route?.params?.segment, route?.params?.symbol, route?.params);
+  // console.log('RouteOptionsChaain', route?.params?.segment, route?.params?.symbol, route?.params);
   // Extracting segment and symbol dynamically from route params
   // const segment = route?.params?.segment;
-  const symbol = route?.params?.symbol;
+  const symbol = route?.params?.symbol.replace(" ", "");
   const { data: optionChainDatesData } = useOptionChainDatesDataQuery({
     symbol: String(symbol),
   })
-  console.log('OptionChainDatesData', optionChainDatesData?.data?.data?.data);
+  // console.log('OptionChainDatesData', optionChainDatesData?.data?.data?.data);
   const dropDownData = useMemo(() => {
     if (!optionChainDatesData?.data?.data?.data) return [];
     return optionChainDatesData?.data?.data?.data.map((date: string) => ({
@@ -48,13 +49,18 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     }));
   }, [optionChainDatesData]);
   const [selectedExpiry, setSelectedExpiry] = useState<string>("");
+  const [live, setLive] = useState<Record<string, any>>({});
+  const normalizeWsSymbol = (raw: any): string => {
+    return String(raw ?? "").trim().toUpperCase();
+  };
+  const normalizedSymbol = normalizeWsSymbol(symbol);
   const pctFromLtpClose = (ltp?: number, close?: number) => {
     const l = Number(ltp ?? 0);
     const c = Number(close ?? 0);
     if (!c) return 0;
     return ((l - c) / c) * 100;
   };
-  const fmtPct = (v: number) => `${v >= 0 ? "" : ""}${v.toFixed(2)}%`;
+  const fmtPct = (v: number) => `${v >= 0 ? "" : ""}${v?.toFixed(2)}%`;
   useEffect(() => {
     const first = optionChainDatesData?.data?.data?.data?.[0];
     if (first && !selectedExpiry) setSelectedExpiry(first);
@@ -63,16 +69,15 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     symbol: String(symbol),
     expiry: String(selectedExpiry),
   })
-  console.log('OptionChainData', selectedExpiry, optionChainData?.data?.data);
+  // console.log('OptionChainData', selectedExpiry, optionChainData?.data?.data);
   type StrikeApi = { strike: number; symbols: string[] };
 
   const strikes: StrikeApi[] = optionChainData?.data?.data?.data?.strikes ?? [];
 
-  const rows = useMemo(() => {
+  const rows: any = useMemo(() => {
     return strikes.map((s) => {
-      const callSym = s.symbols.find(x => x.endsWith("CE")) ?? s.symbols[0];
-      const putSym = s.symbols.find(x => x.endsWith("PE")) ?? s.symbols[1];
-
+      const callSym = s.symbols.find((x: any) => x.symbol.endsWith("CE")) ?? s.symbols[0];
+      const putSym = s.symbols.find((x: any) => x.symbol.endsWith("PE")) ?? s.symbols[1];
       return {
         strike: s.strike,
         callSymbol: callSym,
@@ -85,8 +90,9 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
   const wsSymbols = useMemo(() => {
     const list: string[] = [];
     for (const r of rows) {
-      if (r.callSymbol) list.push(r.callSymbol);
-      if (r.putSymbol) list.push(r.putSymbol);
+      // console.log('RWsSymbol', r)
+      if (r.callSymbol) list.push(r.callSymbol?.symbol);
+      if (r.putSymbol) list.push(r.putSymbol?.symbol);
     }
     // unique
     return Array.from(new Set(list));
@@ -100,6 +106,8 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
   const [wsPrices, setWsPrices] = useState<Record<string, any>>({});
   const wsSeg = "NFO-OPT";
   const keyFor = (sym: string) => `${wsSeg}:${String(sym).toUpperCase()}`;
+  const wsSegIndices = "INDICES";
+  const keyForIndices = (sym: string) => `${wsSegIndices}:${String(sym).toUpperCase()}`;
   // const [wsPrices, setWsPrices] = useState<Record<string, any>>({});
 
   // const [snapshotDone, setSnapshotDone] = useState(false);
@@ -120,7 +128,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
 
   useEffect(() => {
     if (!wsSymbols.length) return;
-
+    let timeoutId: any;
     // Always clean old subscription first (expiry/symbols changed)
     unregisterSubscription("optionChainOwner");
 
@@ -138,20 +146,34 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     console.log("SUB_PAYLOAD", payload);
     registerSubscription("optionChainOwner", payload);
 
+    if (!isMarketOpenIST()) {
+      resumeMarketFeed();
+      timeoutId = setTimeout(() => {
+        pauseMarketFeed();
+        off();
+      }, 2000);
+    }
+
     const off = onWsMessage((msg) => {
       if (msg?.type !== "snapshot" && msg?.type !== "update") return;
       if (!msg?.data || typeof msg.data !== "object") return;
-      console.log("WS_MSGOptionChain", msg);
+      // console.log("WS_MSGOptionChain", msg);
       // Normalize keys to match keyFor()
       const normalized: Record<string, any> = {};
       for (const rawKey of Object.keys(msg.data)) {
         const k = String(rawKey).toUpperCase();
         normalized[k] = msg.data[rawKey];
       }
-
+      // console.log('Normalised', normalized);
+      // console.log('KeyFor', keyForIndices(normalizedSymbol));
+      // console.log('LiveValue', normalized[keyForIndices(normalizedSymbol)])
       setWsPrices(prev => ({ ...prev, ...normalized }));
+      setLive((prev) => ({
+        ...prev, ltp: normalized[keyForIndices(normalizedSymbol)]?.ltp,
+        close: normalized[keyForIndices(normalizedSymbol)]?.close,
+      }));
     });
-
+    clearTimeout(timeoutId);
     return () => {
       off();
       unregisterSubscription("optionChainOwner");
@@ -162,6 +184,8 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     type: "box";
     id: string;
     strike: number;
+    ltp: number;
+    close: number;
   };
   // type DividerItem = { type: "divider"; id: string; strike: number };
   type ListItem = RowItem | BoxItem;
@@ -189,23 +213,44 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
 
   //   return out;
   // }, [rows, dividerIndex]);
-  const BOX_INDEX = 7;
-  const CenterBoxRow = ({ text }: { text: string }) => {
+  // const BOX_INDEX = 7;
+  const CenterBoxRow = ({ ltp, close }: { ltp: number, close: number }) => {
+    const pctChange = close ? ((ltp - close) / close) * 100 : 0;
+    const displayLtp = ltp ? `${fmtMoney(ltp)} | ${fmtMoney(ltp)} | ${fmtPct(pctChange)}` : "0 | 0 (0.00%)";
     return (
       <View style={styles.centerDividerRow}>
         <View style={styles.centerDividerLine} />
         <View style={styles.centerDividerPill}>
-          <Text style={styles.centerDividerText}>{text}</Text>
+          <Text style={styles.centerDividerText}>{displayLtp}</Text>
         </View>
         <View style={styles.centerDividerLine} />
       </View>
     );
   };
+  const findClosestStrike = (ltp: number, strikes: number[]): number => {
+    let closest = strikes[0];
+    let diff = Math.abs(ltp - closest);
+
+    strikes.forEach((strike) => {
+      const newDiff = Math.abs(ltp - strike);
+      if (newDiff < diff) {
+        closest = strike;
+        diff = newDiff;
+      }
+    });
+
+    return closest;
+  };
   const listWithBox: ListItem[] = useMemo(() => {
     if (!rows.length) return [];
 
     const out: ListItem[] = [];
-
+    // const normalized: Record<string, any> = {};
+    // const afterOfficeLtp = normalized[keyForIndices(normalizedSymbol)]?.ltp;
+    // console.log('LiveListWithBox', live)
+    const strikesList = rows.map((r: any) => r.strike); // List of all strikes
+    const closestStrike = findClosestStrike(live.ltp, strikesList); // Find closest strike to LTP
+    // @ts-ignore
     rows.forEach((r, idx) => {
       // push row
       out.push({
@@ -215,31 +260,35 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
         putSymbol: r.putSymbol,
       });
 
-      // push box AFTER row at index 7
-      if (idx === BOX_INDEX) {
+      // Add CenterBoxRow below the closest strike
+      if (r.strike === closestStrike) {
         out.push({
           type: "box",
           id: `box-${r.strike}-${idx}`,
           strike: r.strike,
+          ltp: live.ltp, // Pass LTP here
+          close: live.close,
         });
       }
     });
 
     return out;
-  }, [rows]);
+  }, [rows, live]);
   // const keyFor = (sym: string) => `${String(wsSeg).toUpperCase()}:${String(sym).toUpperCase()}`;
-  const renderRow = (item: { strike: number; callSymbol: string; putSymbol: string }) => {
-    const callKey = keyFor(item.callSymbol);
-    const putKey = keyFor(item.putSymbol);
+  const renderRow = (item: { strike: number; callSymbol: any; putSymbol: any }) => {
+    // console.log('Items', item)
+    const callKey = keyFor(item.callSymbol.symbol);
+    const putKey = keyFor(item.putSymbol.symbol);
     const call = wsPrices[callKey];
     const put = wsPrices[putKey];
-
+    // console.log('WSPricesinsideRender', call, put)
     const callLtp = call?.ltp ?? 0;
     const putLtp = put?.ltp ?? 0;
     const callPct = pctFromLtpClose(call?.ltp, call?.close);
     const putPct = pctFromLtpClose(put?.ltp, put?.close);
+    // console.log('WSPricesinsideRenderCallLTPPutLtp', callLtp, putLtp)
     const diff = callPct - putPct; // >0 => call stronger
-    const abs = Math.min(Math.abs(diff), 5); // clamp to 5%
+    // const abs = Math.min(Math.abs(diff), 5); // clamp to 5%
     // const barWidthPct = 30 + (abs / 5) * 70; // 30%..100%
     const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 
@@ -248,23 +297,23 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     const putStrength = clamp(Math.abs(putPct), 0, 10);
 
     const sum = callStrength + putStrength || 1;
-
+    // console.log('CallPct', callPct)
     // Split track into left half (red) + right half (green)
     const leftPct = (putStrength / sum) * 50;   // max 50%
     const rightPct = (callStrength / sum) * 50; // max 50%
     // console.log("STRENGTH", { leftPct, rightPct });
     // const barColorStyle = diff > 0 ? styles.tickGreen : diff < 0 ? styles.tickRed : styles.tickNone;
     return (
-      <Pressable style={styles.rowWrap}>
+      <View style={styles.rowWrap}>
         {/* Left: Call LTP */}
-        <View style={styles.cellLeft}>
+        <TouchableOpacity style={styles.cellLeft} onPress={() => navigation.navigate('Instrument', { symbol: item.callSymbol.symbol, ltp: callLtp, abs: callPct })}>
           <Text style={styles.moneyText}>{fmtMoney(callLtp)}</Text>
           <Text
             style={[styles.pctText, callPct >= 0 ? styles.green : styles.red]}
           >
             {fmtPct(callPct)}
           </Text>
-        </View>
+        </TouchableOpacity>
 
         {/* Middle: Strike */}
         <View style={styles.cellMid}>
@@ -276,7 +325,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
         </View>
 
         {/* Right: Put LTP */}
-        <View style={styles.cellRight}>
+        <TouchableOpacity style={styles.cellRight} onPress={() => navigation.navigate('Instrument', { symbol: item.putSymbol.symbol, ltp: putLtp, abs: putPct })}>
           <Text style={styles.moneyText}>{fmtMoney(putLtp)}</Text>
           <Text
             style={[
@@ -285,8 +334,8 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
           >
             {fmtPct(putPct)}
           </Text>
-        </View>
-      </Pressable>
+        </TouchableOpacity>
+      </View>
     );
   };
   return (
@@ -334,10 +383,11 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
           item.type === "box" ? item.id : `${item.strike}-${index}`
         }
         renderItem={({ item }) => {
+          // console.log('ItemInsideFlatListDirect', item)
           if (item.type === "box") {
             // example text like figma: 23950.00 | 23950.00 (0.00%)
-            const boxText = `${fmtMoney(item.strike)}  |  ${fmtMoney(item.strike)} (0.00%)`;
-            return <CenterBoxRow text={boxText} />;
+            // const boxText = `${fmtMoney(item.strike)}  |  ${fmtMoney(item.strike)} (0.00%)`;
+            return <CenterBoxRow ltp={item.ltp} close={item?.close} />;
           }
 
           return renderRow(item); // IMPORTANT: renderRow(item) not renderRow({item})

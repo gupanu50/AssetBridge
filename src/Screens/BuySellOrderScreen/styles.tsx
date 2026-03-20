@@ -128,7 +128,7 @@ export const styles = StyleSheet.create({
         borderTopLeftRadius: 10,
         borderBottomLeftRadius: 10,
         paddingHorizontal: scaler(15),
-        backgroundColor: mainColors.googleButton,
+        backgroundColor: mainColors.pnlCard,
     },
     limitText: {
         fontFamily: fontFamily.poppinsMedium,
@@ -141,7 +141,7 @@ export const styles = StyleSheet.create({
         borderTopRightRadius: 10,
         borderBottomRightRadius: 10,
         paddingHorizontal: scaler(10),
-        backgroundColor: mainColors.mainButton
+        backgroundColor: '#002238'
     },
     limitMarketView: {
         width: scaler(112),

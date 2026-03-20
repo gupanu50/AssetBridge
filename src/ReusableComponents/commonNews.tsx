@@ -7,12 +7,16 @@ import moment from 'moment';
 
 const CommonNews = (props: NewsItemProps) => {
   return (
-    <TouchableOpacity activeOpacity={0.85} style={[styles.newsItem]}>
-      <View style={styles.newsLeft}>
-        <Image source={{ uri: props.img }} resizeMode="contain" style={styles.newsImg} />
+    <TouchableOpacity style={[styles.newsItem]} onPress={props?.onPress}>
+      <View style={styles.flexView}>
+        <View style={styles.newsLeft}>
+          <Text style={styles.sourceText}>{props?.source}</Text>
+        </View>
         <Text style={styles.newsTime}>{moment(props.published_at).fromNow()}</Text>
       </View>
-
+      {/* <View style={styles.newsLeft}>
+        <Image source={{ uri: props.img }} resizeMode="contain" style={styles.newsImg} borderRadius={15} />
+      </View> */}
       <View style={styles.newsRight}>
         <Text style={styles.newsTitle} numberOfLines={2}>
           {props.title}
@@ -32,20 +36,24 @@ const styles = StyleSheet.create({
     paddingBottom: scaler(12),
   },
   newsLeft: {
-    width: scaler(95),
-    paddingRight: scaler(10),
-    flexDirection: 'row',
+    backgroundColor: mainColors.lastUpdatedBg,
+    borderRadius: 10,
+    paddingVertical: scaler(2),
+    paddingHorizontal: scaler(10)
   },
   newsImg: {
-    height: scaler(50),
-    width: scaler(80),
+    height: '100%',
+    width: '100%',
   },
   newsTime: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.headingTextColor,
     fontSize: scaler(12),
-    marginLeft: scaler(5),
-    alignSelf: 'center',
+  },
+  sourceText: {
+    fontFamily: fontFamily.poppinsRegular,
+    color: mainColors.white,
+    fontSize: scaler(12),
   },
   newsRight: {
     flex: 1,
@@ -57,5 +65,9 @@ const styles = StyleSheet.create({
     color: mainColors.white,
     fontSize: scaler(12),
     lineHeight: scaler(16),
+  },
+  flexView: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
 });

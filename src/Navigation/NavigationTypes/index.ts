@@ -49,6 +49,7 @@ export type MainStackParamList = {
       paramItem: any;
       nav: string;
       buynav: string;
+      isOptionChainFlow?: boolean;
     },
   };
   ContactUs: undefined;

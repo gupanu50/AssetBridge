@@ -5,6 +5,7 @@ import { mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import { styles } from './styles';
 import { OverViewProps } from './types';
+import { formatAmount } from '../../ReusableComponents/commonFunctions';
 
 const MarketPlaceOverviewComponent = (props: OverViewProps) => {
     const [aboutExpanded, setAboutExpanded] = useState(true);
@@ -77,7 +78,7 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
                         <Text
                             style={[styles.summaryValue, { color: mainColors.green }]}
                         >
-                            ₹ {props?.cardData?.backtest_results?.summary?.net_pnl}
+                            ₹ {formatAmount(props?.cardData?.backtest_results?.summary?.net_pnl)}
                         </Text>
                     </View>
 
@@ -95,7 +96,7 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
                 <View style={styles.winLossRow}>
                     <View style={styles.summaryWinLossCol}>
                         <Text style={styles.summaryWinLossLabel}>Win</Text>
-                        <Text style={styles.summarySmallValue}>₹ 1,00,000</Text>
+                        <Text style={styles.summarySmallValue}>{props?.cardData?.backtest_results?.summary?.win_rate}%</Text>
                     </View>
 
                     <View style={styles.summaryWinLossCol}>
@@ -114,12 +115,12 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
                 <View style={styles.summaryRow}>
                     <View style={styles.summaryCol}>
                         <Text style={styles.summaryLabel}>Total Trades</Text>
-                        <Text style={styles.summaryValuePlain}>{props?.cardData?.backtest_results?.summary?.total_trades}</Text>
+                        <Text style={styles.summaryValuePlain}>{formatAmount(props?.cardData?.backtest_results?.summary?.total_trades)}</Text>
                     </View>
 
                     <View style={styles.summaryCol}>
                         <Text style={styles.summaryLabel}>Average PnL / Trade</Text>
-                        <Text style={styles.summaryValuePlain}>₹ {props?.cardData?.backtest_results?.summary?.avg_pnl_trade}</Text>
+                        <Text style={styles.summaryValuePlain}>₹ {formatAmount(props?.cardData?.backtest_results?.summary?.avg_pnl_trade)}</Text>
                     </View>
                 </View>
 
@@ -149,7 +150,7 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
                         <Text
                             style={[styles.summaryValue, { color: mainColors.greenText }]}
                         >
-                            ₹ {props?.cardData?.backtest_results?.summary?.max_profit}
+                            ₹ {formatAmount(props?.cardData?.backtest_results?.summary?.max_profit)}
                         </Text>
                     </View>
 
@@ -158,7 +159,7 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
                         <Text
                             style={[styles.summaryValue, { color: mainColors.redText }]}
                         >
-                            ₹ -{props?.cardData?.backtest_results?.summary?.max_loss}
+                            ₹ -{formatAmount(props?.cardData?.backtest_results?.summary?.max_loss)}
                         </Text>
                     </View>
                 </View>

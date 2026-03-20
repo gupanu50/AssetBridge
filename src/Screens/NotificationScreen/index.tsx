@@ -8,7 +8,7 @@ import {
     StyleSheet,
     TouchableOpacity,
 } from 'react-native';
-import { fontFamily, mainColors } from '../../Utils/helper';
+import { fontFamily, getApiErrorMessage, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import { NotificationTypeProps } from './types';
 import { s } from './styles';
@@ -16,6 +16,9 @@ import useNotiDataQuery from './Hooks/useGetNotiQuery';
 import moment from 'moment';
 import { ScrollView } from 'react-native-gesture-handler';
 import useReadNotiMutation from './Hooks/useReadNotificationMutation';
+import IconButton from '../../ReusableComponents/iconButton';
+import useDeleteNotiMutation from './Hooks/useDeleteNotificationMutation';
+import snackbarHandler from '../../Utils/snackbarHandler';
 
 type Props = {
     visible: boolean;
@@ -33,51 +36,6 @@ type Props = {
     arrowRightOffset?: number;
 };
 
-// const notiData: NotificationTypeProps[] = [
-//     {
-//         id: 1,
-//         heading: 'What is Lorem Ipsum?',
-//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-//         time: '15 Minutes ago',
-//         isRead: false,
-//     },
-//     {
-//         id: 2,
-//         heading: 'What is Lorem Ipsum?',
-//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-//         time: '20 Minutes ago',
-//         isRead: false,
-//     },
-//     {
-//         id: 3,
-//         heading: 'What is Lorem Ipsum?',
-//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-//         time: '31 Minutes ago',
-//         isRead: true,
-//     },
-//     {
-//         id: 4,
-//         heading: 'What is Lorem Ipsum?',
-//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-//         time: '1 Hour ago',
-//         isRead: true,
-//     },
-//     {
-//         id: 5,
-//         heading: 'What is Lorem Ipsum?',
-//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-//         time: '3 Hours ago',
-//         isRead: true,
-//     },
-//     {
-//         id: 6,
-//         heading: 'What is Lorem Ipsum?',
-//         desc: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s',
-//         time: '5 Hours ago',
-//         isRead: true,
-//     },
-// ];
-
 
 const NotificationsModal = ({
     visible,
@@ -87,26 +45,66 @@ const NotificationsModal = ({
 }: Props) => {
     const { data } = useNotiDataQuery();
     const { mutate } = useReadNotiMutation();
+    const { mutate: deleteMutation } = useDeleteNotiMutation();
     // console.log('NotiData', data?.data?.data);
     const notiData = data?.data?.data || [];
+    const allIds = notiData.map((i: { id: number; }) => (i.id));
+    // console.log('AllIds', allIds)
     const handleNotiPress = (item: NotificationTypeProps) => {
         if (!item.is_read) {
             mutate({ id: item.id });
         }
     };
+    const deletePress = (id: number) => {
+        deleteMutation({
+            ids: [id]
+        }, {
+            onSuccess: (res) => {
+                // console.log('ResSingleDelete', res?.data)
+                snackbarHandler.successToast('Notificaions Deleted Successfully')
+            },
+            onError: (err) => {
+                const message = getApiErrorMessage(err);
+                snackbarHandler.errorToast(message)
+            }
+        })
+    }
+    const allDeletePress = () => {
+        deleteMutation({
+            ids: allIds
+        }, {
+            onSuccess: (res) => {
+                // console.log('ResAllDelete', res?.data)
+                snackbarHandler.successToast('All Notifications Deleteted Successfully')
+            },
+            onError: (err) => {
+                const message = getApiErrorMessage(err);
+                snackbarHandler.errorToast(message)
+            }
+        })
+    }
     const renderNotiData = ({ item }: { item: NotificationTypeProps }) => {
         const opacity = item.is_read ? 0.4 : 1;
 
         return (
             <TouchableOpacity onPress={() => handleNotiPress(item)}>
-                <View style={s.flexView}>
-                    <Text style={[s.headingText, { opacity }]}>
-                        {item.title}
-                    </Text>
+                <View style={[s.flexView, { justifyContent: 'space-between' }]}>
+                    <View style={s.flexView}>
+                        <Text style={[s.headingText, { opacity }]}>
+                            {item.title.slice(0, 25) + "..."}
+                        </Text>
 
-                    <Text style={[s.timeText, { opacity }]}>
-                        {moment(item.created_at).fromNow()}
-                    </Text>
+                        <Text style={[s.timeText, { opacity }]}>
+                            {moment(item.created_at).fromNow()}
+                        </Text>
+                    </View>
+                    <IconButton
+                        vectorType='MaterialCommunityIcons'
+                        name='delete-outline'
+                        color={mainColors.white}
+                        style={{ opacity: opacity }}
+                        onPress={() => deletePress(item?.id)}
+                    />
                 </View>
 
                 <Text style={[s.descText, { opacity }]} numberOfLines={2}>
@@ -128,6 +126,9 @@ const NotificationsModal = ({
 
                     {/* Popover box */}
                     <View style={[s.popover, { top: topOffset }]}>
+                        {notiData.length > 0 && <TouchableOpacity style={s.deleetView} onPress={() => allDeletePress()}>
+                            <Text style={s.deleteAllText}>Delete All</Text>
+                        </TouchableOpacity>}
                         <FlatList
                             data={notiData}
                             keyExtractor={(item) => String(item.id)}

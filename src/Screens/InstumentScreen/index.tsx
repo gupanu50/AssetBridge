@@ -22,9 +22,9 @@ import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsCl
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import { CandlestickChart } from "react-native-wagmi-charts";
-import { getLastByKey, onWsMessage } from '../../Utils/ws/marketSocket';
+import { getLastByKey, onWsMessage, registerSubscription, unregisterSubscription } from '../../Utils/ws/marketSocket';
 import { WebView } from "react-native-webview";
-import { computeChange, formatChange, formatNumber, lastPart } from '../../Utils/ws/commonWebSocketFunctions';
+import { computeChange, computeChange1, formatChange, formatNumber, lastPart } from '../../Utils/ws/commonWebSocketFunctions';
 import useTopMoversPercentageQuery from '../HomeScreen/Hooks/useTopMoversPercentQuery';
 import CommonButton from '../../ReusableComponents/commonButton';
 import useCandleStickQuery from './Hooks/useCandleStickQuery';
@@ -34,17 +34,24 @@ const InstumentScreen = ({ navigation, route }: Props) => {
   const [selectedLabel, setSelectedLabel] = useState<string>('1D');
   const paramItem = route?.params?.item;
   const paramNav = route?.params?.nav;
-  console.log('ParamItemsInstrumentScreen', paramItem, paramNav)
+  const paramIndex = route?.params?.item?.index || route?.params?.index || 'options';
+  console.log('ParamItemsInstrumentScreen', paramItem, route?.params, paramNav)
   const topTabListRef: any = useRef(null);
   const isMarketHours = isMarketOpenIST();
   const [activeTopTab, setActiveTopTab] = useState('Opened Positions');
   const { fromDate, toDate } = useMemo(() => buildFromToISO(selectedLabel), [selectedLabel]);
+  const [symbolData, setSymbolData] = useState<any>({
+    ltp: 0,
+    abs: 0,
+    pct: 0,
+  });
   const { data: candleData } = useCandleStickQuery({
-    symbol: paramItem?.symbol.replace(' ', ''),
-    exchange: paramItem?.segment ?? paramItem?.exchange,
+    index: paramIndex,
+    symbol: paramItem?.symbol.replace(' ', '') ?? route?.params?.symbol,
+    exchange: paramItem?.segment ?? paramItem?.exchange ?? 'NFO',
     fromDate,
     toDate,
-    segment: paramItem?.segment ?? paramItem?.exchange,
+    segment: paramItem?.segment ?? paramItem?.exchange ?? 'NFO-OPT',
   });
   // console.log('CandleStickData', candleData);
   const candleData120 = useMemo(() => {
@@ -56,6 +63,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
       close: item.close,
     }));
   }, [candleData]);
+  console.log('candleData', candleData)
   let moversDetails;
   if (paramItem?.segment) {
     const { data: moversPercentageData } = useTopMoversPercentageQuery({
@@ -64,7 +72,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     },
       {
         queryKey: ['/price/market/move', 'NSE', paramItem?.symbol],
-        refetchInterval: isMarketHours ? 10 : false,
+        // refetchInterval: isMarketHours ? 10 : false,
       }
     )
     const moverPercentageDataDetails = moversPercentageData?.data?.data
@@ -87,8 +95,9 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     route?.params?.symbol ??
     route?.params?.item?.wsSymbol ??
     route?.params?.item?.symbol;
+  console.log('RawSymbol', rawSymbol);
   const symbol = normalizeWsSymbol(rawSymbol);
-
+  console.log('Symbol', symbol);
   const [live, setLive] = useState(() => {
     const payload =
       getLastByKey(`INDICES:${symbol}`) ||
@@ -96,34 +105,40 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     const { ltp, abs, pct } = computeChange(payload);
     return { ltp, abs, pct };
   });
-
+  const symbolNormalized = normalizeWsSymbol(symbol);
   useEffect(() => {
     if (!symbol) return;
 
+    // WebSocket Subscription to the Symbol
+    const wsPayload: any = {
+      type: 'subscribe',
+      data: [
+        {
+          segment: 'NSE',
+          subscription_type: 'contract',
+          symbols: [symbolNormalized],
+        },
+      ],
+    };
+    registerSubscription('instrumentScreen', wsPayload);
+
+    // Cleanup: Unsubscribe when symbol changes or screen unmounts
+    return () => unregisterSubscription('instrumentScreen');
+  }, [symbolNormalized]);
+
+  // WebSocket message handler
+  useEffect(() => {
     const off = onWsMessage((msg) => {
       if (msg?.type !== "snapshot" && msg?.type !== "update") return;
       if (!msg?.data || typeof msg.data !== "object") return;
 
       let payload: any;
-
       if (msg.type === "snapshot") {
-        payload = msg.data?.[symbol]; // { NIFTY50: {...} }
+        payload = msg.data?.[symbolNormalized];
       } else {
-        // { "INDICES:NIFTY50": {...} }
-        for (const [k, v] of Object.entries(msg.data)) {
-          if (lastPart(k) === symbol) {
-            payload = v;
-            break;
-          }
-        }
-      }
-
-      // fallback: match by payload.symbol
-      if (!payload) {
-        for (const v of Object.values(msg.data)) {
-          const sym = String((v as any)?.symbol ?? "").toUpperCase();
-          if (sym === symbol) {
-            payload = v;
+        for (const [key, value] of Object.entries(msg.data)) {
+          if (lastPart(key) === symbolNormalized) {
+            payload = value;
             break;
           }
         }
@@ -131,16 +146,19 @@ const InstumentScreen = ({ navigation, route }: Props) => {
 
       if (!payload) return;
 
-      const { ltp, abs, pct } = computeChange(payload);
-      setLive((prev) =>
-        prev.ltp === ltp && prev.abs === abs && prev.pct === pct
-          ? prev
-          : { ltp, abs, pct }
-      );
+      if (paramNav === 'movers') {
+        const { ltp, abs, pct } = computeChange1(payload, paramItem?.previous_close);
+        setLive((prev) => (prev.ltp !== ltp || prev.abs !== abs || prev.pct !== pct ? { ltp, abs, pct } : prev));
+        setSymbolData({ ltp, abs, pct });
+      } else {
+        const { ltp, abs, pct } = computeChange(payload);
+        setLive((prev) => (prev.ltp !== ltp || prev.abs !== abs || prev.pct !== pct ? { ltp, abs, pct } : prev));
+        setSymbolData({ ltp, abs, pct });
+      }
     });
 
     return () => off();
-  }, [symbol]);
+  }, [symbolNormalized]);
 
   const topTabs = useMemo(
     () => [
@@ -150,17 +168,6 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     ],
     [],
   );
-  // const onPressTopTab = (label: string, index: number) => {
-  //   setActiveTopTab(label);
-  //   // keep active tab visible while sliding
-  //   try {
-  //     topTabListRef.current?.scrollToIndex({
-  //       index,
-  //       animated: true,
-  //       viewPosition: 0.5,
-  //     });
-  //   } catch (e) { }
-  // };
   // -------------------- RENDERERS --------------------
   const renderTopTab = ({ item, index }: { item: TopTab; index: number }) => {
     const isActive = activeTopTab === item.label;
@@ -199,10 +206,42 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     );
   }
   const navBuySell = (nav: string) => {
+    const fallbackParamItem = {
+      symbol: route?.params?.symbol ?? symbolNormalized,
+      segment:
+        route?.params?.segment ??
+        route?.params?.exchange ??
+        (symbolNormalized.includes('CE') || symbolNormalized.includes('PE')
+          ? 'NFO-OPT'
+          : 'NSE'),
+      exchange:
+        route?.params?.exchange ??
+        route?.params?.segment ??
+        (symbolNormalized.includes('CE') || symbolNormalized.includes('PE')
+          ? 'NFO-OPT'
+          : 'NSE'),
+      current_price:
+        route?.params?.ltp ??
+        symbolData?.ltp ??
+        live?.ltp ??
+        0,
+      absolute_change:
+        route?.params?.abs ??
+        symbolData?.abs ??
+        live?.abs ??
+        0,
+      percentage_change:
+        route?.params?.pct ??
+        symbolData?.pct ??
+        live?.pct ??
+        0,
+      index: route?.params?.index,
+    };
     const routeParamsData = {
-      paramItem: paramItem,
+      paramItem: paramItem ?? fallbackParamItem,
       nav: paramNav || '',
-      buynav: nav
+      buynav: nav,
+      isOptionChainFlow: !!(symbolNormalized.includes('CE') || symbolNormalized.includes('PE')),
     }
     navigation.navigate('BuySellOrder', { buySelldata: routeParamsData })
   }
@@ -228,16 +267,16 @@ const InstumentScreen = ({ navigation, route }: Props) => {
         <View style={styles.main}>
           <View style={styles.flexView}>
             <View style={styles.logoCircle}>
-              <Text style={styles.logoInitials}>{getInitials(paramItem?.symbol)}</Text>
+              <Text style={styles.logoInitials}>{getInitials(paramItem?.symbol ?? symbolNormalized)}</Text>
             </View>
             <View style={[styles.innerFlexView, styles.onlyWidth]}>
-              <Text style={styles.headingText}>{paramItem?.symbol}</Text>
+              <Text style={styles.headingText}>{paramItem?.symbol ?? symbolNormalized}</Text>
               <View style={styles.flexView}>
-                <Text style={styles.subHeadingText}>{paramItem?.symbol}</Text>
+                <Text style={styles.subHeadingText}>{paramItem?.symbol ?? symbolNormalized}</Text>
                 <Text style={[styles.subHeadingText, styles.innerFlexView]}>
-                  {paramItem?.segment}
+                  {paramItem?.segment ?? 'NSE'}
                 </Text>
-                <View style={styles.innerFlexView1}>
+                {/* <View style={styles.innerFlexView1}>
                   <IconButton
                     vectorType="MaterialCommunityIcons"
                     name="chevron-up"
@@ -252,35 +291,43 @@ const InstumentScreen = ({ navigation, route }: Props) => {
                     color={mainColors.descText}
                     size={scaler(10)}
                   />
-                </View>
+                </View> */}
               </View>
             </View>
-            {paramItem?.segment ? null : <IconButton
-              onPress={() => navigation.navigate('OptionsChain', { segment: paramItem?.segment ? paramItem?.segment : paramItem?.exchange, symbol: paramItem?.symbol })}
-              vectorType="MaterialCommunityIcons"
-              size={scaler(20)}
-              name="link-variant"
-              backgroundColor={mainColors.black}
-              color={mainColors.white}
-            />}
+            {paramItem?.segment ? null : (symbolNormalized.includes('CE') || symbolNormalized.includes('PE')) ? null :
+              paramItem?.symbol === "SENSEX" ? null :
+                < IconButton
+                  onPress={() => navigation.navigate('OptionsChain', { segment: paramItem?.segment ? paramItem?.segment : paramItem?.exchange, symbol: paramItem?.symbol })}
+                  vectorType="MaterialCommunityIcons"
+                  size={scaler(20)}
+                  name="link-variant"
+                  backgroundColor={mainColors.black}
+                  color={mainColors.white}
+                />}
           </View>
           <View style={[styles.flexView, styles.onlyMarginVertical]}>
             <View>
-              <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? moversDetails?.current_price : formatNumber(live.ltp, 2)}</Text>
-              {paramItem?.segment ?
+              {isMarketHours ?
+                <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? symbolData.ltp : formatNumber(live.ltp, 2)}</Text> :
+                <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? moversDetails?.current_price : formatNumber(live.ltp, 2)}</Text>}
+              {(paramItem?.segment && isMarketHours) ?
                 <Text style={[styles.amountPosLosHeading, { color: moversDetails?.absolute_change > 0 ? mainColors.greenText : mainColors.redText }]}>
-                  {moversDetails?.absolute_change}({moversDetails?.percentage_change}%) <Text style={styles.innerText}>1D</Text>
+                  {symbolData.abs.toFixed(3)}({symbolData.pct.toFixed(2)}%) <Text style={styles.innerText}>1D</Text>
                 </Text> :
-                <Text style={[styles.amountPosLosHeading, { color: formatChange(live.abs, live.pct).includes('-') ? mainColors.redText : mainColors.greenText }]}>
-                  {formatChange(live.abs, live.pct)} <Text style={styles.innerText}>1D</Text>
-                </Text>
+                (paramItem?.segment && !isMarketHours) ?
+                  <Text style={[styles.amountPosLosHeading, { color: moversDetails?.absolute_change > 0 ? mainColors.greenText : mainColors.redText }]}>
+                    {moversDetails?.absolute_change}({moversDetails?.percentage_change}%) <Text style={styles.innerText}>1D</Text>
+                  </Text> :
+                  <Text style={[styles.amountPosLosHeading, { color: formatChange(live.abs, live.pct).includes('-') ? mainColors.redText : mainColors.greenText }]}>
+                    {formatChange(live.abs, live.pct)} <Text style={styles.innerText}>1D</Text>
+                  </Text>
               }
             </View>
-            <View style={styles.eCommerceView}>
+            {/* <View style={styles.eCommerceView}>
               <Text style={[styles.subHeadingText, styles.onlyFontSize]}>
                 E-Commerce/App Based
               </Text>
-            </View>
+            </View> */}
           </View>
           <View style={styles.chartView}>
             <CandlestickChart.Provider data={candleData120}>
@@ -293,7 +340,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
           </View>
           <View style={styles.touchView}>
             <TouchableOpacity style={styles.chartExpandView}
-              onPress={() => navigation.navigate('TradingView', { symbol: paramItem?.symbol })}>
+              onPress={() => navigation.navigate('TradingView', { symbol: paramItem?.symbol ?? symbolNormalized })}>
               <Image
                 source={Images.expandScreen}
                 resizeMode="contain"
@@ -332,7 +379,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
         {activeTopTab === 'Opened Positions' && <PositionsOpenComponent />}
         {activeTopTab === 'Closed Positions' && <PositionsClosedComponent />}
       </ScrollView>
-      {paramItem?.segment && <View style={styles.buttonFlexView}>
+      {(paramItem?.segment || symbolNormalized.includes('CE') || symbolNormalized.includes('PE')) ? <View style={styles.buttonFlexView}>
         <CommonButton
           label="Buy"
           backgroundColor={mainColors.black}
@@ -347,7 +394,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
           textColor={mainColors.redText}
           extraStyle={[styles.buttonWidth, { borderColor: mainColors.redText }]}
         />
-      </View>}
+      </View> : null}
     </View>
   );
 };

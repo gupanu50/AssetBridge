@@ -25,12 +25,13 @@ const CommonHeader = (props: CommonHeaderProps) => {
   const results = useMemo(() => {
     return searchItems(searchIndex, debouncedValue, 30);
   }, [searchIndex, debouncedValue]);
-
+  // console.log('Results', results);
   const onPick = (item: SearchItem) => {
     const obj = {
       segment: item?.segment,
       symbol: item?.symbol,
       exchange: item?.segment,
+      index: 'equity'
     }
     setShowSearch(false);
     setValue('');

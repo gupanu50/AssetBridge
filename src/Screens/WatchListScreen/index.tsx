@@ -38,7 +38,7 @@ const WatchListScreen = ({ navigation }: Props) => {
   // const [watchlistId, setWatchlistId] = useState<number>();
   const [activeTopTab, setActiveTopTab] = useState(null);
   const watchListApiData = data?.data?.data;
-  console.log('WatchListData', watchListApiData)
+  // console.log('WatchListData', watchListApiData)
   const [anchor, setAnchor] = useState<AnchorRect | null>(null);
   const [showNoti, setShowNoti] = useState(false);
   const [tick, setTick] = useState(0);

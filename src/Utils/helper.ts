@@ -107,6 +107,7 @@ export const ConstantStrings = {
 export const mainColors = {
   headingTextColor: '#AFAFAF',
   googleButton: '#151515',
+  buySellColor: '#002238',
   descText: '#737373',
   swiperPnl: '#0DB14B',
   dayMonthBg: '#252525',

@@ -12,7 +12,20 @@ export const s = StyleSheet.create({
     popoverWrapper: {
         // flex: 1,
     },
-
+    deleteAllText: {
+        fontFamily: fontFamily.poppinsRegular,
+        fontSize: scaler(12),
+        alignSelf: 'flex-end',
+        color: mainColors.white,
+    },
+    deleetView: {
+        backgroundColor: mainColors.lastUpdatedBg,
+        alignSelf: 'flex-end',
+        paddingHorizontal: scaler(10),
+        paddingVertical: scaler(2),
+        borderRadius: 15,
+        marginBottom: scaler(10)
+    },
     popover: {
         position: 'absolute',
         // right: scaler(12),

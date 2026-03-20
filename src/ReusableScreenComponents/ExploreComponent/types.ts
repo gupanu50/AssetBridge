@@ -11,8 +11,10 @@ export type MoverData = {
 export type MoversApiProps = {
   symbol: string;
   current_price: number;
+  segment?: string;
   absolute_change: number;
   isViewAll?: boolean;
+  previous_close?: number;
   id?: string;
   percentage_change?: number;
 }

@@ -9,7 +9,6 @@ export type BuySellProps = {
     segment: string,
     time_in_force: string,
     is_automated: boolean,
-    order_tag: string,
     stop_loss: number,
     take_profit: number
 }

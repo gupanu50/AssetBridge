@@ -3,11 +3,10 @@ import React from 'react'
 import IconButton from '../../ReusableComponents/iconButton';
 import scaler from '../../Utils/scaler';
 import { mainColors } from '../../Utils/helper';
-import { Images } from '../../Assets';
-import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
 import useTransactionQuery from '../../Screens/ProfileScreen/Hooks/useTransactionSummary';
 import moment from 'moment';
+import { formatAmount } from '../../ReusableComponents/commonFunctions';
 
 const FundsAddedComponent = () => {
     const { data } = useTransactionQuery();
@@ -28,11 +27,6 @@ const FundsAddedComponent = () => {
     };
     console.log('DataTransactionHistory', data?.data?.data?.results);
     const transactionData = data?.data?.data?.results;
-    const formatAmount = (amount: string | number) => {
-        const num = Number(amount);
-        if (isNaN(num)) return amount;
-        return new Intl.NumberFormat('en-IN').format(num);
-    };
     const renderTransactionItem = ({ item }: any) => (
         <View style={styles.transactionContainer}>
             <Text style={styles.timeText}>{moment(item.created_at).format('DD-MM-YYYY hh:mm:ss')}</Text>

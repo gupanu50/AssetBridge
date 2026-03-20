@@ -11,10 +11,15 @@ export type PropCommonCardTypes = {
   tagLeft: string;
   tagRight: string;
   dayPnl?: string;
+  ltpChangeMonth: number;
+  rewardPct: number;
+  ddPct: number;
+  rewardPctMonth: number;
+  ddPctMonth: number;
   dayReward?: string;
   dayDD?: string;
-  ltp: string;
-  ltpChange: string;
+  ltp: number;
+  ltpChange: number;
   intraday: string;
   intradayChange: string;
   pAndL: string;
@@ -36,8 +41,8 @@ export type PropCommonCardApiTypes = {
   sub: string;
   tagLeft: string;
   tagRight: string;
-  ltp: string;
-  ltpChange: string;
+  ltp?: number;
+  ltpChange: number;
   intraday: string;
   intradayChange: string;
   pAndL: string;
@@ -51,13 +56,19 @@ export type PropCommonCardApiTypes = {
         net_pnl: string;
         total_trades: string;
         max_drawdown: string;
+        net_pnl_pct?: number;
+        Reward_risk_ratio_percentage: number;
+        max_dd_pct: number;
       };
       month?: {
-        net_pnl: string;
+        net_pnl: number;
         total_trades: string;
         max_drawdown: string;
+        net_pnl_pct?: number;
+        Reward_risk_ratio_percentage: number;
+        max_dd_pct: number;
       };
-      net_pnl: string;
+      net_pnl: number;
       total_trades: string;
       max_drawdown: string;
     };
@@ -69,8 +80,11 @@ export type PropCommonCardApiTypes = {
 export type NewsItemProps = {
   published_at: string;
   img?: string;
+  url?: string;
+  source?: string;
   image_url?: string;
   title: string;
+  onPress?: () => void;
 };
 
 export type TopTabProps = {
@@ -90,6 +104,7 @@ export type inputProps = {
   style?: ViewStyle | TextStyle;
   containerStyle?: ViewStyle;
   lines?: number;
+  editable?: boolean;
   leftImage?: JSX.Element;
   autoFocus?: boolean;
   rightImage?: JSX.Element;

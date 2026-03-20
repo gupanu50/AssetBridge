@@ -9,29 +9,32 @@ import { Images } from '../../Assets';
 import usePostionsOpenQuery from '../PositionsOpenComponent/Hooks/usePostionsOpenQuery';
 import moment from 'moment';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
-import { downloadExcelToDownloads } from '../../ReusableComponents/commonFunctions';
+import { downloadExcelToDownloads, formatAmount } from '../../ReusableComponents/commonFunctions';
 import snackbarHandler from '../../Utils/snackbarHandler';
 const PositionsClosedComponent = () => {
   const { data } = usePostionsOpenQuery('closed');
   const flatData = data?.data?.data?.results;
   const [input, setInput] = useState('');
-  console.log('dataClosedPostions', flatData);
+  const totalData = data?.data?.data?.total_invested_value
+  console.log('dataClosedPostions', data?.data?.data);
 
   const renderCardData = ({ item }: { item: FlatItem }) => {
     const statusColor =
-      item.Status?.toLowerCase() === '234,5678'
+      item.realized_pnl > 0
         ? mainColors.green
-        : item.Status?.toLowerCase() === '234,567'
-          ? mainColors.red // orange-ish like screenshot
+        : item.realized_pnl < 0
+          ? mainColors.redText
           : mainColors.descText;
     return (
       <View style={styles.orderCard}>
         {/* Top row: checkbox + Name + Exchange badge */}
-        <View style={styles.cardTopRow}>
-          <Text style={styles.cardTitle}>{item.symbol}</Text>
+        <View style={[styles.cardTopRow, { justifyContent: 'space-between' }]}>
+          <View style={styles.cardTopRow}>
+            <Text style={styles.cardTitle}>{item.symbol}</Text>
 
-          <View style={styles.exchangeBadge}>
-            <Text style={styles.exchangeBadgeText}>{item.exchange}</Text>
+            <View style={styles.exchangeBadge}>
+              <Text style={styles.exchangeBadgeText}>{item.exchange}</Text>
+            </View>
           </View>
           <View style={styles.pillManAut}>
             <Text style={styles.pillText}>{item.source_type}</Text>
@@ -63,7 +66,7 @@ const PositionsClosedComponent = () => {
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Product</Text>
               <View style={styles.pill}>
-                <Text style={styles.pillText}>{item.product_type}</Text>
+                <Text style={styles.pillText}>{item.product_type.toUpperCase()}</Text>
               </View>
             </View>
           </View>
@@ -71,18 +74,18 @@ const PositionsClosedComponent = () => {
           {/* Right column */}
           <View style={styles.cardCol}>
             <View style={styles.kvRow}>
-              <Text style={styles.kLabel}>PnL </Text>
+              <Text style={styles.kLabel}>PnL :</Text>
               <Text style={[styles.kValue, { color: statusColor }]}>
-                : {item.realized_pnl}
+                {' '} {formatAmount(item.realized_pnl)}
               </Text>
             </View>
 
             <View style={styles.kvRow}>
-              <Text style={styles.kLabel}>Entry Price </Text>
+              <Text style={styles.kLabel}>Entry Price Avg </Text>
               <Text style={styles.kValue}>: {item.entry_price}</Text>
             </View>
             <View style={styles.kvRow}>
-              <Text style={styles.kLabel}>Exit Price </Text>
+              <Text style={styles.kLabel}>Exit Price Avg </Text>
               <Text style={styles.kValue}>: {item.exit_price}</Text>
             </View>
             <View style={styles.kvRow}>
@@ -139,6 +142,13 @@ const PositionsClosedComponent = () => {
       Alert.alert('No data to download');
     }
   };
+  const renderEmptyComponent = () => {
+    return (
+      <View style={styles.emptyView}>
+        <Text style={styles.emptyText}>No Data Found</Text>
+      </View>
+    )
+  }
   return (
     <View style={styles.main}>
       <View style={[styles.flexView, styles.lineView]}>
@@ -163,19 +173,22 @@ const PositionsClosedComponent = () => {
       <FlatList
         data={filteredOrderData}
         renderItem={renderCardData}
+        ListEmptyComponent={renderEmptyComponent}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
         scrollEnabled={false}
       />
-      <View style={styles.itemSeperator} />
+      {filteredOrderData?.length > 0 && <View style={styles.itemSeperator} />}
       <View
         style={[
           styles.buttonFlexView,
           { marginBottom: scaler(10), justifyContent: 'flex-end' },
         ]}
       >
-        {/* <Text style={styles.totalText}>Total</Text>
-        <Text style={styles.totalValueText}>12,58,593.00</Text> */}
+        {filteredOrderData?.length > 0 && <>
+          <Text style={styles.totalText}>Total</Text>
+          <Text style={styles.totalValueText}>{formatAmount(totalData)}</Text>
+        </>}
       </View>
       {/* <View style={styles.itemSeperator} /> */}
     </View>

@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
     color: mainColors.white,
     fontSize: scaler(14),
     alignSelf: 'center',
-    width: scaler(165),
+    width: scaler(190),
     paddingLeft: scaler(10),
   },
   searchBox: {
@@ -37,6 +37,7 @@ export const styles = StyleSheet.create({
     paddingVertical: scaler(3),
     paddingHorizontal: scaler(10),
     alignItems: 'center',
+    // alignSelf: 'flex-end',
     marginRight: scaler(10),
     borderColor: mainColors.inputBorder,
   },
@@ -101,7 +102,7 @@ export const styles = StyleSheet.create({
   },
 
   dateText: {
-    color: mainColors.descText,
+    color: mainColors.white,
     fontSize: scaler(10),
     fontFamily: fontFamily.poppinsRegular,
   },
@@ -154,4 +155,22 @@ export const styles = StyleSheet.create({
   searchView: {
     justifyContent: 'center'
   },
+  emptyView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: scaler(15)
+  },
+  emptyText: {
+    color: mainColors.white,
+    fontSize: scaler(15),
+    fontFamily: fontFamily.poppinsRegular
+  },
+  buttonExit: {
+    width: scaler(160),
+    height: scaler(40)
+  },
+  buttonEdit: {
+    width: scaler(160),
+    height: scaler(40)
+  }
 });

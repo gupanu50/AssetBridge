@@ -7,7 +7,7 @@ import useDeleteItemWatchlistMutation from '../Screens/WatchListScreen/Hooks/use
 
 const CommonKababMenu = (props: KababProps) => {
     const MENU_W = scaler(90);
-    console.log('KababMenuProps', props);
+    // console.log('KababMenuProps', props);
     const MENU_H = scaler(190); // approx height of menu
     const GAP = scaler(2);
     const { mutate } = useDeleteItemWatchlistMutation();
@@ -62,13 +62,13 @@ const CommonKababMenu = (props: KababProps) => {
                 <View style={styles.backdrop}>
                     <TouchableWithoutFeedback>
                         <View style={[styles.menuCard, { left, top, width: MENU_W }]}>
-                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={() => onPressItemBuySell('Buy')}>
+                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={() => onPressItemBuySell('buy')}>
                                 <Text style={[styles.itemText, styles.buyText]}>Buy</Text>
                             </TouchableOpacity>
 
                             <View style={styles.line} />
 
-                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={() => onPressItemBuySell('Sell')}>
+                            <TouchableOpacity style={styles.itemRow} activeOpacity={0.8} onPress={() => onPressItemBuySell('sell')}>
                                 <Text style={[styles.itemText, styles.redText]}>Sell</Text>
                             </TouchableOpacity>
 

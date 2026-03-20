@@ -16,6 +16,7 @@ const CommonTextInput = (props: inputProps) => {
           placeholderTextColor={props?.errorMessage ? mainColors.redText : mainColors.inputLabel}
           keyboardType={props.keyboardType || 'default'}
           returnKeyType="done"
+          editable={props?.editable ?? true}
           autoFocus={props.autoFocus || false}
           numberOfLines={props?.lines || 1}
           textAlignVertical={isMultiline ? 'top' : 'center'}

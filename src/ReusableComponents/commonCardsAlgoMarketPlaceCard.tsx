@@ -212,7 +212,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
                   style={styles.swiperUpImg}
                 />
                 <Text style={[styles.statChange, { color: ltpColor }]}>
-                  {props.ltpChange}
+                  {props.ltpChange}%
                 </Text>
               </View>
             </View>
@@ -231,7 +231,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
                   style={styles.swiperUpImg}
                 />
                 <Text style={[styles.statChange, { color: intraColor }]}>
-                  {props.intradayChange}
+                  {props.intradayChange}%
                 </Text>
               </View>
             </View>
@@ -254,8 +254,8 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
                   resizeMode="contain"
                   style={styles.swiperUpImg}
                 />
-                <Text style={[styles.statChange, { color: pnlColor }]}>
-                  {props.pAndLChange}
+                <Text style={[styles.statChange, { color: mainColors.redText }]}>
+                  {props.pAndLChange}%
                 </Text>
               </View>
             </View>

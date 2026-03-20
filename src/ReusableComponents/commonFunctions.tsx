@@ -27,7 +27,7 @@ export function buildSearchIndex(contractsObj?: ContractsObj | null): SearchItem
     const out: SearchItem[] = [];
 
     // ✅ only these exchanges
-    const allowedKeys: (keyof ContractsObj)[] = ["BSE", "NSE", "INDICES", 'BFO-FUT', 'NSO-FUT', "NCO"];
+    const allowedKeys: (keyof ContractsObj)[] = ["BSE", "NSE"];
 
     for (const key of allowedKeys) {
         const rows = (contractsObj as any)?.[key];
@@ -111,3 +111,32 @@ export async function downloadExcelToDownloads(data: any[], name: string): Promi
     // iOS: you'd typically keep in Documents or share sheet
     return tempPath;
 }
+
+export const formatAmount = (amount: string | number) => {
+    const num = Number(amount);
+    if (isNaN(num)) return amount;
+    return new Intl.NumberFormat('en-IN').format(num);
+};
+
+export function capitalizeFirstLetter(string: string) {
+    if (!string) {
+        return ""; // Handle empty strings safely
+    }
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export const getInitials = (name?: string) => {
+    const n = (name || '').trim();
+    if (!n) return '?';
+
+    const parts = n.split(/\s+/).filter(Boolean);
+
+    // If multiple words => first char of first + first char of last
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    // Single word => first 2 chars
+    const word = parts[0];
+    return word.slice(0, 2).toUpperCase();
+};

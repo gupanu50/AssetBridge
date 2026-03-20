@@ -14,7 +14,7 @@ import { getLastByKey, onWsMessage, pauseMarketFeed, registerSubscription, resum
 import { buildWsKey, mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
 import { computeChange } from '../../Utils/ws/commonWebSocketFunctions';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
-import { downloadExcelToDownloads } from '../../ReusableComponents/commonFunctions';
+import { downloadExcelToDownloads, formatAmount } from '../../ReusableComponents/commonFunctions';
 import snackbarHandler from '../../Utils/snackbarHandler';
 import useExitPostionsMutation from './Hooks/useExitPostionsMutation';
 
@@ -22,8 +22,8 @@ const PositionsOpenComponent = () => {
   const { data, refetch } = usePostionsOpenQuery('open');
   const flatData = data?.data?.data?.results;
   const totalData = data?.data?.data?.total_invested_value;
-  console.log('DataAllOpenPositions', data?.data?.data)
-  console.log('dataOpenPostions', flatData, totalData);
+  // console.log('DataAllOpenPositions', data?.data?.data)
+  // console.log('dataOpenPostions', flatData, totalData);
   const ORDER_OWNER_ID = "openPostions";
   const [tick, setTick] = useState(0);
   const [input, setInput] = useState('');
@@ -32,8 +32,8 @@ const PositionsOpenComponent = () => {
   const exitPositions = async () => {
     const ids = Array.from(selectedIds);
 
-    console.log('SelectedIds Array', ids);
-    console.log('SelectedIds', selectedIds)
+    // console.log('SelectedIds Array', ids);
+    // console.log('SelectedIds', selectedIds)
     mutate({
       position_ids: ids
     }, {
@@ -78,7 +78,7 @@ const PositionsOpenComponent = () => {
     if (!dataArr.length) return null;
     return { type: "subscribe", data: dataArr };
   }, [flatData]);
-  console.log('WS Payload', wsPayload);
+  // console.log('WS Payload', wsPayload);
 
   const handleDownload = async (item: any) => {
     if (item && Array.isArray(item) && item.length > 0) {
@@ -181,10 +181,10 @@ const PositionsOpenComponent = () => {
   const renderCardData = ({ item }: { item: FlatItem }) => {
     const checked = selectedIds.has(item.id);
     const statusColor =
-      item.Status?.toLowerCase() === 'filled'
+      item.unrealized_pnl > 0
         ? mainColors.green
-        : item.Status?.toLowerCase() === 'pending'
-          ? '#F5A524' // orange-ish like screenshot
+        : item.unrealized_pnl < 0
+          ? mainColors.redText
           : mainColors.descText;
     const wsSeg = mapApiToWsSegment('NSE', item.exchange);
     const cacheKey = buildWsKey(wsSeg, item.symbol);
@@ -193,25 +193,27 @@ const PositionsOpenComponent = () => {
     return (
       <View style={styles.orderCard}>
         {/* Top row: checkbox + Name + Exchange badge */}
-        <View style={styles.cardTopRow}>
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={() => toggleRow(item.id)}
-            style={styles.checkboxHit}
-          >
-            <IconButton
-              vectorType="MaterialCommunityIcons"
+        <View style={[styles.cardTopRow, { justifyContent: 'space-between' }]}>
+          <View style={styles.cardTopRow}>
+            <TouchableOpacity
+              activeOpacity={0.85}
               onPress={() => toggleRow(item.id)}
-              name={checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
-              backgroundColor={mainColors.black}
-              color={checked ? mainColors.mainButton : mainColors.transactionTime}
-            />
-          </TouchableOpacity>
+              style={styles.checkboxHit}
+            >
+              <IconButton
+                vectorType="MaterialCommunityIcons"
+                onPress={() => toggleRow(item.id)}
+                name={checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
+                backgroundColor={mainColors.black}
+                color={checked ? mainColors.mainButton : mainColors.transactionTime}
+              />
+            </TouchableOpacity>
 
-          <Text style={styles.cardTitle}>{item.symbol}</Text>
+            <Text style={styles.cardTitle}>{item.symbol}</Text>
 
-          <View style={styles.exchangeBadge}>
-            <Text style={styles.exchangeBadgeText}>{item.exchange}</Text>
+            <View style={styles.exchangeBadge}>
+              <Text style={styles.exchangeBadgeText}>{item.exchange}</Text>
+            </View>
           </View>
           <View style={styles.pillManAut}>
             <Text style={styles.pillText}>{item.source_type}</Text>
@@ -240,7 +242,7 @@ const PositionsOpenComponent = () => {
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Product</Text>
               <View style={styles.pill}>
-                <Text style={styles.pillText}>{item.product_type}</Text>
+                <Text style={styles.pillText}>{item.product_type.toUpperCase()}</Text>
               </View>
             </View>
           </View>
@@ -248,9 +250,9 @@ const PositionsOpenComponent = () => {
           {/* Right column */}
           <View style={styles.cardCol}>
             <View style={styles.kvRow}>
-              <Text style={styles.kLabel}>Unrealized PnL </Text>
+              <Text style={styles.kLabel}>Unrealized PnL :</Text>
               <Text style={[styles.kValue, { color: statusColor }]}>
-                : {item.unrealized_pnl}
+                {' '}{formatAmount(item.unrealized_pnl)}
               </Text>
             </View>
 
@@ -292,6 +294,13 @@ const PositionsOpenComponent = () => {
       </View>
     );
   };
+  const renderEmptyComponent = () => {
+    return (
+      <View style={styles.emptyView}>
+        <Text style={styles.emptyText}>No Data Found</Text>
+      </View>
+    )
+  }
   return (
     <View style={styles.main}>
       <View style={[styles.flexView, styles.lineView]}>
@@ -325,10 +334,11 @@ const PositionsOpenComponent = () => {
         data={filteredOrderData}
         renderItem={renderCardData}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={renderEmptyComponent}
         ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
         scrollEnabled={false}
       />
-      <View style={styles.itemSeperator} />
+      {filteredOrderData?.length > 0 && <View style={styles.itemSeperator} />}
       <View
         style={[
           styles.buttonFlexView,
@@ -338,8 +348,8 @@ const PositionsOpenComponent = () => {
         {selectedIds.size ? <TouchableOpacity style={styles.exitView} onPress={() => exitPositions()}>
           <Text style={styles.exitText}>{`Exit ${selectedIds.size} Positions`}</Text>
         </TouchableOpacity> : <View style={{ width: scaler(100) }} />}
-        <Text style={styles.totalText}>Total</Text>
-        <Text style={styles.totalValueText}>{totalData}</Text>
+        {filteredOrderData?.length > 0 && <><Text style={styles.totalText}>Total</Text>
+          <Text style={styles.totalValueText}>{formatAmount(totalData)}</Text></>}
       </View>
       {/* <View style={styles.itemSeperator} /> */}
     </View>

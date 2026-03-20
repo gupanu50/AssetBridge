@@ -5,11 +5,12 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Linking,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Images } from '../../Assets';
 import CommonCard from '../../ReusableComponents/commonCard';
 import {
@@ -34,6 +35,11 @@ import useProfileQuery from '../../Screens/ProfileScreen/Hooks/useProfileQuery';
 import { startRazorpayPayment } from '../../ReusableComponents/paymentComponent';
 import useStartStopBotMutation from '../../Screens/HomeScreen/Hooks/useStartStopBotMutation';
 import useVerifyPaymentMutation from '../../Screens/MarketPlaceScreen/Hooks/usePaymentVerifyMutation';
+import { getLastByKey, onWsMessage, registerSubscription, SubscribePayload, unregisterSubscription } from '../../Utils/ws/marketSocket';
+import { mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
+import { computeChange, computeChange1 } from '../../Utils/ws/commonWebSocketFunctions';
+import { getInitials } from '../../ReusableComponents/commonFunctions';
+import { useIsFocused } from '@react-navigation/native';
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 type ExploreProps = {
   navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
@@ -42,11 +48,13 @@ export default function ExploreComponent(props: ExploreProps) {
   const CARD_WIDTH = SCREEN_WIDTH - scaler(30);
   const CARD_GAP = scaler(12); // space between cards
   const [activeMoverTab, setActiveMoverTab] = useState('Gainers');
+  const isFocused = useIsFocused();
   // const [featureIndex, setFeatureIndex] = useState(0);
   const [selectedValue, setSelectedValue] = useState<string>('today');
   const [moverLimit, setMoverLimit] = useState<'5' | '15'>('5');
   const isMarketHours = isMarketOpenIST();
   const [showRiskModal, setShowRiskModal] = useState(false);
+  // const [tick, setTick] = useState(0);
   const featureListRef = React.useRef<FlatList<any>>(null);
   const featureIndexRef = React.useRef(0); // avoids re-renders
   const { data: profileApiData } = useProfileQuery();
@@ -69,10 +77,11 @@ export default function ExploreComponent(props: ExploreProps) {
   },
     {
       queryKey: ['topMovers', selectedValue, activeMoverTab, moverLimit],
-      refetchInterval: isMarketHours ? 3000 : false,
     }
   )
   const moversApiData: MoversApiProps[] = data?.data?.data?.movers ?? [];
+  const [realTimeData, setRealTimeData] = useState<Record<string, { ltp: number; abs: number; pct: number }>>({});
+  // console.log('MoversApiData', moversApiData);
   const { mutate: verifyPaymentMutate } = useVerifyPaymentMutation();
   const [selectedBotId, setSelectedBotId] = useState<string>('');
   const moversWithViewAll: MoversApiProps[] = React.useMemo(() => {
@@ -85,13 +94,12 @@ export default function ExploreComponent(props: ExploreProps) {
   }, [moversApiData, moverLimit]);
   const { data: tradingData, refetch }: any = useTradingBotsQuery({
     queryKey: ['/api/v1/strategy/bots/'],
-    refetchInterval: isMarketHours ? 3000 : false
   });
   const tradingBotData = tradingData?.data?.data;
-  console.log('Trading Bots Data:', tradingBotData);
-  const { data: newsApiData } = useNewsQuery();
+  // console.log('Trading Bots Data:', tradingBotData);
+  const { data: newsApiData, refetch: refetchNews } = useNewsQuery();
   const bots = tradingBotData ?? [];
-
+  useEffect(() => { refetchNews() }, [isFocused]);
   const loopedBots = React.useMemo(() => {
     if (!bots.length) return [];
     return [...bots, bots[0]]; // 👈 add first item at end
@@ -109,7 +117,7 @@ export default function ExploreComponent(props: ExploreProps) {
       });
 
       featureIndexRef.current = next;
-    }, 5000);
+    }, 8000);
 
     return () => clearInterval(id);
   }, [bots.length, ITEM_SIZE]);
@@ -205,8 +213,13 @@ export default function ExploreComponent(props: ExploreProps) {
         dayDD={item?.backtest_results?.summary?.day?.max_drawdown || '0'}
         tagLeft={item.tagLeft}
         tagRight={item.tagRight}
-        ltp={item?.backtest_results?.summary?.month?.net_pnl || ''}
-        ltpChange={item.ltpChange}
+        ltp={item?.backtest_results?.summary?.month?.net_pnl || 0}
+        ltpChange={item.backtest_results?.summary?.day?.net_pnl_pct || 0}
+        ltpChangeMonth={item.backtest_results?.summary?.month?.net_pnl_pct || 0}
+        ddPct={item?.backtest_results?.summary?.day?.max_dd_pct || 0}
+        ddPctMonth={item?.backtest_results?.summary?.month?.max_dd_pct || 0}
+        rewardPct={item?.backtest_results?.summary?.day?.Reward_risk_ratio_percentage || 0}
+        rewardPctMonth={item?.backtest_results?.summary?.month?.Reward_risk_ratio_percentage || 0}
         intraday={item?.backtest_results?.summary?.month?.total_trades || ''}
         intradayChange={item.intradayChange}
         pAndL={item?.backtest_results?.summary?.month?.max_drawdown || ''}
@@ -217,84 +230,15 @@ export default function ExploreComponent(props: ExploreProps) {
       />
     );
   };
-  // const newsData = useMemo(
-  //   () => [
-  //     {
-  //       id: 'n1',
-  //       time: '10 hours ago',
-  //       img: Images.news3,
-  //       title:
-  //         'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
-  //     },
-  //     {
-  //       id: 'n2',
-  //       time: '10 hours ago',
-  //       img: Images.news3,
-  //       title:
-  //         'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
-  //     },
-  //     {
-  //       id: 'n3',
-  //       time: '10 hours ago',
-  //       img: Images.news3,
-  //       title:
-  //         'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
-  //     },
-  //     {
-  //       id: 'n4',
-  //       time: '10 hours ago',
-  //       img: Images.news3,
-  //       title:
-  //         'DXY: Dollar Index Dives After Job Losses Juice Traders Optimism on Easier Policy',
-  //     },
-  //   ],
-  //   [],
-  // );
-  const renderMoverGridCard = ({ item }: { item: MoversApiProps }) => {
-    if (item.isViewAll) {
-      return (
-        <TouchableOpacity
-          activeOpacity={0.85}
-          style={[styles.moverCard, styles.viewAllCard]}
-          onPress={() => {
-            setMoverLimit('15');       // ✅ increase limit
-            refetchTopMovers();        // ✅ force refetch (as you asked)
-          }}
-        >
-          <Text style={styles.viewAllText}>View all</Text>
-          <View style={styles.viewAllCircle}>
-            <Text style={styles.viewAllArrow}>{'>'}</Text>
-          </View>
-        </TouchableOpacity>
-      );
-    }
-
-    return (
-      <TouchableOpacity activeOpacity={0.85} style={styles.moverCard}
-        onPress={() => props.navigation?.navigate('Instrument', { item: item, nav: 'movers' })}>
-        {/* <Image source={item.logo} resizeMode="contain" style={styles.logoImg} /> */}
-        <Text style={styles.moverName} numberOfLines={1}>
-          {item.symbol}
-        </Text>
-        <Text style={styles.moverPrice}>₹ {item.current_price}</Text>
-        <Text
-          style={[
-            styles.moverChg,
-            { color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText },
-          ]}
-        >
-          {item.absolute_change} ({item?.percentage_change}%)
-        </Text>
-      </TouchableOpacity>
-    );
-  };
 
   const renderNewsItem = ({ item }: { item: NewsItemProps }) => {
     return (
       <CommonNews
         published_at={item.published_at}
         img={item.image_url}
+        source={item?.source}
         title={item.title}
+        onPress={() => Linking.openURL(item?.url || '')}
       />
     );
   };
@@ -348,6 +292,158 @@ export default function ExploreComponent(props: ExploreProps) {
       },
     });
   }
+
+  // Build WebSocket payload for real-time data updates
+  const wsPayload: SubscribePayload | null = useMemo(() => {
+    if (!moversApiData.length) return null;
+
+    const bucket = new Map<string, { segment: string; subscription_type: string; symbols: Set<string> }>();
+
+    moversApiData.forEach((item) => {
+      const symbol = item.symbol?.trim();
+      const segment = item.segment?.trim();
+      if (!symbol || !segment) return;
+
+      const wsSegment = mapApiToWsSegment(segment, 'NSE'); // Mapping to WebSocket segment
+      const type = 'contract'; // Assuming the type is 'contract'
+
+      const key = `${wsSegment}__${type}`;
+      if (!bucket.has(key)) {
+        bucket.set(key, { segment: wsSegment, subscription_type: type, symbols: new Set() });
+      }
+
+      bucket.get(key)!.symbols.add(symbol);
+    });
+
+    const dataArr = Array.from(bucket.values()).map((b) => ({
+      segment: b.segment,
+      subscription_type: b.subscription_type,
+      symbols: Array.from(b.symbols),
+    }));
+
+    return dataArr.length ? { type: 'subscribe', data: dataArr } : null;
+  }, [moversApiData]);
+
+  useEffect(() => {
+    if (!wsPayload) return;
+
+    // Register the WebSocket subscription
+    registerSubscription('exploreOwner', wsPayload);
+
+    // Cleanup: Unsubscribe when component unmounts
+    return () => unregisterSubscription('exploreOwner');
+  }, [wsPayload]);
+
+  const previousCloseMap = useMemo(() => {
+    const map: Record<string, number> = {};
+
+    moversApiData.forEach((item) => {
+      if (item?.symbol && item?.previous_close != null) {
+        map[item.symbol] = Number(item.previous_close);
+      }
+    });
+
+    return map;
+  }, [moversApiData]);
+  // Handle WebSocket messages and update the UI
+  // useEffect(() => {
+  //   const off = onWsMessage((msg) => {
+  //     if (msg?.type !== 'snapshot' && msg?.type !== 'update') return;
+  //     if (!msg?.data || typeof msg.data !== 'object') return;
+  //     // console.log('WSMESSAGEGAINERS', msg)
+  //     // setTick((t) => t + 1); // Trigger re-render on data update
+
+  //     // Process the incoming WebSocket data and update the UI
+  //     Object.keys(msg.data).forEach((key) => {
+  //       const payload = msg.data[key];
+  //       const { ltp, abs, pct } = computeChange(payload); // Extract absolute change and percentage change
+  //       // console.log('LTPABSPCT', ltp, abs, pct)
+  //       // Update the UI with the new ltp, absolute change, and percentage change
+  //       // console.log(`Updated LTP for ${key}: ${ltp}, Absolute Change: ${abs}, Percentage Change: ${pct}`);
+  //       setRealTimeData((prev): any => ({
+  //         ...prev,
+  //         [key]: { ltp, abs, pct },
+  //       }));
+  //     });
+  //   });
+
+  //   return () => off();
+  // }, []);
+  useEffect(() => {
+    const off = onWsMessage((msg) => {
+      if (msg?.type !== 'snapshot' && msg?.type !== 'update') return;
+      if (!msg?.data || typeof msg.data !== 'object') return;
+
+      setRealTimeData((prev) => {
+        const updated = { ...prev };
+
+        Object.keys(msg.data).forEach((key) => {
+          const payload = msg.data[key];
+
+          const symbol = payload?.symbol;
+          if (!symbol) return;
+
+          const previousClose = previousCloseMap[symbol];
+          const { ltp, abs, pct } = computeChange1(payload, previousClose);
+
+          updated[symbol] = { ltp, abs, pct } as any;
+        });
+
+        return updated;
+      });
+    });
+
+    return () => off();
+  }, [previousCloseMap]);
+  const renderMoverGridCard = ({ item }: { item: MoversApiProps }) => {
+    if (item.isViewAll) {
+      return (
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={[styles.moverCard, styles.viewAllCard]}
+          onPress={() => {
+            setMoverLimit('15');       // ✅ increase limit
+            refetchTopMovers();        // ✅ force refetch (as you asked)
+          }}
+        >
+          <Text style={styles.viewAllText}>View all</Text>
+          <View style={styles.viewAllCircle}>
+            <Text style={styles.viewAllArrow}>{'>'}</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    }
+    const realTimeInfo = realTimeData[item.symbol];
+    return (
+      <TouchableOpacity activeOpacity={0.85} style={styles.moverCard}
+        onPress={() => props.navigation?.navigate('Instrument', { item: item, nav: 'movers', index: 'equity' })}>
+        <View style={styles.logoCircle}>
+          <Text style={styles.logoInitials}>{getInitials(item.symbol)}</Text>
+        </View>
+        <Text style={styles.moverName} numberOfLines={1}>
+          {item.symbol}
+        </Text>
+        <Text style={styles.moverPrice}>₹ {isMarketHours ? realTimeInfo?.ltp : item.current_price}</Text>
+        {isMarketHours ?
+          <Text
+            style={[
+              styles.moverChg,
+              { color: realTimeInfo?.abs > 0 ? mainColors.greenText : mainColors.redText },
+            ]}
+          >
+            {realTimeInfo?.abs?.toFixed(3)} ({realTimeInfo?.pct?.toFixed(2)}%)
+          </Text> :
+          <Text
+            style={[
+              styles.moverChg,
+              { color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText },
+            ]}
+          >
+            {item.absolute_change} ({item?.percentage_change}%)
+          </Text>}
+      </TouchableOpacity>
+    );
+  };
   return (
     <View style={styles.mainView}>
       {/* -------------------- BIG CARD (UNCHANGED SECTION) -------------------- */}

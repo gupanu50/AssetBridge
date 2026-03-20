@@ -185,6 +185,58 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
   const [showRiskModal, setShowRiskModal] = useState(false)
   const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const recalculatedSummary = useMemo(() => {
+
+    const trades = cardData?.backtest_results?.trade_logic ?? [];
+
+    if (!isEnabled || trades.length === 0) {
+      return cardData?.backtest_results?.summary;
+    }
+
+    const brokerageValue = Number(brokerage) || 0;
+    const slippagePercent = Number(slipage) || 0;
+
+    const adjustedTrades = trades.map((trade: any) => {
+
+      const rawPnl = Number(trade.pnl);
+
+      const slippageCost = Math.abs(rawPnl) * (slippagePercent / 100);
+
+      const adjustedPnl = rawPnl - brokerageValue - slippageCost;
+
+      return Number(adjustedPnl.toFixed(2)); // ✅ 2 decimal
+    });
+
+    const totalTrades = adjustedTrades.length;
+
+    const netPnl = Number(
+      adjustedTrades.reduce((a, b) => a + b, 0).toFixed(2)
+    );
+
+    const wins = adjustedTrades.filter(p => p > 0).length;
+
+    const winRate = Number(
+      (totalTrades ? (wins / totalTrades) * 100 : 0).toFixed(2)
+    );
+
+    const maxProfit = Number(Math.max(...adjustedTrades).toFixed(2));
+
+    const maxLoss = Number(Math.abs(Math.min(...adjustedTrades)).toFixed(2));
+
+    const avgPnl = Number(
+      (totalTrades ? netPnl / totalTrades : 0).toFixed(2)
+    );
+
+    return {
+      ...cardData?.backtest_results?.summary,
+      net_pnl: netPnl,
+      win_rate: winRate,
+      max_profit: maxProfit,
+      max_loss: maxLoss,
+      avg_pnl_trade: avgPnl, // better name for overview component
+    };
+
+  }, [brokerage, slipage, isEnabled, cardData]);
   return (
     <View style={styles.container}>
       <CommonHeader onPressBell={() => setShowNoti(!showNoti)} navigation={navigation} />
@@ -223,8 +275,8 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
             <Text style={styles.headingPubText}>Margin {'             '}</Text>
             <Text style={styles.subHeadingPubText}>:{'  '} {cardData?.minimum_capital_required}</Text>
           </View>
-          <View style={[styles.publishedView, { marginTop: scaler(10) }]}>
-            {/* <Text style={styles.headingPubText}>Activate on {'     '}</Text>
+          {/* <View style={[styles.publishedView, { marginTop: scaler(10) }]}> */}
+          {/* <Text style={styles.headingPubText}>Activate on {'     '}</Text>
             <View style={styles.activatedValueView}>
               <Text style={styles.subHeadingPubText}>:{'  '}</Text>
               <View style={styles.activatedValueView1}>
@@ -249,7 +301,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
                 <Text style={styles.activatedValueText}>S</Text>
               </View>
             </View> */}
-          </View>
+          {/* </View> */}
           <View style={styles.lineView} />
           <View style={styles.featureActionsRow}>
             <View style={styles.actionPill}>
@@ -364,6 +416,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
                   {isEnabled ? <CommonTextInput
                     value={brokerage}
                     setValue={setBrokerage}
+                    keyboardType='numeric'
                     style={{
                       color: mainColors.white,
                       paddingLeft: scaler(5),
@@ -377,13 +430,13 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
                     }}
                     placeholder='Enter Brokerage'
                   /> : <Text style={styles.statValue}>{100}</Text>}
-                  {isEnabled && <View style={styles.swiperPnlView}>
+                  {/* {isEnabled && <View style={styles.swiperPnlView}>
                     <Image
                       source={Images.marketPlaceEdit}
                       resizeMode="contain"
                       style={styles.swiperUpImg}
                     />
-                  </View>}
+                  </View>} */}
                 </View>
               </View>
 
@@ -392,7 +445,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
                   Taxes & Charges
                 </Text>
                 <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-                  <Text style={styles.statValue}>₹100,00,000</Text>
+                  <Text style={styles.statValue}>₹100,00,00</Text>
                 </View>
               </View>
 
@@ -413,6 +466,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
                     <CommonTextInput
                       value={slipage}
                       setValue={setSlipage}
+                      keyboardType='numeric'
                       style={{
                         color: mainColors.white,
                         paddingLeft: scaler(5),
@@ -427,13 +481,13 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
                       placeholder='Enter Brokerage'
                     /> :
                     <Text style={styles.statValue}>30%</Text>}
-                  {isEnabled && <View style={styles.swiperPnlView}>
+                  {/* {isEnabled && <View style={styles.swiperPnlView}>
                     <Image
                       source={Images.marketPlaceEdit}
                       resizeMode="contain"
                       style={styles.swiperUpImg}
                     />
-                  </View>}
+                  </View>} */}
                 </View>
               </View>
             </View>
@@ -449,7 +503,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
             </View>
             <View>
               <Text style={styles.redIconText}>
-                {`The results are bssed on past data. Historical${'\n'} data does not guarantee future results.`}
+                {`The results are based on past data. Historical${'\n'} data does not guarantee future results.`}
               </Text>
               <CommonButton
                 label="Know more"
@@ -461,7 +515,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
           </View>
           {cardData?.is_subscribed ?
             <CommonButton
-              label='Subscribe'
+              label='SUBSCRIBED'
               extraStyle={styles.unSubs}
               backgroundColor='#191919'
               disabled={true}
@@ -485,7 +539,15 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
             />
           </View>
           {/* -------------------- Remaining UI (Overview Section) -------------------- */}
-          {activeTopTab === 'Overview' && <MarketPlaceOverviewComponent cardData={cardData} />}
+          {activeTopTab === 'Overview' && <MarketPlaceOverviewComponent
+            cardData={{
+              ...cardData,
+              backtest_results: {
+                ...cardData?.backtest_results,
+                summary: recalculatedSummary
+              }
+            }}
+          />}
           {activeTopTab === 'PnL Calender' &&
             <MarketPlacePnlCalendarComponent
               dailyPnl={cardData?.backtest_results?.daily_pnl ?? []}

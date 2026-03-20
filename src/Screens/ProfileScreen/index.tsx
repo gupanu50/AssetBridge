@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -7,11 +7,12 @@ import {
     Image,
     ImageSourcePropType,
     Modal,
+    Linking,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import scaler from '../../Utils/scaler';
-import { mainColors } from '../../Utils/helper';
+import { getApiErrorMessage, mainColors } from '../../Utils/helper';
 import { Images } from '../../Assets';
 import IconButton from '../../ReusableComponents/iconButton';
 import CommonButton from '../../ReusableComponents/commonButton';
@@ -20,6 +21,11 @@ import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTyp
 import { logout } from '../../Redux/authSlice';
 import { useDispatch } from 'react-redux';
 import useProfileQuery from './Hooks/useProfileQuery';
+import useMedia from './Hooks/useMedia';
+import useProfilePhotoMutation from './Hooks/useProfilePhotoMutation';
+import snackbarHandler from '../../Utils/snackbarHandler';
+import useIIFLLoginQuery from './Hooks/useIIFLLoginMutation';
+import { useIsFocused } from '@react-navigation/native';
 type Props = MainStackScreenProps<'Profile'>;
 const ProfileScreen = ({ navigation }: Props) => {
     const dispatch = useDispatch();
@@ -33,20 +39,60 @@ const ProfileScreen = ({ navigation }: Props) => {
         })
     };
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
-    const { data } = useProfileQuery();
+    const isFocused = useIsFocused();
+    const { data, refetch } = useProfileQuery();
     const profileData = data?.data?.data[0]
-    console.log('ProfileData', profileData)
+    const { data: IIFLData } = useIIFLLoginQuery();
+    // console.log('ProfileData', profileData);
+    // console.log('ProfileDataIIFLData', IIFLData?.data?.data?.data?.login_url);
+    const iiflURL = IIFLData?.data?.data?.data?.login_url;
     const [showTooltip, setShowTooltip] = useState(false);
+    const [image, setImage] = useState<any>('');
+    const { mutate } = useProfilePhotoMutation();
+    useEffect(() => { refetch() }, [isFocused]);
+    const { launchGallery } = useMedia((imageData) => {
+        const encodedImage = imageData;
+        // console.log('EncodedImage', encodedImage);
+        if (Array.isArray(imageData)) {
+            // setEventImage(encodedImage);
+        } else {
+            setImage(encodedImage);
+            mutate({ encodedImage }, {
+                onSuccess: (res) => {
+                    // console.log('Res', res)
+                    snackbarHandler.successToast(res?.data?.data?.message)
+                },
+                onError: (err) => {
+                    const message = getApiErrorMessage(err);
+                    snackbarHandler.errorToast(message)
+                }
+            })
+        }
+    });
     return (
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
             {/* Header */}
             <View style={styles.headerRow}>
                 <View style={styles.avatarWrap}>
-                    <Image
-                        source={Images.dummyProfile}
-                        style={styles.avatar}
-                    />
-                    <TouchableOpacity activeOpacity={0.85} style={styles.avatarDownBtn}>
+                    {image ?
+                        <Image
+                            source={{ uri: image?.path }}
+                            style={styles.avatar}
+                        /> :
+                        profileData?.profile_picture_url ?
+                            <Image
+                                source={{ uri: profileData?.profile_picture_url }}
+                                style={styles.avatar}
+                            /> :
+                            < Image
+                                source={Images.dummyProfile}
+                                style={styles.avatar}
+                            />}
+                    <TouchableOpacity activeOpacity={0.85} style={styles.avatarDownBtn} onPress={() => launchGallery({
+                        mediaType: 'photo',
+                        compressImageMaxHeight: 800,
+                        compressImageMaxWidth: 800,
+                    })}>
                         <IconButton name="upload" vectorType="AntDesign" size={scaler(10)} color={mainColors.white} />
                     </TouchableOpacity>
                 </View>
@@ -57,7 +103,7 @@ const ProfileScreen = ({ navigation }: Props) => {
                     <Text style={styles.headerPhone}>{`${profileData?.contact}`}</Text>
                 </View>
 
-                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => setShowTooltip(true)}>
+                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => { Linking.openURL(iiflURL) }}>
                     <Image source={Images.profileBadge} resizeMode='contain' style={styles.imgView} tintColor={profileData?.broker_auth?.color} />
                 </TouchableOpacity>
                 {showTooltip && <Modal
@@ -163,14 +209,16 @@ const ProfileScreen = ({ navigation }: Props) => {
             </View> */}
 
             {/* Footer Logo */}
-            <View style={styles.footer}>
-                <Image source={Images.profileLogo} style={styles.imgView} resizeMode='contain' />
-            </View>
-            <View style={[styles.hr, { marginBottom: scaler(0) }]} />
-            {/* App Version */}
-            <View style={styles.versionRow}>
-                <Text style={styles.versionText}>App Ver : 0.1.1.13</Text>
-                <CommonButton label='Update' backgroundColor={mainColors.black} textColor={mainColors.mainButton} />
+            <View style={{ justifyContent: 'flex-end', flex: 1 }}>
+                <View style={styles.footer}>
+                    <Image source={Images.profileLogo} style={styles.imgView} resizeMode='contain' />
+                </View>
+                <View style={[styles.hr, { marginBottom: scaler(0) }]} />
+                {/* App Version */}
+                <View style={styles.versionRow}>
+                    <Text style={styles.versionText}>App Ver : 0.1.1.13</Text>
+                    <CommonButton label='Update' backgroundColor={mainColors.black} textColor={mainColors.mainButton} />
+                </View>
             </View>
         </ScrollView>
     );

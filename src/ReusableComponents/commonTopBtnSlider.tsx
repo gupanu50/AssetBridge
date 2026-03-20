@@ -1,12 +1,18 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useMemo, useState } from 'react'
-import { fontFamily, mainColors } from '../Utils/helper';
+import { fontFamily, isMarketOpenIST, mainColors } from '../Utils/helper';
 import scaler from '../Utils/scaler';
 import { getLastByKey, onWsMessage } from '../Utils/ws/marketSocket';
 import { CommonTopBtnSliderProps, IndexKey, IndexRow } from './commonTypes';
 import { computeChange, formatChange, formatNumber, lastPart } from '../Utils/ws/commonWebSocketFunctions';
+import useGetLtpQuery from '../Screens/HomeScreen/Hooks/useGetLtpQuery';
 
 const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
+    const { data } = useGetLtpQuery();
+    // console.log('DataLtp', data?.data);
+    const isMarketOpen = isMarketOpenIST();
+    const offlineLtp = data?.data?.data?.results;
+    // console.log('Offline', offlineLtp);
     const [indexRows, setIndexRows] = useState<Record<IndexKey, IndexRow>>(() => {
         // ✅ initial from cache (works even if market closed and ws paused)
         const keys: IndexKey[] = ['NIFTY50', 'SENSEX', 'NIFTYBANK'];
@@ -74,7 +80,19 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
 
         return () => off();
     }, []);
-
+    // Create a consistent format for both horidata and offlineLtp
+    const mapOfflineLtpToHoridata = (data: any) => {
+        return data?.map((item: any) => {
+            return {
+                symbol: item.symbol,  // Replace this with the correct field in offlineLtp
+                current_price: formatNumber(item.ltp, 2), // Use the correct field
+                percentage_change: formatChange(item.absolute_change || 0, item.percentage_change || 0), // Assuming absChange and pctChange are present
+                color: item?.absolute_change >= 0 ? mainColors.greenText : mainColors.redText,  // Change color based on absolute change
+                exchange: 'INDICES',
+                index: 'index'
+            };
+        });
+    };
     const horidata = useMemo(() => {
         const keys: IndexKey[] = ['NIFTY50', 'SENSEX', 'NIFTYBANK'];
         return keys.map((k) => {
@@ -90,25 +108,60 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
                 current_price: formatNumber(row?.ltp, 2),
                 percentage_change: formatChange(abs, pct),
                 color,
-                exchange: 'INDICES'
+                exchange: 'INDICES',
+                index: 'index'
             };
         });
     }, [indexRows]);
+    // Render Item when Market is Open
+    const renderItemWhenMarketOpen = ({ item }: any) => (
+        <TouchableOpacity style={styles.innerBoxView} onPress={() => navigation?.navigate('Instrument', { item: item })}>
+            <Text style={styles.textNifty}>{item.symbol}</Text>
+            <Text style={styles.textNiftyValue}>
+                {item.current_price}{'  '}
+                <Text style={{ color: item.color }}>
+                    {item.percentage_change}
+                </Text>
+            </Text>
+        </TouchableOpacity>
+    );
+
+    const renderItemWhenMarketClosed = ({ item }: any) => (
+        <TouchableOpacity style={styles.innerBoxView} onPress={() => navigation?.navigate('Instrument', { item: item })}>
+            <Text style={styles.textNifty}>{item.symbol}</Text>
+            <Text style={styles.textNiftyValue}>
+                <View style={styles.flexView}>
+                    {/* LTP */}
+                    <Text style={{ color: mainColors.white }}>
+                        {item?.current_price}{'  '}
+                    </Text>
+
+                    {/* Absolute Change */}
+                    <Text style={{
+                        color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText
+                    }}>
+                        {item?.absolute_change}{' '}
+                    </Text>
+
+                    {/* Percentage Change */}
+                    <Text style={{
+                        color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText
+                    }}>
+                        {`${item?.percentage_change}`}
+                    </Text>
+                </View>
+            </Text>
+        </TouchableOpacity>
+    );
+
+
     return (
         <View style={styles.mainView}>
             <FlatList
                 horizontal
-                data={horidata}
+                data={isMarketOpen ? horidata : mapOfflineLtpToHoridata(offlineLtp)}
                 keyExtractor={(item, index) => item.symbol + index}
-                renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.innerBoxView} onPress={() => navigation?.navigate('Instrument', { item: item })}>
-                        <Text style={styles.textNifty}>{item.symbol}</Text>
-                        <Text style={styles.textNiftyValue}>
-                            {item.current_price}{'  '}
-                            <Text style={{ color: item.color }}>{item.percentage_change}</Text>
-                        </Text>
-                    </TouchableOpacity>
-                )}
+                renderItem={isMarketOpen ? renderItemWhenMarketOpen : renderItemWhenMarketClosed}
                 showsHorizontalScrollIndicator={false}
             />
         </View>
@@ -139,4 +192,7 @@ const styles = StyleSheet.create({
         color: mainColors.white,
         fontSize: scaler(10),
     },
+    flexView: {
+        flexDirection: 'row', alignItems: 'center'
+    }
 })

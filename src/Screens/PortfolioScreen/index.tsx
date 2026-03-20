@@ -11,6 +11,7 @@ import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsCl
 import OrderComponent from '../../ReusableScreenComponents/OrdersComponent'
 import { styles } from './styles'
 import usePostionsOpenQuery from '../../ReusableScreenComponents/PositionsOpenComponent/Hooks/usePostionsOpenQuery'
+import { formatAmount } from '../../ReusableComponents/commonFunctions'
 
 const PortfolioScreen = () => {
     // -------------------- STATE --------------------
@@ -73,7 +74,7 @@ const PortfolioScreen = () => {
                 </View>
                 <View style={styles.boxView}>
                     <View style={styles.innerBoxView}>
-                        <Text style={styles.amtText}>₹{totalData}</Text>
+                        <Text style={styles.amtText}>₹{formatAmount(totalData)}</Text>
                         {/* <TouchableOpacity>
                             <Image
                                 source={Images.swiperView}
@@ -88,16 +89,16 @@ const PortfolioScreen = () => {
                             resizeMode="contain"
                             style={styles.swiperUpImg}
                         />
-                        <Text style={styles.overallText}>Overall Loss <Text style={styles.overallText1}>-₹{totalPnl}</Text></Text>
+                        <Text style={styles.overallText}>Overall Loss <Text style={styles.overallText1}>-₹{formatAmount(totalPnl?.toString().replace("-", ""))}</Text></Text>
                     </View>
                     <View style={[styles.innerBoxView1, { marginTop: scaler(10) }]}>
-                        <View style={[styles.pnlView, { width: scaler(130), marginRight: scaler(10) }]}>
+                        <View style={[styles.pnlView, { width: scaler(145), marginRight: scaler(15) }]}>
                             <Text style={styles.todayText}>Invested Value</Text>
-                            <Text style={styles.todayValueText}>₹ {totalData}</Text>
+                            <Text style={styles.todayValueText}>₹ {formatAmount(totalData)}</Text>
                         </View>
-                        <View style={styles.pnlView}>
+                        <View style={[styles.pnlView, { width: scaler(145) }]}>
                             <Text style={styles.todayText}>Today’s Gain</Text>
-                            <Text style={[styles.todayValueText, { color: unrealPnl < 0 ? mainColors.redText : mainColors.greenText }]}>₹ {unrealPnl}</Text>
+                            <Text style={[styles.todayValueText, { color: unrealPnl < 0 ? mainColors.redText : mainColors.greenText }]}>₹ {formatAmount(unrealPnl?.toString().replace("-", ""))}</Text>
                         </View>
                     </View>
                     <View style={styles.belowBox}>

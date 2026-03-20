@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetcher } from '../../../Utils/helper';
 import { BuySellProps } from './types';
 const buySellOrders = async (data: BuySellProps): Promise<AxiosResponse<any>> => {
@@ -13,9 +13,14 @@ const buySellOrders = async (data: BuySellProps): Promise<AxiosResponse<any>> =>
 };
 
 function useBuySellMutation() {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (data: BuySellProps) => buySellOrders(data),
-        onSuccess: () => { },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['/api/v1/positions/'],
+            });
+        },
         onError: errr => {
             console.log('BuySellOrdersApiError', errr)
         },

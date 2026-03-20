@@ -162,6 +162,7 @@ export const styles = StyleSheet.create({
   pillDirectionText: {
     fontSize: scaler(12),
     fontFamily: fontFamily.poppinsRegular,
+    textTransform: 'capitalize'
   },
   itemSeperator: {
     borderBottomWidth: 0.5,
@@ -191,4 +192,14 @@ export const styles = StyleSheet.create({
     fontSize: scaler(14),
     paddingLeft: scaler(10),
   },
+  emptyView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: scaler(15)
+  },
+  emptyText: {
+    color: mainColors.white,
+    fontSize: scaler(15),
+    fontFamily: fontFamily.poppinsRegular
+  }
 });

@@ -19,17 +19,18 @@ export const styles = StyleSheet.create({
     headerTitle: {
         color: mainColors.white,
         fontSize: scaler(12),
-        marginRight: scaler(90),
+        marginLeft: scaler(10),
+        // marginRight: scaler(90),
         fontFamily: fontFamily.poppinsRegular
     },
     actionPill: {
-        paddingRight: scaler(15),
-        paddingVertical: scaler(5),
-        flexDirection: 'row',
-        borderRadius: 999,
-        borderWidth: 1,
-        borderColor: mainColors.inputBorder,
-        alignItems: 'center',
+        // paddingRight: scaler(15),
+        // paddingVertical: scaler(5),
+        // flexDirection: 'row',/
+        // borderRadius: 999,
+        // borderWidth: 1,
+        // borderColor: mainColors.inputBorder,
+        // alignItems: 'center',
     },
     inInsRunImg: {
         height: scaler(20),
@@ -37,9 +38,11 @@ export const styles = StyleSheet.create({
         marginLeft: scaler(2),
     },
     actionPillGreen: {
-        marginRight: 0,
-        backgroundColor: mainColors.swiperPnl,
-        borderColor: 'transparent',
+        // marginRight: 0,
+        // backgroundColor: mainColors.swiperPnl,
+        height: scaler(25),
+        width: scaler(80)
+        // borderColor: 'transparent',
     },
     actionText: {
         fontFamily: fontFamily.poppinsMedium,
@@ -77,8 +80,8 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     imgView: {
-        height: scaler(30),
-        width: scaler(30),
+        height: '100%',
+        width: '100%',
     },
     companyNameText: {
         fontFamily: fontFamily.poppinsSemiBold,
@@ -129,5 +132,18 @@ export const styles = StyleSheet.create({
     },
     topTabsContent: {
         paddingRight: scaler(10),
+    },
+    logoCircle: {
+        height: scaler(30),
+        width: scaler(30),
+        borderRadius: scaler(15),
+        backgroundColor: mainColors.pnlCard, // choose any existing color
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    logoInitials: {
+        fontFamily: fontFamily.poppinsMedium,
+        color: mainColors.white,
+        fontSize: scaler(12),
     },
 })

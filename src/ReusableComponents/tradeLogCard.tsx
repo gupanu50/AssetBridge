@@ -49,7 +49,7 @@ const Row = ({ l1, l2, v1, v2 }: { l1: string; l2: string; v1: string; v2: strin
 
             <View style={s.colRight}>
                 <Text style={[s.label, { textAlign: "right" }]}>{l2}</Text>
-                <Text style={[s.value, { textAlign: "right" }]}>{v2}</Text>
+                <Text style={[s.value, { textAlign: "right", color: l2 === 'PnL' ? mainColors?.greenText : mainColors.white }]}>{v2}</Text>
             </View>
         </View>
     );
@@ -77,22 +77,22 @@ export default function TradeLogCard({ item, otherData }: Props) {
             <Row
                 l1="Quantity"
                 v1={`${item.quantity}`}
-                l2="Source"
-                v2={item.source}
-            />
-
-            <Row
-                l1="Entry Time"
-                v1={moment(item.entry_time).format('hh:mm:ss')}
                 l2="Entry Price"
                 v2={fmtMoney(item.entry_price)}
             />
 
             <Row
-                l1="Exit Time"
-                v1={moment(item.exit_time).format('hh:mm:ss')}
+                l1="Entry Time"
+                v1={moment(item.entry_time).format('hh:mm:ss')}
                 l2="Exit Price"
                 v2={fmtMoney(item.exit_price)}
+            />
+
+            <Row
+                l1="Exit Time"
+                v1={moment(item.exit_time).format('hh:mm:ss')}
+                l2="PnL"
+                v2={fmtMoney(item.pnl)}
             />
 
             <View style={s.row}>
@@ -103,10 +103,10 @@ export default function TradeLogCard({ item, otherData }: Props) {
                     </View>
                 </View>
 
-                <View style={s.colRight}>
+                {/* <View style={s.colRight}>
                     <Text style={[s.label, { textAlign: "right" }]}>PnL</Text>
                     <Text style={[s.pnl, { textAlign: "right" }]}>{fmtMoney(item.pnl)}</Text>
-                </View>
+                </View> */}
             </View>
         </View>
     );

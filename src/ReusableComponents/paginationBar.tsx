@@ -62,17 +62,22 @@ const ArrowBtn = ({
 export default function PaginationBar({ page, totalPages, onPageChange }: Props) {
     const pages = useMemo(() => {
         if (totalPages <= 6) {
+            // If there are fewer than or equal to 6 pages, show all of them
             return Array.from({ length: totalPages }, (_, i) => i + 1);
         }
 
-        const first = [1, 2, 3];
-        const last = [totalPages - 1, totalPages];
-
-        if (page >= totalPages - 2) {
-            return [1, "…", totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+        // If we're on the first few pages, show the first pages
+        if (page <= 3) {
+            return [1, 2, 3, '…', totalPages - 1, totalPages];
         }
 
-        return [...first, "…", ...last];
+        // If we're on the last few pages, show the last pages
+        if (page >= totalPages - 2) {
+            return [1, '…', totalPages - 2, totalPages - 1, totalPages];
+        }
+
+        // For pages in the middle, show a range around the current page
+        return [page - 1, page, page + 1, '…', totalPages - 1, totalPages];
     }, [page, totalPages]);
 
     return (

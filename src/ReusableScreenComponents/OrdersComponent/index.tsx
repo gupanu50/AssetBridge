@@ -2,7 +2,7 @@
 import { View, Text, TouchableOpacity, FlatList, Image, Alert } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatItem } from './types';
-import { isMarketOpenIST, mainColors } from '../../Utils/helper';
+import { getApiErrorMessage, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
 import scaler from '../../Utils/scaler';
 import CommonButton from '../../ReusableComponents/commonButton';
@@ -14,16 +14,21 @@ import { getLastByKey, onWsMessage, pauseMarketFeed, registerSubscription, resum
 import { buildWsKey, mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
 import { computeChange } from '../../Utils/ws/commonWebSocketFunctions';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
-import { downloadExcelToDownloads } from '../../ReusableComponents/commonFunctions';
+import { capitalizeFirstLetter, downloadExcelToDownloads } from '../../ReusableComponents/commonFunctions';
 import snackbarHandler from '../../Utils/snackbarHandler';
+import OrderEditModal from './OrderEditModal';
+import useCancelOrderMutation from './Hooks/useCancelOrderMutation';
 
 const OrderComponent = () => {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const { data, error } = useOrdersQuery();
   const orderData = data?.data?.data?.results;
+  const [visible, setVisible] = useState(false);
   console.log('OrderData', orderData);
   const ORDER_OWNER_ID = "orderComponent"; // Use a unique ID for this screen
   const [tick, setTick] = useState(0);
+  const { mutate } = useCancelOrderMutation();
+  const [selectedItem, setSelectedItem] = useState<FlatItem>();
   const [input, setInput] = useState('');
   const wsPayload: SubscribePayload | null = useMemo(() => {
     if (!Array.isArray(orderData) || !orderData.length) return null;
@@ -55,7 +60,6 @@ const OrderComponent = () => {
     if (!dataArr.length) return null;
     return { type: "subscribe", data: dataArr };
   }, [orderData]);
-
   useEffect(() => {
     if (!wsPayload) return;
 
@@ -102,7 +106,19 @@ const OrderComponent = () => {
       unregisterSubscription(ORDER_OWNER_ID);
     };
   }, [wsPayload]);
-
+  const cancelOrder = (id: number) => {
+    mutate({
+      id: id
+    }, {
+      onSuccess: () => {
+        snackbarHandler.successToast('Order is cancelled');
+      },
+      onError: (err) => {
+        const message = getApiErrorMessage(err);
+        snackbarHandler.errorToast(message);
+      }
+    })
+  };
   // Handle updates and snapshots from WebSocket
   useEffect(() => {
     const off = onWsMessage((msg) => {
@@ -113,14 +129,14 @@ const OrderComponent = () => {
 
     return () => off();
   }, []);
-  const toggleRow = (id: number) => {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  // const toggleRow = (id: number) => {
+  //   setSelectedIds(prev => {
+  //     const next = new Set(prev);
+  //     if (next.has(id)) next.delete(id);
+  //     else next.add(id);
+  //     return next;
+  //   });
+  // };
   // Filter orderData based on search input
   const filteredOrderData = useMemo(() => {
     if (!input.trim()) {
@@ -131,21 +147,21 @@ const OrderComponent = () => {
       order.symbol.toLowerCase().includes(input.toLowerCase())
     );
   }, [input, orderData]);
-  const isAllSelected = useMemo(() => {
-    return orderData?.length > 0 && selectedIds.size === orderData.length;
-  }, [selectedIds, orderData]);
+  // const isAllSelected = useMemo(() => {
+  //   return orderData?.length > 0 && selectedIds.size === orderData.length;
+  // }, [selectedIds, orderData]);
 
-  const toggleSelectAll = () => {
-    if (isAllSelected) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(orderData.map((x: any) => x.id)));
-    }
-  };
+  // const toggleSelectAll = () => {
+  //   if (isAllSelected) {
+  //     setSelectedIds(new Set());
+  //   } else {
+  //     setSelectedIds(new Set(orderData.map((x: any) => x.id)));
+  //   }
+  // };
   const renderCardData = ({ item }: { item: FlatItem }) => {
     const checked = selectedIds.has(item.id);
     const statusColor =
-      item.status?.toLowerCase() === "submitted"
+      item.status?.toLowerCase() === "filled"
         ? mainColors.green
         : item.status?.toLowerCase() === 'pending'
           ? '#F5A524' // orange-ish like screenshot
@@ -158,10 +174,13 @@ const OrderComponent = () => {
     const payload = getLastByKey(cacheKey); // Retrieve cached data from WebSocket
     const { ltp } = computeChange(payload);
     return (
-      <View style={styles.orderCard}>
+      <View
+        style={styles.orderCard}
+      // onPress={() => { setVisible(true), setSelectedItem(item) }}
+      >
         {/* Top row: checkbox + Name + Exchange badge */}
         <View style={styles.cardTopRow}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             activeOpacity={0.85}
             onPress={() => toggleRow(item.id)}
             style={styles.checkboxHit}
@@ -173,7 +192,7 @@ const OrderComponent = () => {
               backgroundColor={mainColors.black}
               color={checked ? mainColors.mainButton : mainColors.transactionTime}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <Text style={styles.cardTitle}>{item.symbol}</Text>
 
@@ -184,7 +203,7 @@ const OrderComponent = () => {
 
         {/* Buy/Sell + DateTime */}
         <View style={styles.cardSubRow}>
-          <Text style={[styles.bsText, { color: bsColor }]}>{item.side}</Text>
+          <Text style={[styles.bsText, { color: bsColor, textTransform: 'capitalize' }]}>{item.side}</Text>
           <Text style={styles.dateText}>{moment(item.submitted_at).format('DD/MM/YYYY hh:mm:ss')}</Text>
         </View>
 
@@ -205,7 +224,7 @@ const OrderComponent = () => {
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Product</Text>
               <View style={styles.pill}>
-                <Text style={styles.pillText}>{item.product_type}</Text>
+                <Text style={styles.pillText}>{item.product_type.toUpperCase()}</Text>
               </View>
             </View>
           </View>
@@ -215,7 +234,7 @@ const OrderComponent = () => {
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Status</Text>
               <Text style={[styles.kValue, { color: statusColor }]}>
-                : {item.status}
+                : {capitalizeFirstLetter(item.status)}
               </Text>
             </View>
 
@@ -232,6 +251,19 @@ const OrderComponent = () => {
             </View>
           </View>
         </View>
+        <View style={styles.buttonFlexView}>
+          {item?.is_cancellable && <CommonButton
+            label='Cancel Order'
+            extraStyle={styles.buttonExit}
+            backgroundColor={mainColors.redText}
+            onPress={() => cancelOrder(item?.id)}
+          />}
+          {item?.is_editable && <CommonButton
+            label='Edit Order'
+            extraStyle={styles.buttonEdit}
+            onPress={() => { setVisible(true), setSelectedItem(item) }} />
+          }
+        </View>
       </View>
     );
   };
@@ -247,17 +279,24 @@ const OrderComponent = () => {
       Alert.alert('No data to download');
     }
   };
+  const renderEmptyComponent = () => {
+    return (
+      <View style={styles.emptyView}>
+        <Text style={styles.emptyText}>No Data Found</Text>
+      </View>
+    )
+  }
   return (
     <View style={styles.main}>
       <View style={[styles.flexView, styles.lineView]}>
-        <IconButton
+        {/* <IconButton
           vectorType="MaterialCommunityIcons"
           name={isAllSelected ? 'checkbox-marked' : 'checkbox-blank-outline'}
           backgroundColor={mainColors.black}
           color={isAllSelected ? mainColors.mainButton : mainColors.transactionTime}
           onPress={() => toggleSelectAll()}
-        />
-        <Text style={styles.selectText}>Select All</Text>
+        /> */}
+        <Text style={styles.selectText}></Text>
         <View style={styles.searchBox}>
           <CommonTextInput
             value={input}
@@ -279,11 +318,13 @@ const OrderComponent = () => {
       <FlatList
         data={filteredOrderData}
         renderItem={renderCardData}
+        ListEmptyComponent={renderEmptyComponent}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
         scrollEnabled={false}
         extraData={tick}
       />
+      <OrderEditModal visibile={visible} setVisible={setVisible} selectedItem={selectedItem} />
     </View>
   );
 };

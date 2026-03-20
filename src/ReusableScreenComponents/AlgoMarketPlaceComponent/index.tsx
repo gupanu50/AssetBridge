@@ -31,6 +31,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
     refetchInterval: isMarketHours ? 3000 : false
   });
   const tradingBotData = tradingData?.data?.data;
+  console.log('TradingBotDataMarketPlace', tradingBotData)
   const { mutate: startStopBotMutate } = useStartStopBotMutation();
   const { mutate: subscribeMutate } = useCreatePaymentOrderMutation();
   const subs = (id: string) => {
@@ -145,6 +146,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
   const renderFeatureCard = ({ item }: any) => {
     return (
       <View style={styles.commonCardView}>
+        {/* @ts-ignore */}
         <CommonAlgoMarketPlaceCard
           logo={item.logo}
           name={item.name}
@@ -154,11 +156,11 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
           tagLeft={item.tagLeft}
           tagRight={item.tagRight}
           ltp={item.backtest_results.summary.net_pnl}
-          ltpChange={item.ltpChange}
+          ltpChange={item.backtest_results.summary.net_pnl_pct}
           intraday={item.backtest_results.summary.total_trades}
-          intradayChange={item.intradayChange}
+          intradayChange={item.backtest_results.summary.rr_pct}
           pAndL={item.backtest_results.summary.max_drawdown}
-          pAndLChange={item.pAndLChange}
+          pAndLChange={item.backtest_results.summary.max_dd_pct}
           status={item.running_status}
           is_subscribed={item?.is_subscribed}
         />

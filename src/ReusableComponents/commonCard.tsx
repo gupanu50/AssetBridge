@@ -12,6 +12,7 @@ import { fontFamily, mainColors } from '../Utils/helper';
 import { Images } from '../Assets';
 import scaler from '../Utils/scaler';
 import { PropCommonCardTypes } from './commonTypes';
+import { formatAmount } from './commonFunctions';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const CommonCard = (props: PropCommonCardTypes) => {
@@ -31,11 +32,9 @@ const CommonCard = (props: PropCommonCardTypes) => {
     return word.slice(0, 2).toUpperCase();
   };
   const [activeDayMonthMoverTab, setActiveDayMonthMoverTab] = useState('Month');
-  const ltpColor = String(props.ltpChange || '')
-    .trim()
-    .startsWith('-')
-    ? mainColors.red
-    : mainColors.swiperPnl;
+  const ltpColor = (props.ltpChange > 0 || props?.ltpChangeMonth > 0)
+    ? mainColors.greenText
+    : mainColors.redText;
 
   const intraColor = String(props.intradayChange || '')
     .trim()
@@ -129,7 +128,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>PNL Value</Text>
             <View style={styles.statValueRow}>
-              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? props.dayPnl : props.ltp}</Text>
+              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? formatAmount(props?.dayPnl || "") : formatAmount(props.ltp)}</Text>
               <View style={styles.swiperPnlView}>
                 <Image
                   source={Images.swiperUp}
@@ -137,7 +136,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
                   style={styles.swiperUpImg}
                 />
                 <Text style={[styles.statChange, { color: ltpColor }]}>
-                  {props.ltpChange}
+                  {activeDayMonthMoverTab === 'Day' ? props?.ltpChange : props.ltpChangeMonth}%
                 </Text>
               </View>
             </View>
@@ -156,7 +155,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
                   style={styles.swiperUpImg}
                 />
                 <Text style={[styles.statChange, { color: intraColor }]}>
-                  {props.intradayChange}
+                  {activeDayMonthMoverTab === 'Day' ? props?.rewardPct : props.rewardPctMonth}%
                 </Text>
               </View>
             </View>
@@ -179,8 +178,8 @@ const CommonCard = (props: PropCommonCardTypes) => {
                   resizeMode="contain"
                   style={styles.swiperUpImg}
                 />
-                <Text style={[styles.statChange, { color: pnlColor }]}>
-                  {props.pAndLChange}
+                <Text style={[styles.statChange, { color: mainColors.redText }]}>
+                  {activeDayMonthMoverTab === 'Day' ? props?.ddPct : props.ddPctMonth}%
                 </Text>
               </View>
             </View>
