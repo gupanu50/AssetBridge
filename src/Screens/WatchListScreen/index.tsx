@@ -132,6 +132,7 @@ const WatchListScreen = ({ navigation }: Props) => {
       symbols: Array.from(b.symbols),
     }));
     if (!dataArr.length) return null;
+    // console.log('DataArr', dataArr)
     return { type: "subscribe", data: dataArr };
   }, [watchListApiData]);
   useEffect(() => {
@@ -154,6 +155,7 @@ const WatchListScreen = ({ navigation }: Props) => {
       let timeoutId: any;
 
       const off = onWsMessage((msg) => {
+        console.log('WatchListWSMessage', msg)
         if (msg?.type !== "snapshot" && msg?.type !== "update") return;
         if (!msg?.data || typeof msg.data !== "object") return;
 
