@@ -177,7 +177,7 @@ const ProfileScreen = ({ navigation }: Props) => {
                         <Text style={styles.balanceLabel}>Trading Balance</Text>
                         <Text style={styles.balanceValue}>₹ {profileData?.portfolio_balance}</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={scaler(18)} color={mainColors.white} />
+                    {/* <Ionicons name="chevron-forward" size={scaler(18)} color={mainColors.white} /> */}
                 </View>
             </LinearGradient>
 
