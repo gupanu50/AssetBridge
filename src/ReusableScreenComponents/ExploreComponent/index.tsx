@@ -40,6 +40,7 @@ import { mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
 import { computeChange, computeChange1 } from '../../Utils/ws/commonWebSocketFunctions';
 import { getInitials } from '../../ReusableComponents/commonFunctions';
 import { useIsFocused } from '@react-navigation/native';
+import ExploreSkeleton from '../../Screens/HomeScreen/Skeleton/ExploreSkeleton/ExploreSkeleton';
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 type ExploreProps = {
   navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
@@ -69,7 +70,7 @@ export default function ExploreComponent(props: ExploreProps) {
     { label: 'Month', value: 'month' },
     { label: 'Year', value: 'year' }
   ];
-  const { data, refetch: refetchTopMovers } = useTopMoversQuery({
+  const { data, refetch: refetchTopMovers, isLoading: moversLoading } = useTopMoversQuery({
     exchange: 'NSE',
     limit: moverLimit,
     time: selectedValue,
@@ -92,12 +93,12 @@ export default function ExploreComponent(props: ExploreProps) {
       { id: "__view_all__", isViewAll: true, symbol: '', current_price: 0, absolute_change: 0 },
     ];
   }, [moversApiData, moverLimit]);
-  const { data: tradingData, refetch }: any = useTradingBotsQuery({
+  const { data: tradingData, refetch, isLoading: botsLoading }: any = useTradingBotsQuery({
     queryKey: ['/api/v1/strategy/bots/'],
   });
   const tradingBotData = tradingData?.data?.data;
   // console.log('Trading Bots Data:', tradingBotData);
-  const { data: newsApiData, refetch: refetchNews } = useNewsQuery();
+  const { data: newsApiData, refetch: refetchNews, isLoading: newsLoading } = useNewsQuery();
   const bots = tradingBotData ?? [];
   useEffect(() => { refetchNews() }, [isFocused]);
   const loopedBots = React.useMemo(() => {
@@ -141,6 +142,10 @@ export default function ExploreComponent(props: ExploreProps) {
     }
   };
   const newsData = newsApiData?.data?.data?.results;
+  const isExploreSkeleton =
+    (botsLoading && !bots.length) ||
+    (moversLoading && !moversApiData.length) ||
+    (newsLoading && !newsData?.length);
   // console.log('NewsData', newsData);
   const handleCardAction = (item: any) => {
     const isSubscribed = item?.is_subscribed;
@@ -444,6 +449,13 @@ export default function ExploreComponent(props: ExploreProps) {
       </TouchableOpacity>
     );
   };
+  if (isExploreSkeleton) {
+    return (
+      <View style={styles.mainView}>
+        <ExploreSkeleton />
+      </View>
+    );
+  }
   return (
     <View style={styles.mainView}>
       {/* -------------------- BIG CARD (UNCHANGED SECTION) -------------------- */}

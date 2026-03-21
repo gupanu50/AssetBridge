@@ -29,6 +29,7 @@ import useTopMoversPercentageQuery from '../HomeScreen/Hooks/useTopMoversPercent
 import CommonButton from '../../ReusableComponents/commonButton';
 import useCandleStickQuery from './Hooks/useCandleStickQuery';
 import { buildFromToISO } from './commonFunctions';
+import SkeletonBlock from '../../ReusableComponents/commonSkeletonBlock';
 type Props = MainStackScreenProps<'Instrument'>;
 const InstumentScreen = ({ navigation, route }: Props) => {
   const [selectedLabel, setSelectedLabel] = useState<string>('1D');
@@ -45,7 +46,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     abs: 0,
     pct: 0,
   });
-  const { data: candleData } = useCandleStickQuery({
+  const { data: candleData, isLoading: candleLoading } = useCandleStickQuery({
     index: paramIndex,
     symbol: paramItem?.symbol.replace(' ', '') ?? route?.params?.symbol,
     exchange: paramItem?.segment ?? paramItem?.exchange ?? 'NFO',
@@ -63,7 +64,8 @@ const InstumentScreen = ({ navigation, route }: Props) => {
       close: item.close,
     }));
   }, [candleData]);
-  console.log('candleData', candleData)
+  // console.log('candleData', candleData);
+  const isChartLoading = candleLoading || !candleData120?.length;
   let moversDetails;
   if (paramItem?.segment) {
     const { data: moversPercentageData } = useTopMoversPercentageQuery({
@@ -95,9 +97,9 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     route?.params?.symbol ??
     route?.params?.item?.wsSymbol ??
     route?.params?.item?.symbol;
-  console.log('RawSymbol', rawSymbol);
+  // console.log('RawSymbol', rawSymbol);
   const symbol = normalizeWsSymbol(rawSymbol);
-  console.log('Symbol', symbol);
+  // console.log('Symbol', symbol);
   const [live, setLive] = useState(() => {
     const payload =
       getLastByKey(`INDICES:${symbol}`) ||
@@ -330,38 +332,56 @@ const InstumentScreen = ({ navigation, route }: Props) => {
             </View> */}
           </View>
           <View style={styles.chartView}>
-            <CandlestickChart.Provider data={candleData120}>
+            {isChartLoading ? (
+              <View style={styles.chartSkeletonWrap}>
+                <SkeletonBlock width={'100%'} height={scaler(230)} radius={12} />
+
+                <View style={styles.chartSkeletonBottomLabels}>
+                  <SkeletonBlock width={scaler(30)} height={scaler(12)} radius={6} />
+                  <SkeletonBlock width={scaler(30)} height={scaler(12)} radius={6} />
+                  <SkeletonBlock width={scaler(30)} height={scaler(12)} radius={6} />
+                  <SkeletonBlock width={scaler(30)} height={scaler(12)} radius={6} />
+                  <SkeletonBlock width={scaler(30)} height={scaler(12)} radius={6} />
+                </View>
+              </View>
+            ) : (<CandlestickChart.Provider data={candleData120}>
               <CandlestickChart width={W} height={scaler(230)}>
                 <CandlestickChart.Candles />
                 <CandlestickChart.Crosshair />
               </CandlestickChart>
-            </CandlestickChart.Provider>
+            </CandlestickChart.Provider>)}
 
           </View>
-          <View style={styles.touchView}>
-            <TouchableOpacity style={styles.chartExpandView}
-              onPress={() => navigation.navigate('TradingView', { symbol: paramItem?.symbol ?? symbolNormalized })}>
+          {!isChartLoading ? (
+            <View style={styles.touchView}>
+              <TouchableOpacity
+                style={styles.chartExpandView}
+                onPress={() => navigation.navigate('TradingView', { symbol: paramItem?.symbol ?? symbolNormalized })}
+              >
+                <Image
+                  source={Images.expandScreen}
+                  resizeMode="contain"
+                  style={styles.candle}
+                />
+              </TouchableOpacity>
+            </View>
+          ) : null}
+          {!isChartLoading ? <>
+            <View style={styles.barChartView}>
               <Image
-                source={Images.expandScreen}
+                source={Images.smallBarGraph}
                 resizeMode="contain"
                 style={styles.candle}
               />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.barChartView}>
-            <Image
-              source={Images.smallBarGraph}
-              resizeMode="contain"
-              style={styles.candle}
+            </View>
+            <FlatList
+              data={data}
+              renderItem={renderItem}
+              keyExtractor={item => item.label}
+              horizontal
+              showsHorizontalScrollIndicator={false}
             />
-          </View>
-          <FlatList
-            data={data}
-            renderItem={renderItem}
-            keyExtractor={item => item.label}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          />
+          </> : null}
         </View>
         <View style={styles.topTabsWrap}>
           <FlatList

@@ -47,10 +47,10 @@ function getISTParts() {
 // NSE market hours: 09:15 to 15:30 IST (Mon-Fri)
 export function isMarketOpenIST(): boolean {
   const { weekday, hour, minute } = getISTParts();
-  if (weekday === "Sat" || weekday === "Sun") return false;
+  if (weekday === "Fri" || weekday === "Sun") return false;
 
   const mins = hour * 60 + minute;
-  return mins >= (9 * 60 + 15) && mins <= (15 * 60 + 30);
+  return mins >= (9 * 60 + 15) && mins <= (19 * 60 + 30);
 }
 
 export const fetcher = async (config: AxiosRequestConfig) => {

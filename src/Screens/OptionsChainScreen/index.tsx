@@ -18,6 +18,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import scaler from '../../Utils/scaler';
 import useOptionChainDatesDataQuery from './Hooks/useGetOptionDatesDataQuery';
 import useOptionChainDataQuery from './Hooks/useGetOptionsDataQuery';
+import OptionChainSkeletonList, { OptionChainHeaderSkeleton, OptionChainTableHeaderSkeleton } from './SkLoading/OptionChainSkeleton';
 
 type Row = {
   id: string;
@@ -338,63 +339,74 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       </View>
     );
   };
+  const isDatesLoading = !optionChainDatesData?.data?.data?.data?.length;
+  const isRowsLoading = !rows?.length;
+  const showSkeleton = isDatesLoading || isRowsLoading;
   return (
     <View style={styles.container}>
       {/* Top bar */}
-      <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => { }}>
-          <IconButton
-            vectorType="MaterialCommunityIcons"
-            name="keyboard-backspace"
-            onPress={() => navigation.goBack()}
-            color={mainColors.white}
-            backgroundColor={mainColors.black}
+      {showSkeleton ? (
+        <>
+          <OptionChainHeaderSkeleton />
+          <OptionChainTableHeaderSkeleton />
+          <OptionChainSkeletonList />
+        </>
+      ) : (<>
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => { }}>
+            <IconButton
+              vectorType="MaterialCommunityIcons"
+              name="keyboard-backspace"
+              onPress={() => navigation.goBack()}
+              color={mainColors.white}
+              backgroundColor={mainColors.black}
+            />
+          </TouchableOpacity>
+
+          <Text style={styles.title}>{symbol}</Text>
+          <Dropdown
+            data={dropDownData}
+            labelField="label"
+            valueField="value"
+            placeholder="Select"
+            value={selectedExpiry}
+            containerStyle={{ borderRadius: 10, borderWidth: 1, borderColor: mainColors.inputBorder, overflow: 'hidden' }}
+            selectedTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(10) }}
+            style={{ borderWidth: 1, borderColor: mainColors.inputBorder, height: scaler(25), width: scaler(110), borderRadius: 15, paddingHorizontal: scaler(10) }}
+            itemTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(8) }}
+            itemContainerStyle={{ backgroundColor: mainColors.black }}
+            onChange={item => setSelectedExpiry(item.value)}
+            activeColor={mainColors.inputBorder}
           />
-        </TouchableOpacity>
+        </View>
 
-        <Text style={styles.title}>{symbol}</Text>
-        <Dropdown
-          data={dropDownData}
-          labelField="label"
-          valueField="value"
-          placeholder="Select"
-          value={selectedExpiry}
-          containerStyle={{ borderRadius: 10, borderWidth: 1, borderColor: mainColors.inputBorder, overflow: 'hidden' }}
-          selectedTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(10) }}
-          style={{ borderWidth: 1, borderColor: mainColors.inputBorder, height: scaler(25), width: scaler(110), borderRadius: 15, paddingHorizontal: scaler(10) }}
-          itemTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(8) }}
-          itemContainerStyle={{ backgroundColor: mainColors.black }}
-          onChange={item => setSelectedExpiry(item.value)}
-          activeColor={mainColors.inputBorder}
-        />
-      </View>
+        {/* Column headers */}
+        <View style={styles.headerRow}>
+          <Text style={[styles.headerText, styles.headerLeft]}>Call LTP</Text>
+          <Text style={[styles.headerText, styles.headerMid]}>Strike</Text>
+          <Text style={[styles.headerText, styles.headerRight]}>Put LTP</Text>
+        </View>
 
-      {/* Column headers */}
-      <View style={styles.headerRow}>
-        <Text style={[styles.headerText, styles.headerLeft]}>Call LTP</Text>
-        <Text style={[styles.headerText, styles.headerMid]}>Strike</Text>
-        <Text style={[styles.headerText, styles.headerRight]}>Put LTP</Text>
-      </View>
-
-      {/* List */}
-      <FlatList
-        data={listWithBox}
-        keyExtractor={(item, index) =>
-          item.type === "box" ? item.id : `${item.strike}-${index}`
-        }
-        renderItem={({ item }) => {
-          // console.log('ItemInsideFlatListDirect', item)
-          if (item.type === "box") {
-            // example text like figma: 23950.00 | 23950.00 (0.00%)
-            // const boxText = `${fmtMoney(item.strike)}  |  ${fmtMoney(item.strike)} (0.00%)`;
-            return <CenterBoxRow ltp={item.ltp} close={item?.close} />;
+        {/* List */}
+        <FlatList
+          data={listWithBox}
+          keyExtractor={(item, index) =>
+            item.type === "box" ? item.id : `${item.strike}-${index}`
           }
+          renderItem={({ item }) => {
+            // console.log('ItemInsideFlatListDirect', item)
+            if (item.type === "box") {
+              // example text like figma: 23950.00 | 23950.00 (0.00%)
+              // const boxText = `${fmtMoney(item.strike)}  |  ${fmtMoney(item.strike)} (0.00%)`;
+              return <CenterBoxRow ltp={item.ltp} close={item?.close} />;
+            }
 
-          return renderRow(item); // IMPORTANT: renderRow(item) not renderRow({item})
-        }}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
+            return renderRow(item); // IMPORTANT: renderRow(item) not renderRow({item})
+          }}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      </>)}
       {/* Bottom */}
       {/* <View style={styles.bottomArea}>
         <Text style={styles.bottomLabel}>Max Pain</Text>

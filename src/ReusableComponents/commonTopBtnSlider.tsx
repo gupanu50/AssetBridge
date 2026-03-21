@@ -4,14 +4,31 @@ import { fontFamily, isMarketOpenIST, mainColors } from '../Utils/helper';
 import scaler from '../Utils/scaler';
 import { getLastByKey, onWsMessage } from '../Utils/ws/marketSocket';
 import { CommonTopBtnSliderProps, IndexKey, IndexRow } from './commonTypes';
-import { computeChange, formatChange, formatNumber, lastPart } from '../Utils/ws/commonWebSocketFunctions';
+import { computeChange, computeChange1, formatChange, formatNumber, lastPart } from '../Utils/ws/commonWebSocketFunctions';
 import useGetLtpQuery from '../Screens/HomeScreen/Hooks/useGetLtpQuery';
+import CommonTopBtnSliderSkeleton from '../Screens/HomeScreen/Skeleton/CommonTabBtnSkeleton/CommonTopBtnSliderSkeleton';
 
 const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
-    const { data } = useGetLtpQuery();
+    const { data, isLoading } = useGetLtpQuery();
     // console.log('DataLtp', data?.data);
     const isMarketOpen = isMarketOpenIST();
     const offlineLtp = data?.data?.data?.results;
+    const WANT: IndexKey[] = ['NIFTY50', 'SENSEX', 'NIFTYBANK'];
+    // Build previous_close map from API
+    const previousCloseMap = useMemo(() => {
+        const map: Record<string, number> = {};
+
+        offlineLtp?.forEach((item: any) => {
+            const symbol = String(item?.symbol || '').trim();
+            const previousClose = Number(item?.previous_close);
+
+            if (symbol && Number.isFinite(previousClose)) {
+                map[symbol] = previousClose;
+            }
+        });
+
+        return map;
+    }, [offlineLtp]);
     // console.log('Offline', offlineLtp);
     const [indexRows, setIndexRows] = useState<Record<IndexKey, IndexRow>>(() => {
         // ✅ initial from cache (works even if market closed and ws paused)
@@ -20,7 +37,8 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
 
         keys.forEach((k) => {
             const payload = getLastByKey(k); // cache stores key like "NIFTY50"
-            const { ltp, abs, pct } = computeChange(payload);
+            const previousClose = previousCloseMap[k];
+            const { ltp, abs, pct } = computeChange1(payload, previousClose);
             initial[k] = {
                 key: k,
                 label: k === 'NIFTY50' ? 'NIFTY 50' : k === 'NIFTYBANK' ? 'NIFTY Bank' : 'SENSEX',
@@ -32,14 +50,36 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
 
         return initial;
     });
+    // When API data comes later, refresh rows using previous_close
+    useEffect(() => {
+        setIndexRows((prev) => {
+            const next = { ...prev };
 
+            WANT.forEach((k) => {
+                const payload = getLastByKey(k);
+                const previousClose = previousCloseMap[k];
+                const { ltp, abs, pct } = computeChange1(payload, previousClose);
+
+                next[k] = {
+                    ...next[k],
+                    key: k,
+                    label: k === 'NIFTY50' ? 'NIFTY 50' : k === 'NIFTYBANK' ? 'NIFTY Bank' : 'SENSEX',
+                    ltp: ltp ?? next[k]?.ltp,
+                    absChange: abs ?? next[k]?.absChange,
+                    pctChange: pct ?? next[k]?.pctChange,
+                };
+            });
+
+            return next;
+        });
+    }, [previousCloseMap]);
     useEffect(() => {
         const WANT: IndexKey[] = ["NIFTY50", "SENSEX", "NIFTYBANK"];
 
         const off = onWsMessage((msg) => {
             if (msg?.type !== "snapshot" && msg?.type !== "update") return;
             if (!msg?.data || typeof msg.data !== "object") return;
-            // console.log('WS Message CommonTabBTNSlider', msg);
+            console.log('WS Message CommonTabBTNSlider', msg);
             setIndexRows((prev) => {
                 let changed = false;
                 const next = { ...prev };
@@ -61,8 +101,8 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
                     }
 
                     if (!payload) continue;
-
-                    const { ltp, abs, pct } = computeChange(payload);
+                    const previousClose = previousCloseMap[key];
+                    const { ltp, abs, pct } = computeChange1(payload, previousClose);
 
                     next[key] = {
                         ...next[key],
@@ -79,7 +119,7 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
         });
 
         return () => off();
-    }, []);
+    }, [previousCloseMap]);
     // Create a consistent format for both horidata and offlineLtp
     const mapOfflineLtpToHoridata = (data: any) => {
         return data?.map((item: any) => {
@@ -138,14 +178,14 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
 
                     {/* Absolute Change */}
                     <Text style={{
-                        color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText
+                        color: item?.color
                     }}>
                         {item?.absolute_change}{' '}
                     </Text>
 
                     {/* Percentage Change */}
                     <Text style={{
-                        color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText
+                        color: item?.color
                     }}>
                         {`${item?.percentage_change}`}
                     </Text>
@@ -153,7 +193,14 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
             </Text>
         </TouchableOpacity>
     );
+    const showSkeleton =
+        isLoading ||
+        (!isMarketOpen && !offlineLtp?.length) ||
+        (isMarketOpen && !horidata?.length);
 
+    if (showSkeleton) {
+        return <CommonTopBtnSliderSkeleton />;
+    }
 
     return (
         <View style={styles.mainView}>
