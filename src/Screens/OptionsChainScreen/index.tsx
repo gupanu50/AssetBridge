@@ -40,6 +40,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
   const { data: optionChainDatesData } = useOptionChainDatesDataQuery({
     symbol: String(symbol),
   })
+  const [stableLtp, setStableLtp] = useState(0);
   // console.log('OptionChainDatesData', optionChainDatesData?.data?.data?.data);
   const dropDownData = useMemo(() => {
     if (!optionChainDatesData?.data?.data?.data) return [];
@@ -73,7 +74,18 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
   type StrikeApi = { strike: number; symbols: string[] };
 
   const strikes: StrikeApi[] = optionChainData?.data?.data?.data?.strikes ?? [];
+  const STRIKE_STEP = 50; // NIFTY = 50, BANKNIFTY = 100
 
+  useEffect(() => {
+    if (!live.ltp) return;
+
+    const currentATM = Math.round(live.ltp / STRIKE_STEP) * STRIKE_STEP;
+    const prevATM = Math.round(stableLtp / STRIKE_STEP) * STRIKE_STEP;
+
+    if (currentATM !== prevATM) {
+      setStableLtp(live.ltp); // ✅ update only when ATM changes
+    }
+  }, [live.ltp]);
   const rows: any = useMemo(() => {
     return strikes.map((s) => {
       const callSym = s.symbols.find((x: any) => x.symbol.endsWith("CE")) ?? s.symbols[0];
@@ -85,18 +97,45 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       };
     });
   }, [strikes]);
+  const VISIBLE_RANGE = 10; // 👈 tune this
+  const findClosestIndex = (ltp: number, rows: any[]) => {
+    if (!ltp || !rows.length) return 0;
+
+    let closestIdx = 0;
+    let diff = Math.abs(rows[0].strike - ltp);
+
+    rows.forEach((r, i) => {
+      const newDiff = Math.abs(r.strike - ltp);
+      if (newDiff < diff) {
+        diff = newDiff;
+        closestIdx = i;
+      }
+    });
+
+    return closestIdx;
+  };
+  const visibleRows = useMemo(() => {
+    if (!rows.length) return [];
+
+    const atmIndex = findClosestIndex(stableLtp, rows);
+
+    const start = Math.max(0, atmIndex - VISIBLE_RANGE);
+    const end = Math.min(rows.length, atmIndex + VISIBLE_RANGE);
+
+    return rows.slice(start, end);
+  }, [rows, stableLtp]);
   // const wsSeg = useMemo(() => mapApiToWsSegment(segment, "NSE"), [segment]);
 
   const wsSymbols = useMemo(() => {
     const list: string[] = [];
-    for (const r of rows) {
+    for (const r of visibleRows) {
       // console.log('RWsSymbol', r)
       if (r.callSymbol) list.push(r.callSymbol?.symbol);
       if (r.putSymbol) list.push(r.putSymbol?.symbol);
     }
     // unique
     return Array.from(new Set(list));
-  }, [rows]);
+  }, [visibleRows]);
   // const [snapshotDone, setSnapshotDone] = useState(false);
 
   // useEffect(() => {
@@ -227,6 +266,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       </View>
     );
   };
+
   const findClosestStrike = (ltp: number, strikes: number[]): number => {
     let closest = strikes[0];
     let diff = Math.abs(ltp - closest);
@@ -242,16 +282,16 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     return closest;
   };
   const listWithBox: ListItem[] = useMemo(() => {
-    if (!rows.length) return [];
+    if (!visibleRows.length) return [];
 
     const out: ListItem[] = [];
     // const normalized: Record<string, any> = {};
     // const afterOfficeLtp = normalized[keyForIndices(normalizedSymbol)]?.ltp;
     // console.log('LiveListWithBox', live)
-    const strikesList = rows.map((r: any) => r.strike); // List of all strikes
-    const closestStrike = findClosestStrike(live.ltp, strikesList); // Find closest strike to LTP
+    const strikesList = visibleRows.map((r: any) => r.strike); // List of all strikes
+    const closestStrike = findClosestStrike(stableLtp, strikesList); // Find closest strike to LTP
     // @ts-ignore
-    rows.forEach((r, idx) => {
+    visibleRows.forEach((r, idx) => {
       // push row
       out.push({
         type: "row",
@@ -273,7 +313,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     });
 
     return out;
-  }, [rows, live]);
+  }, [visibleRows, live]);
   // const keyFor = (sym: string) => `${String(wsSeg).toUpperCase()}:${String(sym).toUpperCase()}`;
   const renderRow = (item: { strike: number; callSymbol: any; putSymbol: any }) => {
     // console.log('Items', item)

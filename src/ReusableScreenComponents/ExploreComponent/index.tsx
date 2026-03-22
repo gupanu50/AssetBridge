@@ -81,7 +81,7 @@ export default function ExploreComponent(props: ExploreProps) {
   )
   const moversApiData: MoversApiProps[] = data?.data?.data?.movers ?? [];
   const [realTimeData, setRealTimeData] = useState<Record<string, { ltp: number; abs: number; pct: number }>>({});
-  // console.log('MoversApiData', moversApiData);
+  console.log('MoversApiData', moversApiData);
   const { mutate: verifyPaymentMutate } = useVerifyPaymentMutation();
   const [selectedBotId, setSelectedBotId] = useState<string>('');
   const moversWithViewAll: MoversApiProps[] = React.useMemo(() => {
@@ -436,7 +436,7 @@ export default function ExploreComponent(props: ExploreProps) {
           <Text
             style={[
               styles.moverChg,
-              { color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText },
+              { color: item?.absolute_change > 0 ? mainColors.greenText : item?.absolute_change === 0 ? mainColors.inputLabel : mainColors.redText },
             ]}
           >
             {item.absolute_change} ({item?.percentage_change}%)

@@ -9,13 +9,13 @@ export type TradeItem = {
     id: string | number;
     instrument: string;        // "NIFTY 20000 CE"
     status: string;            // "CLOSED" / "OPEN" / etc
-    quantity: number;
+    Quantity: number;
     source: string;            // "Manual" / "Automated"
     entry_time: string;         // "10:30:12" or ISO
     exit_time: string;          // "04:23:00" or ISO
     entry_price: number;
     exit_price: number;
-    direction: "LONG" | "SHORT";
+    Direction: "LONG" | "SHORT";
     pnl: number;
 };
 type Props = {
@@ -56,7 +56,7 @@ const Row = ({ l1, l2, v1, v2 }: { l1: string; l2: string; v1: string; v2: strin
 };
 
 export default function TradeLogCard({ item, otherData }: Props) {
-    const dir = dirPillStyle(item.direction);
+    const dir = dirPillStyle(item.Direction);
     const st = statusPillStyle(item.status);
 
     return (
@@ -76,7 +76,7 @@ export default function TradeLogCard({ item, otherData }: Props) {
 
             <Row
                 l1="Quantity"
-                v1={`${item.quantity}`}
+                v1={`${item.Quantity}`}
                 l2="Entry Price"
                 v2={fmtMoney(item.entry_price)}
             />
@@ -99,7 +99,7 @@ export default function TradeLogCard({ item, otherData }: Props) {
                 <View style={s.col}>
                     <Text style={s.label}>Direction</Text>
                     <View style={[s.dirPill, { backgroundColor: dir.bg }]}>
-                        <Text style={[s.dirText, { color: dir.text }]}>{item.direction}</Text>
+                        <Text style={[s.dirText, { color: dir.text }]}>{item.Direction}</Text>
                     </View>
                 </View>
 

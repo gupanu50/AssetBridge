@@ -75,7 +75,8 @@ const InstumentScreen = ({ navigation, route }: Props) => {
         // refetchInterval: isMarketHours ? 10 : false,
       }
     )
-    const moverPercentageDataDetails = moversPercentageData?.data?.data
+    const moverPercentageDataDetails = moversPercentageData?.data?.data;
+    console.log('MoversPercentageData', moverPercentageDataDetails)
     moversDetails = React.useMemo(() => {
       return moverPercentageDataDetails
     }, [moverPercentageDataDetails]);
@@ -309,7 +310,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
             <View>
               {isMarketHours ?
                 <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? symbolData.ltp : formatNumber(live.ltp, 2)}</Text> :
-                <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? moversDetails?.current_price : formatNumber(live.ltp, 2)}</Text>}
+                <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? moversDetails?.current_price : !paramItem?.segment ? paramItem?.current_price : formatNumber(live.ltp, 2)}</Text>}
               {(paramItem?.segment && isMarketHours) ?
                 <Text style={[styles.amountPosLosHeading, { color: moversDetails?.absolute_change > 0 ? mainColors.greenText : mainColors.redText }]}>
                   {symbolData.abs.toFixed(3)}({symbolData.pct.toFixed(2)}%) <Text style={styles.innerText}>1D</Text>
@@ -318,9 +319,13 @@ const InstumentScreen = ({ navigation, route }: Props) => {
                   <Text style={[styles.amountPosLosHeading, { color: moversDetails?.absolute_change > 0 ? mainColors.greenText : mainColors.redText }]}>
                     {moversDetails?.absolute_change}({moversDetails?.percentage_change}%) <Text style={styles.innerText}>1D</Text>
                   </Text> :
-                  <Text style={[styles.amountPosLosHeading, { color: formatChange(live.abs, live.pct).includes('-') ? mainColors.redText : mainColors.greenText }]}>
-                    {formatChange(live.abs, live.pct)} <Text style={styles.innerText}>1D</Text>
-                  </Text>
+                  (!paramItem?.segment && !isMarketHours) ?
+                    <Text style={[styles.amountPosLosHeading, { color: formatChange(live.abs, live.pct).includes('-') ? mainColors.redText : mainColors.greenText }]}>
+                      {paramItem?.percentage_change} <Text style={styles.innerText}>1D</Text>
+                    </Text> :
+                    <Text style={[styles.amountPosLosHeading, { color: formatChange(live.abs, live.pct).includes('-') ? mainColors.redText : mainColors.greenText }]}>
+                      {formatChange(live.abs, live.pct)} <Text style={styles.innerText}>1D</Text>
+                    </Text>
               }
             </View>
             {/* <View style={styles.eCommerceView}>

@@ -138,14 +138,14 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
 
                     {/* Absolute Change */}
                     <Text style={{
-                        color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText
+                        color: item?.absolute_change > 0 ? mainColors.greenText : item?.absolute_change === 0 ? mainColors.inputLabel : mainColors.redText
                     }}>
                         {item?.absolute_change}{' '}
                     </Text>
 
                     {/* Percentage Change */}
                     <Text style={{
-                        color: item?.absolute_change > 0 ? mainColors.greenText : mainColors.redText
+                        color: item?.absolute_change > 0 ? mainColors.greenText : item?.absolute_change === 0 ? mainColors.inputLabel : mainColors.redText
                     }}>
                         {`${item?.percentage_change}`}
                     </Text>

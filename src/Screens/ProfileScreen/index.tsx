@@ -42,9 +42,9 @@ const ProfileScreen = ({ navigation }: Props) => {
     const isFocused = useIsFocused();
     const { data, refetch } = useProfileQuery();
     const profileData = data?.data?.data[0]
-    const { data: IIFLData } = useIIFLLoginQuery();
-    // console.log('ProfileData', profileData);
-    // console.log('ProfileDataIIFLData', IIFLData?.data?.data?.data?.login_url);
+    const { data: IIFLData, error } = useIIFLLoginQuery();
+    console.log('ProfileData', profileData);
+    console.log('ProfileDataIIFLData', IIFLData, error);
     const iiflURL = IIFLData?.data?.data?.data?.login_url;
     const [showTooltip, setShowTooltip] = useState(false);
     const [image, setImage] = useState<any>('');
@@ -78,22 +78,25 @@ const ProfileScreen = ({ navigation }: Props) => {
                         <Image
                             source={{ uri: image?.path }}
                             style={styles.avatar}
+                            borderRadius={100 / 2}
                         /> :
                         profileData?.profile_picture_url ?
                             <Image
                                 source={{ uri: profileData?.profile_picture_url }}
                                 style={styles.avatar}
+                                borderRadius={100 / 2}
                             /> :
                             < Image
                                 source={Images.dummyProfile}
                                 style={styles.avatar}
+                                borderRadius={100 / 2}
                             />}
                     <TouchableOpacity activeOpacity={0.85} style={styles.avatarDownBtn} onPress={() => launchGallery({
                         mediaType: 'photo',
                         compressImageMaxHeight: 800,
                         compressImageMaxWidth: 800,
                     })}>
-                        <IconButton name="upload" vectorType="AntDesign" size={scaler(10)} color={mainColors.white} />
+                        <IconButton name="upload" vectorType="AntDesign" size={scaler(15)} color={mainColors.white} />
                     </TouchableOpacity>
                 </View>
 
@@ -103,7 +106,7 @@ const ProfileScreen = ({ navigation }: Props) => {
                     <Text style={styles.headerPhone}>{`${profileData?.contact}`}</Text>
                 </View>
 
-                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => { Linking.openURL(iiflURL) }}>
+                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => { iiflURL ? Linking.openURL(iiflURL) : setShowTooltip(true) }}>
                     <Image source={Images.profileBadge} resizeMode='contain' style={styles.imgView} tintColor={profileData?.broker_auth?.color} />
                 </TouchableOpacity>
                 {showTooltip && <Modal
