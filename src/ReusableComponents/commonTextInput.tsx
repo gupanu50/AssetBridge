@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     fontSize: scaler(15),
     fontFamily: fontFamily.poppinsRegular,
     paddingLeft: scaler(10),
+    paddingVertical: 0
   },
   errorText: {
     fontFamily: fontFamily.poppinsRegular,

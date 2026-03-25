@@ -161,6 +161,7 @@ export type SearchItem = {
   fullNameLower: string;
   segment: string;  // row[9]
   exchange?: string;
+  symbolLower: string;
 };
 
 export type PaymentScreenProps = {

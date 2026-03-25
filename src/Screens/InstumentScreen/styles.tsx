@@ -319,4 +319,35 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     marginVertical: scaler(10)
   },
+  chartSkeletonContainer: {
+    width: '100%',
+  },
+
+  chartSkeletonGraph: {
+    height: scaler(230),
+    borderRadius: scaler(12),
+    borderWidth: 1,
+    borderColor: mainColors.inputBorder,
+    backgroundColor: mainColors.black,
+    paddingHorizontal: scaler(14),
+    paddingVertical: scaler(16),
+    justifyContent: 'flex-end',
+  },
+
+  chartSkeletonBarsRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    height: '100%',
+  },
+
+  chartSkeletonBottomLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: scaler(12),
+    paddingHorizontal: scaler(8),
+  },
+  chartSkeletonWrap: {
+    width: '100%',
+  },
 });

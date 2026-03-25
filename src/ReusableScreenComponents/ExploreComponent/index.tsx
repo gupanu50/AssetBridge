@@ -40,6 +40,7 @@ import { mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
 import { computeChange, computeChange1 } from '../../Utils/ws/commonWebSocketFunctions';
 import { getInitials } from '../../ReusableComponents/commonFunctions';
 import { useIsFocused } from '@react-navigation/native';
+import ExploreSkeleton, { BotCardSkeleton, MoversGridSkeleton, NewsListSkeleton } from '../../Screens/HomeScreen/Skeleton/ExploreSkeleton/ExploreSkeleton';
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 type ExploreProps = {
   navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
@@ -56,6 +57,7 @@ export default function ExploreComponent(props: ExploreProps) {
   const [showRiskModal, setShowRiskModal] = useState(false);
   // const [tick, setTick] = useState(0);
   const featureListRef = React.useRef<FlatList<any>>(null);
+  const topMoversListRef = useRef<FlatList<any>>(null);
   const featureIndexRef = React.useRef(0); // avoids re-renders
   const { data: profileApiData } = useProfileQuery();
   const { mutate: startStopBotMutate } = useStartStopBotMutation();
@@ -69,7 +71,7 @@ export default function ExploreComponent(props: ExploreProps) {
     { label: 'Month', value: 'month' },
     { label: 'Year', value: 'year' }
   ];
-  const { data, refetch: refetchTopMovers } = useTopMoversQuery({
+  const { data, refetch: refetchTopMovers, isLoading: moversLoading } = useTopMoversQuery({
     exchange: 'NSE',
     limit: moverLimit,
     time: selectedValue,
@@ -81,23 +83,30 @@ export default function ExploreComponent(props: ExploreProps) {
   )
   const moversApiData: MoversApiProps[] = data?.data?.data?.movers ?? [];
   const [realTimeData, setRealTimeData] = useState<Record<string, { ltp: number; abs: number; pct: number }>>({});
-  console.log('MoversApiData', moversApiData);
+  // console.log('MoversApiData', moversApiData);
   const { mutate: verifyPaymentMutate } = useVerifyPaymentMutation();
   const [selectedBotId, setSelectedBotId] = useState<string>('');
   const moversWithViewAll: MoversApiProps[] = React.useMemo(() => {
     const normalized = moversApiData.map(m => ({ ...m, isViewAll: false }));
-    if (moverLimit === '15') return normalized;
+    // If we are already showing 15 items, add "View Less"
+    if (moverLimit === '15') {
+      return [
+        ...normalized,
+        { id: "__view_less__", isViewAll: true, symbol: '', current_price: 0, absolute_change: 0 },
+      ];
+    }
+
     return [
       ...normalized,
       { id: "__view_all__", isViewAll: true, symbol: '', current_price: 0, absolute_change: 0 },
     ];
   }, [moversApiData, moverLimit]);
-  const { data: tradingData, refetch }: any = useTradingBotsQuery({
+  const { data: tradingData, refetch, isLoading: botsLoading }: any = useTradingBotsQuery({
     queryKey: ['/api/v1/strategy/bots/'],
   });
   const tradingBotData = tradingData?.data?.data;
   // console.log('Trading Bots Data:', tradingBotData);
-  const { data: newsApiData, refetch: refetchNews } = useNewsQuery();
+  const { data: newsApiData, refetch: refetchNews, isLoading: newsLoading } = useNewsQuery();
   const bots = tradingBotData ?? [];
   useEffect(() => { refetchNews() }, [isFocused]);
   const loopedBots = React.useMemo(() => {
@@ -117,7 +126,7 @@ export default function ExploreComponent(props: ExploreProps) {
       });
 
       featureIndexRef.current = next;
-    }, 8000);
+    }, 10000);
 
     return () => clearInterval(id);
   }, [bots.length, ITEM_SIZE]);
@@ -141,6 +150,10 @@ export default function ExploreComponent(props: ExploreProps) {
     }
   };
   const newsData = newsApiData?.data?.data?.results;
+  const isExploreSkeleton =
+    (botsLoading && !bots.length) ||
+    (moversLoading && !moversApiData.length) ||
+    (newsLoading && !newsData?.length);
   // console.log('NewsData', newsData);
   const handleCardAction = (item: any) => {
     const isSubscribed = item?.is_subscribed;
@@ -167,7 +180,7 @@ export default function ExploreComponent(props: ExploreProps) {
         },
         {
           onSuccess: (res: any) => {
-            console.log('StartBotResponse', res);
+            // console.log('StartBotResponse', res);
             refetch();
             snackbarHandler.successToast('Bot started successfully');
           },
@@ -188,7 +201,7 @@ export default function ExploreComponent(props: ExploreProps) {
         },
         {
           onSuccess: (res: any) => {
-            console.log('StopBotResponse', res);
+            // console.log('StopBotResponse', res);
             refetch();
             snackbarHandler.successToast('Bot paused successfully');
           },
@@ -251,7 +264,7 @@ export default function ExploreComponent(props: ExploreProps) {
       bot_id: parseInt(id)
     }, {
       onSuccess: async (res: any) => {
-        console.log('PaymentOrderCreateApiSuccess', res);
+        // console.log('PaymentOrderCreateApiSuccess', res);
         let resData = res?.data?.data;
         snackbarHandler.successToast('Subscribed successfully!');
         setShowRiskModal(false);
@@ -271,7 +284,7 @@ export default function ExploreComponent(props: ExploreProps) {
             razorpay_signature: result?.data?.razorpay_signature
           }, {
             onSuccess: (res) => {
-              console.log('ResPaymentVerify', res)
+              // console.log('ResPaymentVerify', res)
               snackbarHandler.successToast('Payment is successfully verified');
               refetch();
             },
@@ -286,7 +299,7 @@ export default function ExploreComponent(props: ExploreProps) {
         }
       },
       onError: (err: any) => {
-        console.log('PaymentOrderCreateApiError', err);
+        // console.log('PaymentOrderCreateApiError', err);
         const message = getApiErrorMessage(err) || 'Subscription failed';
         snackbarHandler.errorToast(message);
       },
@@ -345,30 +358,6 @@ export default function ExploreComponent(props: ExploreProps) {
 
     return map;
   }, [moversApiData]);
-  // Handle WebSocket messages and update the UI
-  // useEffect(() => {
-  //   const off = onWsMessage((msg) => {
-  //     if (msg?.type !== 'snapshot' && msg?.type !== 'update') return;
-  //     if (!msg?.data || typeof msg.data !== 'object') return;
-  //     // console.log('WSMESSAGEGAINERS', msg)
-  //     // setTick((t) => t + 1); // Trigger re-render on data update
-
-  //     // Process the incoming WebSocket data and update the UI
-  //     Object.keys(msg.data).forEach((key) => {
-  //       const payload = msg.data[key];
-  //       const { ltp, abs, pct } = computeChange(payload); // Extract absolute change and percentage change
-  //       // console.log('LTPABSPCT', ltp, abs, pct)
-  //       // Update the UI with the new ltp, absolute change, and percentage change
-  //       // console.log(`Updated LTP for ${key}: ${ltp}, Absolute Change: ${abs}, Percentage Change: ${pct}`);
-  //       setRealTimeData((prev): any => ({
-  //         ...prev,
-  //         [key]: { ltp, abs, pct },
-  //       }));
-  //     });
-  //   });
-
-  //   return () => off();
-  // }, []);
   useEffect(() => {
     const off = onWsMessage((msg) => {
       if (msg?.type !== 'snapshot' && msg?.type !== 'update') return;
@@ -397,18 +386,24 @@ export default function ExploreComponent(props: ExploreProps) {
   }, [previousCloseMap]);
   const renderMoverGridCard = ({ item }: { item: MoversApiProps }) => {
     if (item.isViewAll) {
+      const isViewAllBtn = item.id === "__view_all__";
       return (
         <TouchableOpacity
           activeOpacity={0.85}
           style={[styles.moverCard, styles.viewAllCard]}
           onPress={() => {
-            setMoverLimit('15');       // ✅ increase limit
-            refetchTopMovers();        // ✅ force refetch (as you asked)
+            setMoverLimit(isViewAllBtn ? '15' : '5');       // ✅ increase limit
+            refetchTopMovers();
+            // Scroll back to top of Top Movers FlatList
+            setTimeout(() => {
+              topMoversListRef.current?.scrollToOffset({ offset: 0, animated: true });
+            }, 50); // small delay to allow items to render   // ✅ force refetch (as you asked)
           }}
         >
-          <Text style={styles.viewAllText}>View all</Text>
+          <Text style={styles.viewAllText}>{isViewAllBtn ? 'View all' : 'View Less'}</Text>
           <View style={styles.viewAllCircle}>
-            <Text style={styles.viewAllArrow}>{'>'}</Text>
+            {/* <Text style={styles.viewAllArrow}>{'>'}</Text> */}
+            <Text style={styles.viewAllArrow}>{!isViewAllBtn ? '↑' : '↓'}</Text>
           </View>
         </TouchableOpacity>
       );
@@ -444,29 +439,40 @@ export default function ExploreComponent(props: ExploreProps) {
       </TouchableOpacity>
     );
   };
+  // if (isExploreSkeleton) {
+  //   return (
+  //     <View style={styles.mainView}>
+  //       <ExploreSkeleton />
+  //     </View>
+  //   );
+  // }
   return (
     <View style={styles.mainView}>
       {/* -------------------- BIG CARD (UNCHANGED SECTION) -------------------- */}
-      <FlatList
-        ref={featureListRef}
-        data={loopedBots}
-        keyExtractor={(item, index) => `${item.name}-${index}`}
-        renderItem={({ item }) => renderFeatureCard(item)}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + CARD_GAP}
-        snapToAlignment="start" // same as wrapper width
-        decelerationRate="fast"
-        contentContainerStyle={{ paddingHorizontal: scaler(10) }}
-        ItemSeparatorComponent={() => <View style={{ width: CARD_GAP }} />}
-        getItemLayout={(_, index) => ({
-          length: ITEM_SIZE,
-          offset: ITEM_SIZE * index,
-          index,
-        })}
-        onMomentumScrollEnd={onFeatureScrollEnd}
-      />
+      {botsLoading && !bots.length ? (
+        <BotCardSkeleton />
+      ) : (
+        <FlatList
+          ref={featureListRef}
+          data={loopedBots}
+          keyExtractor={(item, index) => `${item.name}-${index}`}
+          renderItem={({ item }) => renderFeatureCard(item)}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={CARD_WIDTH + CARD_GAP}
+          snapToAlignment="start" // same as wrapper width
+          decelerationRate="fast"
+          contentContainerStyle={{ paddingHorizontal: scaler(10) }}
+          ItemSeparatorComponent={() => <View style={{ width: CARD_GAP }} />}
+          getItemLayout={(_, index) => ({
+            length: ITEM_SIZE,
+            offset: ITEM_SIZE * index,
+            index,
+          })}
+          onMomentumScrollEnd={onFeatureScrollEnd}
+        />
+      )}
 
       {/* -------------------- TOP MOVERS (KEEP ALL PARTS) -------------------- */}
       <View style={styles.sectionHeaderRow}>
@@ -537,17 +543,21 @@ export default function ExploreComponent(props: ExploreProps) {
           activeColor={mainColors.inputBorder}
         />
       </View>
-
-      <View style={styles.moversGridWrap}>
-        <FlatList
-          data={moversWithViewAll}
-          keyExtractor={(item, index) => item.id ?? item.symbol ?? String(index)}
-          renderItem={renderMoverGridCard}
-          numColumns={2}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
-          scrollEnabled={false}
-        />
-      </View>
+      {moversLoading ? (
+        <MoversGridSkeleton />
+      ) : (
+        <View style={styles.moversGridWrap}>
+          <FlatList
+            ref={topMoversListRef}
+            data={moversWithViewAll}
+            keyExtractor={(item, index) => item.id ?? item.symbol ?? String(index)}
+            renderItem={renderMoverGridCard}
+            numColumns={2}
+            columnWrapperStyle={{ justifyContent: 'space-between' }}
+            scrollEnabled={false}
+          />
+        </View>
+      )}
 
       {/* -------------------- HOT NEWS (KEEP ALL PARTS) -------------------- */}
       <View style={[styles.sectionHeaderRow, { marginTop: scaler(4) }]}>
@@ -560,16 +570,19 @@ export default function ExploreComponent(props: ExploreProps) {
           <Text style={styles.sectionTitle}>Hot News</Text>
         </View>
       </View>
-
-      <View style={styles.newsCard}>
-        <FlatList
-          data={newsData}
-          keyExtractor={item => item.title}
-          renderItem={renderNewsItem}
-          scrollEnabled={false}
-          ItemSeparatorComponent={() => <View style={styles.newsSeparator} />}
-        />
-      </View>
+      {newsLoading && !newsData?.length ? (
+        <NewsListSkeleton />
+      ) : (
+        <View style={styles.newsCard}>
+          <FlatList
+            data={newsData}
+            keyExtractor={item => item.title}
+            renderItem={renderNewsItem}
+            scrollEnabled={false}
+            ItemSeparatorComponent={() => <View style={styles.newsSeparator} />}
+          />
+        </View>
+      )}
       <Image source={Images.line} resizeMode='contain' style={styles.line} />
       {/* Footer (kept simple like image) */}
       <View style={styles.footer}>

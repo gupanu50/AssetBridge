@@ -124,7 +124,7 @@ export default CommonHeader;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: mainColors.moversCards,
+    backgroundColor: mainColors.googleButton,
     borderWidth: 1,
     marginHorizontal: scaler(10),
     marginVertical: scaler(10),
@@ -157,8 +157,10 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   input: {
-    width: '70%',
+    width: '71%',
     paddingBottom: 0,
+    paddingTop: 0, // ✅ remove extra spacing
+    textAlignVertical: 'center', // ✅ proper vertical alignment
   },
   dropdown: {
     marginHorizontal: scaler(12),

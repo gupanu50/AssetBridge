@@ -29,8 +29,9 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
     const [marketPrice, setMarketPrice] = useState(200);
     const { data } = useProfileQuery();
     const profileData = data?.data?.data[0]
-    console.log('ProfileData', profileData)
+    // console.log('ProfileData', profileData)
     const [disclosedQuantity, setDisclosedQuantity] = useState('0');
+    const [isBuySellEnable, setIsBuySellEnable] = useState(true);
     const [selectedPercentId, setSelectedPercentId] = useState<number | null>(null);
     const [showImg, setShowImg] = useState(true);
     const [selectedPercentId1, setSelectedPercentId1] = useState<number | null>(null);
@@ -314,6 +315,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
         return qty;
     }, [valueShares, buySellParams?.paramItem?.symbol]);
     const buySell = () => {
+        setIsBuySellEnable(false);
         const params = {
             exchange: safeParamItem?.exchange || safeParamItem?.segment || 'NFO',
             is_automated: false,
@@ -354,13 +356,15 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
             {
                 onSuccess: response => {
                     console.log('Response', response)
-                    snackbarHandler.successToast('Your order has been placed')
+                    snackbarHandler.successToast('Your order has been placed');
+                    setIsBuySellEnable(true);
                     navigation?.goBack();
                 },
                 onError: er => {
                     console.log("Buysellapierror", er)
                     const msg = getApiErrorMessage(er)
                     snackbarHandler.errorToast(msg);
+                    setIsBuySellEnable(true);
                 },
             },)
     }
@@ -496,7 +500,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                         <View style={styles.lineView} />
                         <Text style={styles.noSharesText}>Limit Price</Text>
                         <View style={styles.imgView}>
-                            <TouchableOpacity onPress={() => bumpMarketPrice(-1)}>
+                            <TouchableOpacity onPress={() => bumpMarketPrice(-1)} disabled={limitMarket === 'market' ? true : false}>
                                 <Image source={Images.decrease} resizeMode='contain' style={styles.img} />
                             </TouchableOpacity>
                             <CommonTextInput
@@ -508,7 +512,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                                 containerStyle={styles.inputContainerStyle}
                                 max={3}
                             />
-                            <TouchableOpacity onPress={() => bumpMarketPrice(+1)}>
+                            <TouchableOpacity onPress={() => bumpMarketPrice(+1)} disabled={limitMarket === 'market' ? true : false}>
                                 <Image source={Images.increase} resizeMode='contain' style={styles.img} />
                             </TouchableOpacity>
                             <View style={styles.limitMarketView}>
@@ -678,6 +682,8 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                             >{`Orders may get rejected due to insufficient margin`}</Text>
                         ) : (
                             <CommonButton
+                                backgroundColor={isBuySellEnable ? mainColors?.mainButton : mainColors?.textGrey}
+                                disabled={isBuySellEnable ? false : true}
                                 label={buySellParams?.buynav === 'buy' ? 'Place Buy Order' : 'Place Sell Order'}
                                 extraStyle={{ marginBottom: scaler(30), marginTop: !isEnabled ? scaler(30) : scaler(10) }}
                                 onPress={() => buySell()}

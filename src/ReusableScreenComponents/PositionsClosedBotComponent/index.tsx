@@ -16,7 +16,7 @@ const PositionsBotClosedComponent = (bot_id: any) => {
   const flatData = data?.data?.data?.results;
   const [input, setInput] = useState('');
   const totalData = data?.data?.data?.total_invested_value
-  console.log('dataClosedPostions', data?.data?.data);
+  // console.log('dataClosedPostions', data?.data?.data);
 
   const renderCardData = ({ item }: { item: FlatItem }) => {
     const statusColor =

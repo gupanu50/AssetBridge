@@ -12,7 +12,7 @@ type MyAlgoProps = {
   subsData?: any[];
 };
 const MyAlgoComponent = ({ navigation, subsData }: MyAlgoProps) => {
-  console.log('PropsSubsData', subsData);
+  // console.log('PropsSubsData', subsData);
   const { mutate: startStopBotMutate } = useStartStopBotMutation();
   // const featureCards = useMemo(
   //   () => [
@@ -65,7 +65,7 @@ const MyAlgoComponent = ({ navigation, subsData }: MyAlgoProps) => {
   //   [],
   // );
   const renderFeatureCard = ({ item }: any) => {
-    console.log('Item', item);
+    // console.log('Item', item);
     const pressSub = () => {
       if (item?.running_status === 'pause') {
         startStopBotMutate({
@@ -74,10 +74,10 @@ const MyAlgoComponent = ({ navigation, subsData }: MyAlgoProps) => {
         }, {
           onSuccess: (res) => {
             snackbarHandler.successToast('Bot started successfully');
-            console.log('StartBotResponse', res);
+            // console.log('StartBotResponse', res);
           },
           onError: (err) => {
-            console.log('StoppedApirror', err);
+            // console.log('StoppedApirror', err);
             snackbarHandler.errorToast(getApiErrorMessage(err) || 'Failed to start bot');
           }
         })
@@ -88,7 +88,7 @@ const MyAlgoComponent = ({ navigation, subsData }: MyAlgoProps) => {
         }, {
           onSuccess: (res) => {
             snackbarHandler.successToast('Bot paused successfully');
-            console.log('StartBotResponse', res)
+            // console.log('StartBotResponse', res)
           },
           onError: (err) => {
             console.log('StoppedApirror', err);

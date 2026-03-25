@@ -19,12 +19,12 @@ import snackbarHandler from '../../Utils/snackbarHandler';
 import OrderEditModal from './OrderEditModal';
 import useCancelOrderMutation from './Hooks/useCancelOrderMutation';
 
-const OrderComponent = () => {
+const OrderComponent = (props?: any) => {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const { data, error } = useOrdersQuery();
+  const { data, error } = useOrdersQuery(props?.symbol);
   const orderData = data?.data?.data?.results;
   const [visible, setVisible] = useState(false);
-  console.log('OrderData', orderData);
+  // console.log('OrderData', orderData);
   const ORDER_OWNER_ID = "orderComponent"; // Use a unique ID for this screen
   const [tick, setTick] = useState(0);
   const { mutate } = useCancelOrderMutation();
@@ -147,17 +147,16 @@ const OrderComponent = () => {
       order.symbol.toLowerCase().includes(input.toLowerCase())
     );
   }, [input, orderData]);
-  // const isAllSelected = useMemo(() => {
-  //   return orderData?.length > 0 && selectedIds.size === orderData.length;
-  // }, [selectedIds, orderData]);
-
-  // const toggleSelectAll = () => {
-  //   if (isAllSelected) {
-  //     setSelectedIds(new Set());
-  //   } else {
-  //     setSelectedIds(new Set(orderData.map((x: any) => x.id)));
-  //   }
-  // };
+  const cancelAlert = (id: number) => {
+    Alert.alert('Cancel Order', 'Are you sure you want to cancel the order', [
+      {
+        text: 'Cancel',
+        onPress: () => { },
+        style: 'cancel',
+      },
+      { text: 'OK', onPress: () => cancelOrder(id) },
+    ]);
+  }
   const renderCardData = ({ item }: { item: FlatItem }) => {
     const checked = selectedIds.has(item.id);
     const statusColor =
@@ -240,7 +239,7 @@ const OrderComponent = () => {
 
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Price</Text>
-              <Text style={styles.kValue}>: {item.average_price}</Text>
+              <Text style={styles.kValue}>: {item.average_price ?? item?.limit_price}</Text>
             </View>
 
             <View style={styles.kvRow}>
@@ -256,7 +255,7 @@ const OrderComponent = () => {
             label='Cancel Order'
             extraStyle={styles.buttonExit}
             backgroundColor={mainColors.redText}
-            onPress={() => cancelOrder(item?.id)}
+            onPress={() => cancelAlert(item?.id)}
           />}
           {item?.is_editable && <CommonButton
             label='Edit Order'

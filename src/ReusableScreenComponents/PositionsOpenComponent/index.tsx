@@ -18,8 +18,9 @@ import { downloadExcelToDownloads, formatAmount } from '../../ReusableComponents
 import snackbarHandler from '../../Utils/snackbarHandler';
 import useExitPostionsMutation from './Hooks/useExitPostionsMutation';
 
-const PositionsOpenComponent = () => {
-  const { data, refetch } = usePostionsOpenQuery('open');
+const PositionsOpenComponent = (props?: any) => {
+  // console.log('PropsOpenPosition', props)
+  const { data, refetch } = usePostionsOpenQuery('open', props?.symbol);
   const flatData = data?.data?.data?.results;
   const totalData = data?.data?.data?.total_invested_value;
   // console.log('DataAllOpenPositions', data?.data?.data)

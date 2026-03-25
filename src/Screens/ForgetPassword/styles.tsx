@@ -53,4 +53,7 @@ export const styles = StyleSheet.create({
   loginStyle: {
     marginTop: scaler(30),
   },
+  eyeIcon: {
+    alignSelf: 'center',
+  },
 });

@@ -16,7 +16,7 @@ const AlgoScreen = ({ navigation }: Props) => {
   const topTabListRef = useRef(null);
   const [activeTopTab, setActiveTopTab] = useState('My Algo');
   const { data } = useSubscribeBotsQuery();
-  console.log('DataUserBots', data?.data?.data);
+  // console.log('DataUserBots', data?.data?.data);
   const subsData = data?.data?.data;
   const [showNoti, setShowNoti] = useState(false);
   // -------------------- DATA --------------------

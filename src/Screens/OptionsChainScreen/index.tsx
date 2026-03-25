@@ -12,12 +12,12 @@ import { fontFamily, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
-import { mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
 import { onWsMessage, pauseMarketFeed, registerSubscription, resumeMarketFeed, unregisterSubscription } from '../../Utils/ws/marketSocket';
 import { Dropdown } from 'react-native-element-dropdown';
 import scaler from '../../Utils/scaler';
 import useOptionChainDatesDataQuery from './Hooks/useGetOptionDatesDataQuery';
 import useOptionChainDataQuery from './Hooks/useGetOptionsDataQuery';
+import OptionChainSkeletonList, { OptionChainCenterBoxSkeleton, OptionChainHeaderSkeleton, OptionChainRowSkeleton, OptionChainTableHeaderSkeleton } from './SkLoading/OptionChainSkeleton';
 
 type Row = {
   id: string;
@@ -30,7 +30,6 @@ type Row = {
 };
 
 const fmtMoney = (v: number) => `${v?.toFixed(2)}`;
-// const fmtPct = (v: number) => `${v >= 0 ? '' : ''}${v.toFixed(2)}%`;
 type Props = MainStackScreenProps<'OptionsChain'>;
 export default function OptionsChainScreen({ navigation, route }: Props) {
   // console.log('RouteOptionsChaain', route?.params?.segment, route?.params?.symbol, route?.params);
@@ -40,7 +39,6 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
   const { data: optionChainDatesData } = useOptionChainDatesDataQuery({
     symbol: String(symbol),
   })
-  const [stableLtp, setStableLtp] = useState(0);
   // console.log('OptionChainDatesData', optionChainDatesData?.data?.data?.data);
   const dropDownData = useMemo(() => {
     if (!optionChainDatesData?.data?.data?.data) return [];
@@ -50,6 +48,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     }));
   }, [optionChainDatesData]);
   const [selectedExpiry, setSelectedExpiry] = useState<string>("");
+  const [dataReady, setDataReady] = useState(false);
   const [live, setLive] = useState<Record<string, any>>({});
   const normalizeWsSymbol = (raw: any): string => {
     return String(raw ?? "").trim().toUpperCase();
@@ -74,18 +73,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
   type StrikeApi = { strike: number; symbols: string[] };
 
   const strikes: StrikeApi[] = optionChainData?.data?.data?.data?.strikes ?? [];
-  const STRIKE_STEP = 50; // NIFTY = 50, BANKNIFTY = 100
 
-  useEffect(() => {
-    if (!live.ltp) return;
-
-    const currentATM = Math.round(live.ltp / STRIKE_STEP) * STRIKE_STEP;
-    const prevATM = Math.round(stableLtp / STRIKE_STEP) * STRIKE_STEP;
-
-    if (currentATM !== prevATM) {
-      setStableLtp(live.ltp); // ✅ update only when ATM changes
-    }
-  }, [live.ltp]);
   const rows: any = useMemo(() => {
     return strikes.map((s) => {
       const callSym = s.symbols.find((x: any) => x.symbol.endsWith("CE")) ?? s.symbols[0];
@@ -97,51 +85,19 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       };
     });
   }, [strikes]);
-  const VISIBLE_RANGE = 10; // 👈 tune this
-  const findClosestIndex = (ltp: number, rows: any[]) => {
-    if (!ltp || !rows.length) return 0;
-
-    let closestIdx = 0;
-    let diff = Math.abs(rows[0].strike - ltp);
-
-    rows.forEach((r, i) => {
-      const newDiff = Math.abs(r.strike - ltp);
-      if (newDiff < diff) {
-        diff = newDiff;
-        closestIdx = i;
-      }
-    });
-
-    return closestIdx;
-  };
-  const visibleRows = useMemo(() => {
-    if (!rows.length) return [];
-
-    const atmIndex = findClosestIndex(stableLtp, rows);
-
-    const start = Math.max(0, atmIndex - VISIBLE_RANGE);
-    const end = Math.min(rows.length, atmIndex + VISIBLE_RANGE);
-
-    return rows.slice(start, end);
-  }, [rows, stableLtp]);
   // const wsSeg = useMemo(() => mapApiToWsSegment(segment, "NSE"), [segment]);
 
   const wsSymbols = useMemo(() => {
     const list: string[] = [];
-    for (const r of visibleRows) {
+    for (const r of rows) {
       // console.log('RWsSymbol', r)
       if (r.callSymbol) list.push(r.callSymbol?.symbol);
       if (r.putSymbol) list.push(r.putSymbol?.symbol);
     }
     // unique
     return Array.from(new Set(list));
-  }, [visibleRows]);
-  // const [snapshotDone, setSnapshotDone] = useState(false);
+  }, [rows]);
 
-  // useEffect(() => {
-  //   // Whenever expiry changes, we want a fresh snapshot
-  //   setSnapshotDone(false);
-  // }, [selectedExpiry]);
   const [wsPrices, setWsPrices] = useState<Record<string, any>>({});
   const wsSeg = "NFO-OPT";
   const keyFor = (sym: string) => `${wsSeg}:${String(sym).toUpperCase()}`;
@@ -156,11 +112,6 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     setWsPrices({});
     // do NOT clear cache here if you want old values while loading new expiry
   }, [selectedExpiry]);
-  // const [cache, setCache] = useState<Record<string, any>>({});
-  // const mergeQuotes = (data: Record<string, any>) => {
-  //   setWsPrices(prev => ({ ...prev, ...data }));
-  //   setCache(prev => ({ ...prev, ...data })); // ✅ persistent
-  // };
   useEffect(() => {
     setWsPrices({}); // reset prices when expiry changes (optional)
   }, [selectedExpiry]);
@@ -206,10 +157,15 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       // console.log('Normalised', normalized);
       // console.log('KeyFor', keyForIndices(normalizedSymbol));
       // console.log('LiveValue', normalized[keyForIndices(normalizedSymbol)])
+      const liveLtp = normalized[keyForIndices(normalizedSymbol)]?.ltp;
+      const liveClose = normalized[keyForIndices(normalizedSymbol)]?.close;
+      if (liveLtp !== undefined && liveClose !== undefined) {
+        setDataReady(true);
+      }
       setWsPrices(prev => ({ ...prev, ...normalized }));
       setLive((prev) => ({
-        ...prev, ltp: normalized[keyForIndices(normalizedSymbol)]?.ltp,
-        close: normalized[keyForIndices(normalizedSymbol)]?.close,
+        ...prev, ltp: liveLtp,
+        close: liveClose,
       }));
     });
     clearTimeout(timeoutId);
@@ -217,6 +173,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       off();
       unregisterSubscription("optionChainOwner");
     };
+
   }, [wsSymbols]); // keep open; only re-run when symbol list changes
   type RowItem = { type: "row"; strike: number; callSymbol: string; putSymbol: string };
   type BoxItem = {
@@ -228,34 +185,13 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
   };
   // type DividerItem = { type: "divider"; id: string; strike: number };
   type ListItem = RowItem | BoxItem;
-  // const listWithDivider: ListItem[] = useMemo(() => {
-  //   if (!rows.length) return [];
 
-  //   const out: ListItem[] = [];
-
-  //   rows.forEach((r, idx) => {
-  //     out.push({
-  //       type: "row",
-  //       strike: r.strike,
-  //       callSymbol: r.callSymbol,
-  //       putSymbol: r.putSymbol,
-  //     });
-
-  //     if (idx === dividerIndex - 1) {
-  //       out.push({
-  //         type: "divider",
-  //         id: `divider-${r.strike}`,
-  //         strike: r.strike,
-  //       });
-  //     }
-  //   });
-
-  //   return out;
-  // }, [rows, dividerIndex]);
-  // const BOX_INDEX = 7;
   const CenterBoxRow = ({ ltp, close }: { ltp: number, close: number }) => {
-    const pctChange = close ? ((ltp - close) / close) * 100 : 0;
-    const displayLtp = ltp ? `${fmtMoney(ltp)} | ${fmtMoney(ltp)} | ${fmtPct(pctChange)}` : "0 | 0 (0.00%)";
+    if (ltp === undefined || close === undefined) return <OptionChainCenterBoxSkeleton />;
+    const absChange = ltp - close; // absolute change
+    const pctChange = close ? (absChange / close) * 100 : 0;
+    const displayLtp = `${fmtMoney(ltp)} | ${fmtMoney(absChange)} | ${fmtPct(pctChange)}`;
+
     return (
       <View style={styles.centerDividerRow}>
         <View style={styles.centerDividerLine} />
@@ -266,11 +202,9 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       </View>
     );
   };
-
   const findClosestStrike = (ltp: number, strikes: number[]): number => {
     let closest = strikes[0];
     let diff = Math.abs(ltp - closest);
-
     strikes.forEach((strike) => {
       const newDiff = Math.abs(ltp - strike);
       if (newDiff < diff) {
@@ -279,19 +213,19 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       }
     });
 
-    return closest;
+    return closest
+
   };
   const listWithBox: ListItem[] = useMemo(() => {
-    if (!visibleRows.length) return [];
-
+    if (!rows.length) return [];
     const out: ListItem[] = [];
     // const normalized: Record<string, any> = {};
     // const afterOfficeLtp = normalized[keyForIndices(normalizedSymbol)]?.ltp;
     // console.log('LiveListWithBox', live)
-    const strikesList = visibleRows.map((r: any) => r.strike); // List of all strikes
-    const closestStrike = findClosestStrike(stableLtp, strikesList); // Find closest strike to LTP
+    const strikesList = rows.map((r: any) => r.strike); // List of all strikes
+    const closestStrike = findClosestStrike(live.ltp, strikesList); // Find closest strike to LTP
     // @ts-ignore
-    visibleRows.forEach((r, idx) => {
+    rows.forEach((r, idx) => {
       // push row
       out.push({
         type: "row",
@@ -304,7 +238,7 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       if (r.strike === closestStrike) {
         out.push({
           type: "box",
-          id: `box-${r.strike}-${idx}`,
+          id: `box - ${r.strike} -${idx} `,
           strike: r.strike,
           ltp: live.ltp, // Pass LTP here
           close: live.close,
@@ -313,17 +247,30 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     });
 
     return out;
-  }, [visibleRows, live]);
-  // const keyFor = (sym: string) => `${String(wsSeg).toUpperCase()}:${String(sym).toUpperCase()}`;
+
+  }, [rows, live]);
+  // const keyFor = (sym: string) => `${ String(wsSeg).toUpperCase() }:${ String(sym).toUpperCase() } `;
   const renderRow = (item: { strike: number; callSymbol: any; putSymbol: any }) => {
     // console.log('Items', item)
     const callKey = keyFor(item.callSymbol.symbol);
     const putKey = keyFor(item.putSymbol.symbol);
     const call = wsPrices[callKey];
     const put = wsPrices[putKey];
+    // If data not ready yet, render skeleton
+    if (call?.ltp === undefined || put?.ltp === undefined) {
+      // Show skeleton only if data is actually missing
+      return (
+        // <View style={styles.rowWrap}>
+        //   <View style={[styles.cellLeft, styles.skeletonCell]} />
+        //   <View style={[styles.cellMid, styles.skeletonCell]} />
+        //   <View style={[styles.cellRight, styles.skeletonCell]} />
+        // </View>
+        <OptionChainRowSkeleton />
+      );
+    }
     // console.log('WSPricesinsideRender', call, put)
-    const callLtp = call?.ltp ?? 0;
-    const putLtp = put?.ltp ?? 0;
+    const callLtp = call?.ltp;
+    const putLtp = put?.ltp;
     const callPct = pctFromLtpClose(call?.ltp, call?.close);
     const putPct = pctFromLtpClose(put?.ltp, put?.close);
     // console.log('WSPricesinsideRenderCallLTPPutLtp', callLtp, putLtp)
@@ -331,7 +278,6 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     // const abs = Math.min(Math.abs(diff), 5); // clamp to 5%
     // const barWidthPct = 30 + (abs / 5) * 70; // 30%..100%
     const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
-
     // Use abs % changes as “strength”
     const callStrength = clamp(Math.abs(callPct), 0, 10); // cap at 10%
     const putStrength = clamp(Math.abs(putPct), 0, 10);
@@ -378,68 +324,82 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
       </View>
     );
   };
+  const isDatesLoading = !optionChainDatesData?.data?.data?.data?.length;
+  const isRowsLoading = !rows?.length;
+  const showSkeleton = !dataReady || isDatesLoading || isRowsLoading;
   return (
     <View style={styles.container}>
       {/* Top bar */}
-      <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => { }}>
-          <IconButton
-            vectorType="MaterialCommunityIcons"
-            name="keyboard-backspace"
-            onPress={() => navigation.goBack()}
-            color={mainColors.white}
-            backgroundColor={mainColors.black}
-          />
-        </TouchableOpacity>
+      {showSkeleton ? (
+        <>
+          <OptionChainHeaderSkeleton />
+          <OptionChainTableHeaderSkeleton />
+          <OptionChainSkeletonList />
+        </>
+      ) :
+        (
+          <>
+            <View style={styles.topBar}>
+              <TouchableOpacity style={styles.backBtn} onPress={() => { }}>
+                <IconButton
+                  vectorType="MaterialCommunityIcons"
+                  name="keyboard-backspace"
+                  onPress={() => navigation.goBack()}
+                  color={mainColors.white}
+                  backgroundColor={mainColors.black}
+                />
+              </TouchableOpacity>
+              < Text style={styles.title}>{symbol}</Text>
+              <Dropdown
+                data={dropDownData}
+                labelField="label"
+                valueField="value"
+                placeholder="Select"
+                value={selectedExpiry}
+                containerStyle={{ borderRadius: 10, borderWidth: 1, borderColor: mainColors.inputBorder, overflow: 'hidden' }}
+                selectedTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(10) }}
+                style={{ borderWidth: 1, borderColor: mainColors.inputBorder, height: scaler(25), width: scaler(110), borderRadius: 15, paddingHorizontal: scaler(10) }}
+                itemTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(8) }}
+                itemContainerStyle={{ backgroundColor: mainColors.black }}
+                onChange={item => setSelectedExpiry(item.value)}
+                activeColor={mainColors.inputBorder}
+              />
+            </View >
 
-        <Text style={styles.title}>{symbol}</Text>
-        <Dropdown
-          data={dropDownData}
-          labelField="label"
-          valueField="value"
-          placeholder="Select"
-          value={selectedExpiry}
-          containerStyle={{ borderRadius: 10, borderWidth: 1, borderColor: mainColors.inputBorder, overflow: 'hidden' }}
-          selectedTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(10) }}
-          style={{ borderWidth: 1, borderColor: mainColors.inputBorder, height: scaler(25), width: scaler(110), borderRadius: 15, paddingHorizontal: scaler(10) }}
-          itemTextStyle={{ color: mainColors.white, fontFamily: fontFamily.poppinsRegular, fontSize: scaler(8) }}
-          itemContainerStyle={{ backgroundColor: mainColors.black }}
-          onChange={item => setSelectedExpiry(item.value)}
-          activeColor={mainColors.inputBorder}
-        />
-      </View>
+            {/* Column headers */}
+            < View style={styles.headerRow} >
+              <Text style={[styles.headerText, styles.headerLeft]}>Call LTP</Text>
+              <Text style={[styles.headerText, styles.headerMid]}>Strike</Text>
+              <Text style={[styles.headerText, styles.headerRight]}>Put LTP</Text>
+            </View >
 
-      {/* Column headers */}
-      <View style={styles.headerRow}>
-        <Text style={[styles.headerText, styles.headerLeft]}>Call LTP</Text>
-        <Text style={[styles.headerText, styles.headerMid]}>Strike</Text>
-        <Text style={[styles.headerText, styles.headerRight]}>Put LTP</Text>
-      </View>
+            {/* List */}
+            < FlatList
+              data={listWithBox}
+              keyExtractor={(item, index) =>
+                item.type === "box" ? item.id : `${item.strike}-${index}`
+              }
+              renderItem={({ item }) => {
+                // console.log('ItemInsideFlatListDirect', item)
+                if (item.type === "box") {
+                  // example text like figma: 23950.00 | 23950.00 (0.00%)
+                  // const boxText = `${fmtMoney(item.strike)}  |  ${fmtMoney(item.strike)} (0.00%)`;
+                  return <CenterBoxRow ltp={item.ltp} close={item?.close} />;
+                }
 
-      {/* List */}
-      <FlatList
-        data={listWithBox}
-        keyExtractor={(item, index) =>
-          item.type === "box" ? item.id : `${item.strike}-${index}`
-        }
-        renderItem={({ item }) => {
-          // console.log('ItemInsideFlatListDirect', item)
-          if (item.type === "box") {
-            // example text like figma: 23950.00 | 23950.00 (0.00%)
-            // const boxText = `${fmtMoney(item.strike)}  |  ${fmtMoney(item.strike)} (0.00%)`;
-            return <CenterBoxRow ltp={item.ltp} close={item?.close} />;
-          }
-
-          return renderRow(item); // IMPORTANT: renderRow(item) not renderRow({item})
-        }}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
+                return renderRow(item); // IMPORTANT: renderRow(item) not renderRow({item})
+              }}
+              contentContainerStyle={styles.listContent}
+              showsVerticalScrollIndicator={false}
+            />
+          </>
+        )}
       {/* Bottom */}
       {/* <View style={styles.bottomArea}>
-        <Text style={styles.bottomLabel}>Max Pain</Text>
-        <Text style={styles.bottomValue}>260000</Text>
-      </View> */}
-    </View>
+    <Text style={styles.bottomLabel}>Max Pain</Text>
+    <Text style={styles.bottomValue}>260000</Text>
+  </View> */}
+    </View >
+
   );
 }

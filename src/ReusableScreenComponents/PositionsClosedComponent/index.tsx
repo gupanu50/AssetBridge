@@ -11,12 +11,12 @@ import moment from 'moment';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
 import { downloadExcelToDownloads, formatAmount } from '../../ReusableComponents/commonFunctions';
 import snackbarHandler from '../../Utils/snackbarHandler';
-const PositionsClosedComponent = () => {
-  const { data } = usePostionsOpenQuery('closed');
+const PositionsClosedComponent = (props?: any) => {
+  const { data } = usePostionsOpenQuery('closed', props?.symbol);
   const flatData = data?.data?.data?.results;
   const [input, setInput] = useState('');
   const totalData = data?.data?.data?.total_invested_value
-  console.log('dataClosedPostions', data?.data?.data);
+  // console.log('dataClosedPostions', data?.data?.data);
 
   const renderCardData = ({ item }: { item: FlatItem }) => {
     const statusColor =

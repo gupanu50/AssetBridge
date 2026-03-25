@@ -119,7 +119,7 @@ export const styles = StyleSheet.create({
   viewAllCard: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: scaler(110),
+    height: scaler(135),
   },
   viewAllText: {
     fontFamily: fontFamily.poppinsRegular,

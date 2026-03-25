@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { fetcher } from '../../../Utils/helper';
 import { ExitApiProps } from './types';
 const exitPositions = async (data: ExitApiProps): Promise<AxiosResponse<any>> => {
-    console.log('DataExitPositions', data)
+    // console.log('DataExitPositions', data)
     return fetcher
         ({
             url: '/api/v1/positions/exit-positions/',

@@ -1,4 +1,4 @@
-import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Linking, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import IconButton from '../../../ReusableComponents/iconButton'
 import { Images } from '../../../Assets'
@@ -13,6 +13,9 @@ import { MainStackScreenProps } from '../../../Navigation/NavigationTypes/screen
 import useChangePasswordProfileMutation from '../Hooks/useChangePasswordMutation'
 import snackbarHandler from '../../../Utils/snackbarHandler'
 import useUpdateProfileMutation from '../Hooks/useUpdateProfileMutation'
+import useIIFLLoginQuery from '../Hooks/useIIFLLoginMutation'
+import useProfilePhotoMutation from '../Hooks/useProfilePhotoMutation'
+import useMedia from '../Hooks/useMedia'
 type Props = MainStackScreenProps<'ProfileSettings'>;
 const ProfileSettingsScreen = ({ navigation, route }: Props) => {
     const [mail, setMail] = useState('');
@@ -30,6 +33,31 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
     const [secureText2, setSecureText2] = useState(true);
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
     const profileData = route?.params?.profileData;
+    const { data: IIFLData } = useIIFLLoginQuery();
+    // console.log('ProfileData', profileData);
+    // console.log('ProfileDataIIFLData', IIFLData, error);
+    const iiflURL = IIFLData?.data?.data?.data?.login_url;
+    const [image, setImage] = useState<any>('');
+    const { mutate: photoMutate } = useProfilePhotoMutation();
+    const { launchGallery } = useMedia((imageData) => {
+        const encodedImage = imageData;
+        // console.log('EncodedImage', encodedImage);
+        if (Array.isArray(imageData)) {
+            // setEventImage(encodedImage);
+        } else {
+            setImage(encodedImage);
+            photoMutate({ encodedImage }, {
+                onSuccess: (res) => {
+                    // console.log('Res', res)
+                    snackbarHandler.successToast(res?.data?.data?.message)
+                },
+                onError: (err) => {
+                    const message = getApiErrorMessage(err);
+                    snackbarHandler.errorToast(message)
+                }
+            })
+        }
+    });
     const onBtnPressed = () => {
         if (!oldPass) {
             setErrorOld('Please enter Old Password');
@@ -85,11 +113,28 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
             <CommonDrawerBackHeader title='Profile Settings' navigation={navigation} />
             <View style={styles.headerRow}>
                 <View style={styles.avatarWrap}>
-                    <Image
-                        source={Images.dummyProfile}
-                        style={styles.avatar}
-                    />
-                    <TouchableOpacity activeOpacity={0.85} style={styles.avatarDownBtn}>
+                    {image ?
+                        <Image
+                            source={{ uri: image?.path }}
+                            style={styles.avatar}
+                            borderRadius={100 / 2}
+                        /> :
+                        profileData?.profile_picture_url ?
+                            <Image
+                                source={{ uri: profileData?.profile_picture_url }}
+                                style={styles.avatar}
+                                borderRadius={100 / 2}
+                            /> :
+                            < Image
+                                source={Images.dummyProfile}
+                                style={styles.avatar}
+                                borderRadius={100 / 2}
+                            />}
+                    <TouchableOpacity activeOpacity={0.85} style={styles.avatarDownBtn} onPress={() => launchGallery({
+                        mediaType: 'photo',
+                        compressImageMaxHeight: 800,
+                        compressImageMaxWidth: 800,
+                    })}>
                         <IconButton name="upload" vectorType="AntDesign" size={scaler(13)} color={mainColors.white} />
                     </TouchableOpacity>
                 </View>
@@ -100,7 +145,7 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
                     <Text style={styles.headerPhone}>{`${profileData?.contact}`}</Text>
                 </View>
 
-                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => setShowTooltip(true)}>
+                <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => { iiflURL ? Linking.openURL(iiflURL) : setShowTooltip(true) }}>
                     <Image source={Images.profileBadge} resizeMode='contain' style={styles.imgView} tintColor={profileData?.broker_auth?.color} />
                 </TouchableOpacity>
                 {showTooltip && <Modal

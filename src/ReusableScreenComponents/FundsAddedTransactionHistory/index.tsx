@@ -25,7 +25,7 @@ const FundsAddedComponent = () => {
         const word = parts[0];
         return word.slice(0, 2).toUpperCase();
     };
-    console.log('DataTransactionHistory', data?.data?.data?.results);
+    // console.log('DataTransactionHistory', data?.data?.data?.results);
     const transactionData = data?.data?.data?.results;
     const renderTransactionItem = ({ item }: any) => (
         <View style={styles.transactionContainer}>

@@ -14,28 +14,16 @@ import scaler from '../Utils/scaler';
 import { PropCommonCardTypes } from './commonTypes';
 import IconButton from './iconButton';
 import { LineChart } from 'react-native-wagmi-charts';
+import { formatAmount, getInitials } from './commonFunctions';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 
 const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
-  const getInitials = (name?: string) => {
-    const n = (name || '').trim();
-    if (!n) return '?';
-
-    const parts = n.split(/\s+/).filter(Boolean);
-
-    // If multiple words => first char of first + first char of last
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-
-    // Single word => first 2 chars
-    const word = parts[0];
-    return word.slice(0, 2).toUpperCase();
-  };
   type Point = { timestamp: number; value: number };
   const DAY = 24 * 60 * 60 * 1000;
-
+  const rangeOptions = ["1M", "6M", "1Y", "3Y", "5Y", "ALL"] as const;
+  const [range, setRange] = useState<RangeType>("1M");
+  type RangeType = typeof rangeOptions[number];
   const genSeries = (
     points: number,
     startValue: number,
@@ -53,7 +41,14 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
     }
     return out;
   };
-
+  const onArrowPress = (direction: "left" | "right") => {
+    const currentIndex = rangeOptions.indexOf(range);
+    if (direction === "left" && currentIndex > 0) {
+      setRange(rangeOptions[currentIndex - 1]);
+    } else if (direction === "right" && currentIndex < rangeOptions.length - 1) {
+      setRange(rangeOptions[currentIndex + 1]);
+    }
+  };
   const buildRangeData = (range: "1M" | "6M" | "1Y" | "3Y" | "5Y" | "ALL") => {
     // keep points reasonable for mobile performance
     const pointsMap = { "1M": 30, "6M": 90, "1Y": 120, "3Y": 180, "5Y": 220, "ALL": 260 } as const;
@@ -69,19 +64,9 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
     return { prices, shadow };
   };
 
-  const bottomDateLabels = (data: { timestamp: number }[], count: number) => {
-    if (!data.length) return [];
-    const step = Math.max(1, Math.floor(data.length / (count - 1)));
-    const idxs: number[] = [];
-    for (let i = 0; i < data.length; i += step) idxs.push(i);
-    if (idxs[idxs.length - 1] !== data.length - 1) idxs.push(data.length - 1);
-
-    return idxs.slice(0, count).map(i => String(new Date(data[i].timestamp).getDate()));
-  };
-
 
   const [activeDayMonthMoverTab, setActiveDayMonthMoverTab] = useState('Month');
-  const [range, setRange] = useState<"1M" | "6M" | "1Y" | "3Y" | "5Y" | "ALL">("1M");
+  // const [range, setRange] = useState<"1M" | "6M" | "1Y" | "3Y" | "5Y" | "ALL">("1M");
 
   const { prices, shadow } = React.useMemo(() => buildRangeData(range), [range]);
   const ltpColor = String(props.ltpChange || '')
@@ -96,43 +81,6 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
     ? mainColors.red
     : mainColors.green;
 
-  const pnlColor = String(props.pAndLChange || '')
-    .trim()
-    .startsWith('-')
-    ? mainColors.red
-    : mainColors.green;
-  const lineData1M = [
-    { timestamp: 1704067200000, value: 92.1 },
-    { timestamp: 1704153600000, value: 92.6 },
-    { timestamp: 1704240000000, value: 93.2 },
-    { timestamp: 1704326400000, value: 93.0 },
-    { timestamp: 1704412800000, value: 93.8 },
-    { timestamp: 1704499200000, value: 94.1 },
-    { timestamp: 1704585600000, value: 94.0 },
-    { timestamp: 1704672000000, value: 94.7 },
-    { timestamp: 1704758400000, value: 95.2 },
-    { timestamp: 1704844800000, value: 95.0 },
-    { timestamp: 1704931200000, value: 95.6 },
-    { timestamp: 1705017600000, value: 96.1 },
-    { timestamp: 1705104000000, value: 96.0 },
-    { timestamp: 1705190400000, value: 96.8 },
-    { timestamp: 1705276800000, value: 97.4 },
-    { timestamp: 1705363200000, value: 97.1 },
-    { timestamp: 1705449600000, value: 97.9 },
-    { timestamp: 1705536000000, value: 98.3 },
-    { timestamp: 1705622400000, value: 98.0 },
-    { timestamp: 1705708800000, value: 98.6 },
-    { timestamp: 1705795200000, value: 99.1 },
-    { timestamp: 1705881600000, value: 98.9 },
-    { timestamp: 1705968000000, value: 99.5 },
-    { timestamp: 1706054400000, value: 100.2 },
-    { timestamp: 1706140800000, value: 100.0 },
-    { timestamp: 1706227200000, value: 100.7 },
-    { timestamp: 1706313600000, value: 101.4 },
-    { timestamp: 1706400000000, value: 101.1 },
-    { timestamp: 1706486400000, value: 101.9 },
-    { timestamp: 1706572800000, value: 102.4 },
-  ];
 
   return (
     <View style={styles.featureCardWrapper}>
@@ -164,33 +112,33 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
           >
             <TouchableOpacity
               activeOpacity={0.85}
-              onPress={() => setActiveDayMonthMoverTab('Day')}
-              style={[styles.moverDaySegmentBtn]}
+              onPress={() => onArrowPress("left")}
+              disabled={range === "1M"} // disable when at first
+              style={[styles.moverDaySegmentBtn, range === "1M" && { opacity: 0.4 }]}
             >
               <IconButton
                 vectorType="MaterialCommunityIcons"
+                onPress={() => onArrowPress("left")}
                 name="chevron-left"
-                color={mainColors.descText}
+                color={mainColors.white}
               />
             </TouchableOpacity>
 
             <TouchableOpacity
               activeOpacity={0.85}
-              onPress={() => setActiveDayMonthMoverTab('Month')}
-              style={[
-                styles.moverDayMonthSegmentBtn,
-                // activeDayMonthMoverTab === 'Month' &&
-                //   styles.moverDayMonthSegmentBtnActive,
-              ]}
+              onPress={() => onArrowPress("right")}
+              disabled={range === "ALL"} // disable when at last
+              style={[styles.moverDayMonthSegmentBtn, range === "ALL" && { opacity: 0.4 }]}
             >
               <IconButton
                 name="chevron-right"
+                onPress={() => onArrowPress("right")}
                 color={mainColors.white}
                 vectorType="MaterialCommunityIcons"
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.monthText}>1M</Text>
+          <Text style={styles.monthText}>{range}</Text>
           <TouchableOpacity onPress={props?.onPress}>
             <Image
               source={Images.swiperView}
@@ -204,8 +152,8 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>PNL Value</Text>
             <View style={styles.statValueRow}>
-              <Text style={styles.statValue}>{props.ltp}</Text>
-              <View style={styles.swiperPnlView}>
+              <Text style={[styles.statValue, { marginRight: scaler(4) }]}>{formatAmount(props.ltp)}</Text>
+              <View style={[styles.swiperPnlView, { paddingHorizontal: scaler(4) }]}>
                 <Image
                   source={Images.swiperUp}
                   resizeMode="contain"
@@ -247,7 +195,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
           >
             <Text style={[styles.statLabel, { paddingLeft: 5 }]}>Max DD</Text>
             <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-              <Text style={styles.statValue}>{props.pAndL}</Text>
+              <Text style={styles.statValue}>{formatAmount(props.pAndL)}</Text>
               <View style={styles.swiperMaxDDView}>
                 <Image
                   source={Images.swiperDown}
@@ -286,15 +234,21 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
             </LineChart.Provider>
           </View>
           <View style={styles.flexView1}>
-            {(["1M", "6M", "1Y", "3Y", "5Y", "ALL"] as const).map((t) => {
+            {rangeOptions.map((t) => {
               const active = range === t;
               return (
                 <TouchableOpacity
                   key={t}
                   onPress={() => setRange(t)}
-                  style={[styles.buttonsView, { backgroundColor: active ? "#0072BC" : '#1F1F1F', }]}
+                  style={[styles.buttonsView, { backgroundColor: active ? "#0072BC" : '#1F1F1F' }]}
                 >
-                  <Text style={{ color: active ? mainColors.white : mainColors.headingTextColor, fontSize: scaler(11), fontFamily: fontFamily.poppinsRegular }}>
+                  <Text
+                    style={{
+                      color: active ? mainColors.white : mainColors.headingTextColor,
+                      fontSize: scaler(11),
+                      fontFamily: fontFamily.poppinsRegular,
+                    }}
+                  >
                     {t}
                   </Text>
                 </TouchableOpacity>
@@ -416,7 +370,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontFamily: fontFamily.poppinsRegular,
     color: mainColors.white,
-    fontSize: scaler(8),
+    fontSize: scaler(9),
     opacity: 0.65,
   },
   statValueRow: {
@@ -427,12 +381,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.white,
-    fontSize: scaler(12),
+    fontSize: scaler(10),
     marginRight: scaler(6),
   },
   statChange: {
     fontFamily: fontFamily.poppinsRegular,
-    fontSize: scaler(10),
+    fontSize: scaler(8),
   },
   featureActionsRow: {
     flexDirection: 'row',

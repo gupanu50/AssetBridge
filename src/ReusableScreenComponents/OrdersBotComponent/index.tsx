@@ -21,7 +21,7 @@ const OrderBotComponent = (bot_id: any) => {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const { data, error } = useBotOrdersQuery(bot_id);
   const orderData = data?.data?.data?.results;
-  console.log('OrderData', orderData);
+  // console.log('OrderData', orderData);
   const ORDER_OWNER_ID = "orderComponent"; // Use a unique ID for this screen
   const [tick, setTick] = useState(0);
   const [input, setInput] = useState('');

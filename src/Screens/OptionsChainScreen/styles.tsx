@@ -107,8 +107,8 @@ export const styles = StyleSheet.create({
   tickRed: { backgroundColor: mainColors.red },
   tickNone: { backgroundColor: mainColors.white },
 
-  green: { color: mainColors.green },
-  red: { color: mainColors.red },
+  green: { color: mainColors.greenText },
+  red: { color: mainColors.redText },
 
   bottomArea: {
     paddingVertical: scaler(10),
@@ -218,4 +218,10 @@ export const styles = StyleSheet.create({
     backgroundColor: mainColors.green,
     transform: [{ translateX: 1 }], // tiny center gap effect
   },
+  skeletonCell: {
+    height: 40,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    marginVertical: 2,
+  }
 });

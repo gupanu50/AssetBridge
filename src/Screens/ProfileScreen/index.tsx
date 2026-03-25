@@ -42,9 +42,9 @@ const ProfileScreen = ({ navigation }: Props) => {
     const isFocused = useIsFocused();
     const { data, refetch } = useProfileQuery();
     const profileData = data?.data?.data[0]
-    const { data: IIFLData, error } = useIIFLLoginQuery();
-    console.log('ProfileData', profileData);
-    console.log('ProfileDataIIFLData', IIFLData, error);
+    const { data: IIFLData } = useIIFLLoginQuery();
+    // console.log('ProfileData', profileData);
+    // console.log('ProfileDataIIFLData', IIFLData, error);
     const iiflURL = IIFLData?.data?.data?.data?.login_url;
     const [showTooltip, setShowTooltip] = useState(false);
     const [image, setImage] = useState<any>('');

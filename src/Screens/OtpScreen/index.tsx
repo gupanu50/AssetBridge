@@ -20,6 +20,7 @@ const OtpScreen = ({ navigation, route }: Props) => {
   const nav = route?.params?.navScr || 'login';
   const [input, setInput] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(59);
+  const [isNav, setIsNav] = useState(false);
   const { mutate } = useOtpMutation();
   const dispatch = useDispatch();
   const { mutate: resendMutation } = useResendMutation();
@@ -82,11 +83,13 @@ const OtpScreen = ({ navigation, route }: Props) => {
     },
       {
         onSuccess: response => {
-          dispatch(login(response?.data?.data))
+          dispatch(login(response?.data?.data));
+          setIsNav(true);
         },
         onError: er => {
           snackbarHandler.errorToast('Invalid OTP or OTP is expired');
           setErrorInput('Wrong OTP Entered');
+          setIsNav(false);
         },
       },)
   }
@@ -147,8 +150,8 @@ const OtpScreen = ({ navigation, route }: Props) => {
           </View>
           <CommonButton
             label="Login"
-            backgroundColor={(errorInput || input.length < 4) ? mainColors.inputBorder : mainColors.mainButton}
-            disabled={(errorInput || input.length < 4) ? true : false}
+            backgroundColor={(errorInput || input.length < 4 || !isNav) ? mainColors.inputBorder : mainColors.mainButton}
+            disabled={(errorInput || input.length < 4 || !isNav) ? true : false}
             extraStyle={styles.loginStyle}
             onPress={() => navFunc()}
           />

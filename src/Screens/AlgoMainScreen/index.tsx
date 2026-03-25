@@ -110,12 +110,12 @@ const AlgoMainScreen = ({ navigation, route }: Props) => {
                 <Text style={styles.companyNameText}>{routeParams?.name}</Text>
                 <Text style={styles.deployedText}>Deployed Capital: <Text style={{ color: mainColors.greenText }}>₹ {formatAmount(routeParams?.price)}</Text></Text>
               </View>
-              <IconButton
+              {/* <IconButton
                 name="chevron-right"
                 color={mainColors.white}
                 style={{ paddingBottom: scaler(22) }}
                 vectorType="MaterialCommunityIcons"
-              />
+              /> */}
             </View>
             <View style={styles.innerBoxView1}>
               <View style={[styles.pnlView, { width: scaler(150) }]}>

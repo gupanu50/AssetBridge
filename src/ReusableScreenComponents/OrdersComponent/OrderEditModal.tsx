@@ -1,5 +1,5 @@
-import { Modal, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import { Alert, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { EditModalProps } from './types'
 import scaler from '../../Utils/scaler'
 import IconButton from '../../ReusableComponents/iconButton'
@@ -8,13 +8,18 @@ import CommonTextInput from '../../ReusableComponents/commonTextInput'
 import CommonButton from '../../ReusableComponents/commonButton'
 import useEditOrderMutation from './Hooks/useEditOrderMutation'
 import snackbarHandler from '../../Utils/snackbarHandler'
+import { Images } from '../../Assets'
 
 const OrderEditModal = (props: EditModalProps) => {
-    console.log('PropsSelectedItem', props?.selectedItem)
+    console.log('PropsSelectedItemEditModal', props?.selectedItem)
     const seletedData = props?.selectedItem;
     const { mutate } = useEditOrderMutation();
-    const [value, setValue] = useState(seletedData?.limit_price);
-    const [valueQuamtity, setValueQuantity] = useState(seletedData?.quantity)
+    const [value, setValue] = useState<any>();
+    const [valueQuamtity, setValueQuantity] = useState('')
+    useEffect(() => {
+        setValue(seletedData?.limit_price || '');
+        setValueQuantity(seletedData?.quantity || '');
+    }, [seletedData]);
     const submitPress = () => {
         mutate({
             id: seletedData?.id || 0,
@@ -22,14 +27,27 @@ const OrderEditModal = (props: EditModalProps) => {
             quantity: Number(valueQuamtity),
         }, {
             onSuccess: () => {
-                snackbarHandler.successToast('Order Edit Successfully')
+                snackbarHandler.successToast('Order Edit Successfully');
+                props?.setVisible(false)
             },
             onError: (err) => {
                 const message = getApiErrorMessage(err);
                 snackbarHandler.errorToast(message);
+                props?.setVisible(false)
             }
         })
-    }
+    };
+    const bumpMarketPrice = (delta: number) => {
+        setValue((prev: any) => {
+            const n =
+                typeof prev === 'number'
+                    ? prev
+                    : parseFloat(String(prev).replace(/[^\d.]/g, '')) || 0;
+
+            const next = n + delta;
+            return next < 0 ? 0 : next; // prevent negative
+        });
+    };
     return (
         <Modal visible={props?.visibile} transparent={true} animationType='slide'>
             <View style={styles.main}>
@@ -43,9 +61,24 @@ const OrderEditModal = (props: EditModalProps) => {
                     />
                     <Text style={styles.titleText}>{seletedData?.symbol}</Text>
                     <Text style={styles.labelText}>Limit Price</Text>
-                    <CommonTextInput value={value} setValue={setValue} containerStyle={styles.input} />
+                    {/* <CommonTextInput value={String(value)} setValue={setValue} containerStyle={styles.input} /> */}
+                    <View style={styles.imgView}>
+                        <TouchableOpacity onPress={() => bumpMarketPrice(-1)}>
+                            <Image source={Images.decrease} resizeMode='contain' style={styles.img} />
+                        </TouchableOpacity>
+                        <CommonTextInput
+                            value={String(value)}
+                            setValue={setValue}
+                            keyboardType='numeric'
+                            style={styles.onlyWidth}
+                            containerStyle={styles.inputContainerStyle}
+                        />
+                        <TouchableOpacity onPress={() => bumpMarketPrice(+1)}>
+                            <Image source={Images.increase} resizeMode='contain' style={styles.img} />
+                        </TouchableOpacity>
+                    </View>
                     <Text style={styles.labelText}>Quantity</Text>
-                    <CommonTextInput value={valueQuamtity} setValue={setValueQuantity} containerStyle={styles.input} />
+                    <CommonTextInput value={String(valueQuamtity)} setValue={setValueQuantity} containerStyle={styles.input} />
                     <CommonButton label='Submit' extraStyle={{ height: scaler(40), marginTop: scaler(15) }} onPress={() => submitPress()} />
                 </View>
             </View>
@@ -86,5 +119,21 @@ const styles = StyleSheet.create({
     },
     input: {
         height: scaler(40)
-    }
+    },
+    imgView: {
+        flexDirection: 'row'
+    },
+    inputContainerStyle: {
+        height: scaler(50),
+        width: scaler(150),
+        marginHorizontal: scaler(5)
+    },
+    onlyWidth: {
+        width: '100%',
+        color: mainColors.white
+    },
+    img: {
+        height: scaler(50),
+        width: scaler(60)
+    },
 })

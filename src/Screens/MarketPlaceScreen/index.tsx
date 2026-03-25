@@ -68,7 +68,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
       bot_id: parseInt(route?.params?.cardData?.bot_id)
     }, {
       onSuccess: async (res) => {
-        console.log('PaymentOrderCreateApiSuccess', res);
+        // console.log('PaymentOrderCreateApiSuccess', res);
         let resData = res?.data?.data;
         // snackbarHandler.successToast('Subscribed successfully!');
         setShowRiskModal(false);
@@ -81,8 +81,8 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
           contact: profileData?.contact ?? '',
           name: `${profileData?.first_name ?? ''} ${profileData?.last_name ?? ''}`.trim(),
         });
-        console.log('ResultRazorPay', result?.data);
-        console.log('RazorPayIds', result?.data?.razorpay_order_id, result?.data?.razorpay_payment_id, result?.data?.razorpay_signature)
+        // console.log('ResultRazorPay', result?.data);
+        // console.log('RazorPayIds', result?.data?.razorpay_order_id, result?.data?.razorpay_payment_id, result?.data?.razorpay_signature)
         if (result.ok) {
           verifyPaymentMutate({
             razorpay_order_id: result?.data?.razorpay_order_id,
@@ -90,7 +90,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
             razorpay_signature: result?.data?.razorpay_signature
           }, {
             onSuccess: (res) => {
-              console.log('ResPaymentVerify', res)
+              // console.log('ResPaymentVerify', res)
               snackbarHandler.successToast('Payment is successfully verified');
               navigation.goBack();
             },
@@ -111,11 +111,11 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
       },
     });
   }
-  console.log('MarketPlaceRouteParams', route?.params?.cardData)
+  // console.log('MarketPlaceRouteParams', route?.params?.cardData)
   type Point = { timestamp: number; value: number };
   const DAY = 24 * 60 * 60 * 1000;
   const cardData = route?.params?.cardData;
-  console.log('CardDataMarketPlaceScreen', cardData)
+  // console.log('CardDataMarketPlaceScreen', cardData)
   const genSeries = (
     points: number,
     startValue: number,

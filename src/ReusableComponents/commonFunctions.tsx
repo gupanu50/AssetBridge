@@ -47,6 +47,7 @@ export function buildSearchIndex(contractsObj?: ContractsObj | null): SearchItem
                 symbol,
                 fullName,
                 fullNameLower: fullName.toLowerCase(),
+                symbolLower: symbol.toLowerCase(),
                 segment,
             });
         }
@@ -58,12 +59,18 @@ export function searchItems(items: SearchItem[], q: string, limit = 30): SearchI
     const query = q.trim().toLowerCase();
     if (!query) return [];
 
-    const matches = items.filter((it) => it.fullNameLower.includes(query));
+    const matches = items.filter((it) =>
+        it.fullNameLower.includes(query) ||  // ✅ existing
+        it.symbolLower.includes(query)       // ✅ new
+    );
 
     // prefer startsWith
     matches.sort((a, b) => {
-        const aStarts = a.fullNameLower.startsWith(query) ? 0 : 1;
-        const bStarts = b.fullNameLower.startsWith(query) ? 0 : 1;
+        const aStarts =
+            a.fullNameLower.startsWith(query) || a.symbolLower.startsWith(query) ? 0 : 1;
+
+        const bStarts =
+            b.fullNameLower.startsWith(query) || b.symbolLower.startsWith(query) ? 0 : 1;
         if (aStarts !== bStarts) return aStarts - bStarts;
         return a.fullName.length - b.fullName.length;
     });

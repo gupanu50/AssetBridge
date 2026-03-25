@@ -31,7 +31,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
     refetchInterval: isMarketHours ? 3000 : false
   });
   const tradingBotData = tradingData?.data?.data;
-  console.log('TradingBotDataMarketPlace', tradingBotData)
+  // console.log('TradingBotDataMarketPlace', tradingBotData)
   const { mutate: startStopBotMutate } = useStartStopBotMutation();
   const { mutate: subscribeMutate } = useCreatePaymentOrderMutation();
   const subs = (id: string) => {
@@ -43,7 +43,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
       bot_id: parseInt(id)
     }, {
       onSuccess: async (res: any) => {
-        console.log('PaymentOrderCreateApiSuccess', res);
+        // console.log('PaymentOrderCreateApiSuccess', res);
         let resData = res?.data?.data;
         // snackbarHandler.successToast('Subscribed successfully!');
         setShowRiskModal(false);
@@ -63,7 +63,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
             razorpay_signature: result?.data?.razorpay_signature
           }, {
             onSuccess: (res) => {
-              console.log('ResPaymentVerify', res)
+              // console.log('ResPaymentVerify', res)
               snackbarHandler.successToast('Payment is successfully verified');
               refetch();
             },
@@ -78,7 +78,7 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
         }
       },
       onError: (err: any) => {
-        console.log('PaymentOrderCreateApiError', err);
+        // console.log('PaymentOrderCreateApiError', err);
         const message = getApiErrorMessage(err) || 'Subscription failed';
         snackbarHandler.errorToast(message);
       },
@@ -109,12 +109,12 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
         },
         {
           onSuccess: (res: any) => {
-            console.log('StartBotResponse', res);
+            // console.log('StartBotResponse', res);
             refetch();
             snackbarHandler.successToast('Bot started successfully');
           },
           onError: (err: any) => {
-            console.log('StartBotError', err);
+            // console.log('StartBotError', err);
             snackbarHandler.errorToast(getApiErrorMessage(err) || 'Failed to start bot');
           },
         }
@@ -130,12 +130,12 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
         },
         {
           onSuccess: (res: any) => {
-            console.log('StopBotResponse', res);
+            // console.log('StopBotResponse', res);
             refetch();
             snackbarHandler.successToast('Bot paused successfully');
           },
           onError: (err: any) => {
-            console.log('StopBotError', err);
+            // console.log('StopBotError', err);
             snackbarHandler.errorToast(getApiErrorMessage(err) || 'Failed to pause bot');
           },
         }

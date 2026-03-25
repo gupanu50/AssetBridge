@@ -1,4 +1,4 @@
-import { Image, ImageBackground, Text, View } from 'react-native';
+import { Image, ImageBackground, Text, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import scaler from '../../Utils/scaler';
 import CommonButton from '../../ReusableComponents/commonButton';
@@ -9,6 +9,8 @@ import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTyp
 import CommonLoader from '../../ReusableComponents/commonLoader';
 import useForgetMutation from './Hooks/useForgetMutation';
 import snackbarHandler from '../../Utils/snackbarHandler';
+import IconButton from '../../ReusableComponents/iconButton';
+import { mainColors } from '../../Utils/helper';
 type Props = MainStackScreenProps<'Forget'>;
 const ForgetPassword = ({ navigation }: Props) => {
   const [value, setValue] = useState('');
@@ -39,6 +41,11 @@ const ForgetPassword = ({ navigation }: Props) => {
         },
       },)
   }
+  const crossPress = () => {
+    if (value) {
+      setValue('')
+    }
+  }
   return (
     <View style={styles.container}>
       <ImageBackground source={Images.onboardBg} style={styles.backgroundImg} resizeMode='stretch'>
@@ -61,9 +68,24 @@ const ForgetPassword = ({ navigation }: Props) => {
           </Text>
           <CommonTextInput
             value={value}
+            keyboardType='numeric'
             setValue={(text) => { setValueError(''), setValue(text) }}
             placeholder='Enter Your Mobile Number'
             errorMessage={valueError}
+            rightImage={
+              <TouchableOpacity
+                testID="togglePasswordIcon"
+                style={styles.eyeIcon}
+              >
+                <IconButton
+                  onPress={() => crossPress()}
+                  name={value ? 'close' : 'phone'}
+                  vectorType="MaterialCommunityIcons"
+                  size={scaler(28)}
+                  color={valueError ? mainColors.sellButton : mainColors.inputLabel}
+                />
+              </TouchableOpacity>
+            }
           />
           <CommonButton label="Send Otp" extraStyle={styles.loginStyle} onPress={() => onBtnPressed()} />
         </View>
