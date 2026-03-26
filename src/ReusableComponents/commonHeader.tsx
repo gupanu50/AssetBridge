@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     color: mainColors.white
   },
   list: {
-    maxHeight: scaler(650), // ✅ dropdown height (scroll inside this)
+    height: scaler(650),
   },
   listContent: {
     paddingVertical: 0,

@@ -13,23 +13,8 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
     // console.log('DataLtp', data?.data);
     const isMarketOpen = isMarketOpenIST();
     const offlineLtp = data?.data?.data?.results;
+    // console.log('OfflineLtp',offlineLtp)
     const WANT: IndexKey[] = ['NIFTY50', 'SENSEX', 'NIFTYBANK'];
-    // Build previous_close map from API
-    // const previousCloseMap = useMemo(() => {
-    //     const map: Record<string, number> = {};
-
-    //     offlineLtp?.forEach((item: any) => {
-    //         const symbol = String(item?.symbol || '').trim();
-    //         const previousClose = Number(item?.previous_close);
-
-    //         if (symbol && Number.isFinite(previousClose)) {
-    //             map[symbol] = previousClose;
-    //         }
-    //     });
-
-    //     return map;
-    // }, [offlineLtp]);
-    // console.log('Offline', offlineLtp);
     const [indexRows, setIndexRows] = useState<Record<IndexKey, IndexRow>>(() => {
         // ✅ initial from cache (works even if market closed and ws paused)
         const keys: IndexKey[] = ['NIFTY50', 'SENSEX', 'NIFTYBANK'];
@@ -50,29 +35,6 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
 
         return initial;
     });
-    // // When API data comes later, refresh rows using previous_close
-    // useEffect(() => {
-    //     setIndexRows((prev) => {
-    //         const next = { ...prev };
-
-    //         WANT.forEach((k) => {
-    //             const payload = getLastByKey(k);
-    //             // const previousClose = previousCloseMap[k];
-    //             const { ltp, abs, pct } = computeChange(payload);
-
-    //             next[k] = {
-    //                 ...next[k],
-    //                 key: k,
-    //                 label: k === 'NIFTY50' ? 'NIFTY 50' : k === 'NIFTYBANK' ? 'NIFTY Bank' : 'SENSEX',
-    //                 ltp: ltp ?? next[k]?.ltp,
-    //                 absChange: abs ?? next[k]?.absChange,
-    //                 pctChange: pct ?? next[k]?.pctChange,
-    //             };
-    //         });
-
-    //         return next;
-    //     });
-    // }, [previousCloseMap]);
     useEffect(() => {
         const WANT: IndexKey[] = ["NIFTY50", "SENSEX", "NIFTYBANK"];
 
@@ -166,33 +128,26 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
         </TouchableOpacity>
     );
 
-    const renderItemWhenMarketClosed = ({ item }: any) => (
-        <TouchableOpacity style={styles.innerBoxView} onPress={() => navigation?.navigate('Instrument', { item: item })}>
-            <Text style={styles.textNifty}>{item.symbol}</Text>
-            <Text style={styles.textNiftyValue}>
-                <View style={styles.flexView}>
-                    {/* LTP */}
-                    <Text style={{ color: mainColors.white }}>
-                        {item?.current_price}{'  '}
-                    </Text>
-
-                    {/* Absolute Change */}
-                    <Text style={{
-                        color: item?.absolute_change > 0 ? mainColors.greenText : item?.absolute_change === 0 ? mainColors.inputLabel : mainColors.redText
-                    }}>
-                        {item?.absolute_change}{' '}
-                    </Text>
-
-                    {/* Percentage Change */}
-                    <Text style={{
-                        color: item?.absolute_change > 0 ? mainColors.greenText : item?.absolute_change === 0 ? mainColors.inputLabel : mainColors.redText
-                    }}>
-                        {`${item?.percentage_change}`}
-                    </Text>
-                </View>
-            </Text>
-        </TouchableOpacity>
-    );
+    const renderItemWhenMarketClosed = ({ item }: any) => {
+        return (
+            <TouchableOpacity style={styles.innerBoxView} onPress={() => navigation?.navigate('Instrument', { item: item })}>
+                <Text style={styles.textNifty}>{item.symbol}</Text>
+                <Text style={styles.textNiftyValue}>
+                    <View style={styles.flexView}>
+                        {/* LTP */}
+                        <Text style={{ color: mainColors.white }}>
+                            {item?.current_price}{'  '}
+                        </Text>
+                        <Text style={{
+                            color: item?.percentage_change.includes('+') ? mainColors.greenText : mainColors.redText
+                        }}>
+                            {`${item?.percentage_change}`}
+                        </Text>
+                    </View>
+                </Text>
+            </TouchableOpacity>
+        )
+    };
     const showSkeleton =
         isLoading ||
         (!isMarketOpen && !offlineLtp?.length) ||

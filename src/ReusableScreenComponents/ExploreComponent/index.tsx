@@ -403,7 +403,7 @@ export default function ExploreComponent(props: ExploreProps) {
           <Text style={styles.viewAllText}>{isViewAllBtn ? 'View all' : 'View Less'}</Text>
           <View style={styles.viewAllCircle}>
             {/* <Text style={styles.viewAllArrow}>{'>'}</Text> */}
-            <Text style={styles.viewAllArrow}>{!isViewAllBtn ? '↑' : '↓'}</Text>
+            <Text style={styles.viewAllArrow}>{!isViewAllBtn ? '<' : '>'}</Text>
           </View>
         </TouchableOpacity>
       );

@@ -11,11 +11,11 @@ import snackbarHandler from '../../Utils/snackbarHandler'
 import { Images } from '../../Assets'
 
 const OrderEditModal = (props: EditModalProps) => {
-    console.log('PropsSelectedItemEditModal', props?.selectedItem)
+    // console.log('PropsSelectedItemEditModal', props?.selectedItem)
     const seletedData = props?.selectedItem;
     const { mutate } = useEditOrderMutation();
     const [value, setValue] = useState<any>();
-    const [valueQuamtity, setValueQuantity] = useState('')
+    const [valueQuamtity, setValueQuantity] = useState<any>()
     useEffect(() => {
         setValue(seletedData?.limit_price || '');
         setValueQuantity(seletedData?.quantity || '');
@@ -39,6 +39,17 @@ const OrderEditModal = (props: EditModalProps) => {
     };
     const bumpMarketPrice = (delta: number) => {
         setValue((prev: any) => {
+            const n =
+                typeof prev === 'number'
+                    ? prev
+                    : parseFloat(String(prev).replace(/[^\d.]/g, '')) || 0;
+
+            const next = n + delta;
+            return next < 0 ? 0 : next; // prevent negative
+        });
+    };
+    const bumpMarketPrice1 = (delta: number) => {
+        setValueQuantity((prev: any) => {
             const n =
                 typeof prev === 'number'
                     ? prev
@@ -78,7 +89,22 @@ const OrderEditModal = (props: EditModalProps) => {
                         </TouchableOpacity>
                     </View>
                     <Text style={styles.labelText}>Quantity</Text>
-                    <CommonTextInput value={String(valueQuamtity)} setValue={setValueQuantity} containerStyle={styles.input} />
+                    {/* <CommonTextInput value={String(valueQuamtity)} setValue={setValueQuantity} containerStyle={styles.input} /> */}
+                    <View style={styles.imgView}>
+                        <TouchableOpacity onPress={() => bumpMarketPrice1(-1)}>
+                            <Image source={Images.decrease} resizeMode='contain' style={styles.img} />
+                        </TouchableOpacity>
+                        <CommonTextInput
+                            value={String(valueQuamtity)}
+                            setValue={setValueQuantity}
+                            keyboardType='numeric'
+                            style={styles.onlyWidth}
+                            containerStyle={styles.inputContainerStyle}
+                        />
+                        <TouchableOpacity onPress={() => bumpMarketPrice1(+1)}>
+                            <Image source={Images.increase} resizeMode='contain' style={styles.img} />
+                        </TouchableOpacity>
+                    </View>
                     <CommonButton label='Submit' extraStyle={{ height: scaler(40), marginTop: scaler(15) }} onPress={() => submitPress()} />
                 </View>
             </View>
@@ -97,7 +123,7 @@ const styles = StyleSheet.create({
     },
     container: {
         backgroundColor: mainColors.dayMonthBg,
-        height: scaler(280),
+        height: scaler(300),
         width: scaler(300),
         paddingHorizontal: scaler(10),
         borderRadius: 15
