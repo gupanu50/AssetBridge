@@ -1,7 +1,6 @@
 import { View, FlatList } from 'react-native';
-import React, { useMemo } from 'react';
+import React from 'react';
 import CommonCard from '../../ReusableComponents/commonCard';
-// import { Images } from '../../Assets';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import useStartStopBotMutation from '../../Screens/HomeScreen/Hooks/useStartStopBotMutation';
@@ -14,56 +13,6 @@ type MyAlgoProps = {
 const MyAlgoComponent = ({ navigation, subsData }: MyAlgoProps) => {
   // console.log('PropsSubsData', subsData);
   const { mutate: startStopBotMutate } = useStartStopBotMutation();
-  // const featureCards = useMemo(
-  //   () => [
-  //     {
-  //       id: 'f1',
-  //       logo: Images.swiperLogo,
-  //       name: 'TradeMioon Sensex',
-  //       sub: 'Buying {DTE 0,1,2,3}',
-  //       tagLeft: 'Buy',
-  //       tagRight: 'MOMENT',
-  //       ltp: '20,000',
-  //       ltpChange: '+3.1%',
-  //       intraday: '2.22',
-  //       intradayChange: '+1.3%',
-  //       pAndL: '3.11',
-  //       pAndLChange: '-0.37%',
-  //       status: 'Running',
-  //     },
-  //     {
-  //       id: 'f2',
-  //       logo: Images.swiperLogo,
-  //       name: 'TradeMioon Nifty',
-  //       sub: 'Buying {DTE 0,1,2,3}',
-  //       tagLeft: 'Buy',
-  //       tagRight: 'MOMENT',
-  //       ltp: '18,450',
-  //       ltpChange: '+1.2%',
-  //       intraday: '1.90',
-  //       intradayChange: '+0.6%',
-  //       pAndL: '2.01',
-  //       pAndLChange: '+0.22%',
-  //       status: 'Running',
-  //     },
-  //     {
-  //       id: 'f3',
-  //       logo: Images.swiperLogo,
-  //       name: 'TradeMioon Bank',
-  //       sub: 'Buying {DTE 0,1,2,3}',
-  //       tagLeft: 'Buy',
-  //       tagRight: 'MOMENT',
-  //       ltp: '42,110',
-  //       ltpChange: '-0.4%',
-  //       intraday: '1.10',
-  //       intradayChange: '-0.2%',
-  //       pAndL: '1.55',
-  //       pAndLChange: '-0.11%',
-  //       status: 'Running',
-  //     },
-  //   ],
-  //   [],
-  // );
   const renderFeatureCard = ({ item }: any) => {
     // console.log('Item', item);
     const pressSub = () => {

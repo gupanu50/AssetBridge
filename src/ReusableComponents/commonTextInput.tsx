@@ -21,7 +21,7 @@ const CommonTextInput = (props: inputProps) => {
           numberOfLines={props?.lines || 1}
           textAlignVertical={isMultiline ? 'top' : 'center'}
           multiline={props?.multiline || false}
-          style={[styles.inputStyle, isMultiline && styles.multilineInput, props?.style, { color: props?.errorMessage ? mainColors.redText : mainColors.inputLabel }]}
+          style={[styles.inputStyle, isMultiline && styles.multilineInput, { color: props?.errorMessage ? mainColors.redText : mainColors.inputLabel }, props?.style,]}
           maxLength={props?.max || 10000}
           secureTextEntry={props?.secure || false}
           onChangeText={props.setValue}

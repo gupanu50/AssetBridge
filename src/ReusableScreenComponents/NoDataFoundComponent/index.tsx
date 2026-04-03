@@ -1,6 +1,5 @@
 import { Image, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
-import { NoDataProps } from './types'
 import CommonHeader from '../../ReusableComponents/commonHeader'
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
 import scaler from '../../Utils/scaler'

@@ -1,5 +1,4 @@
 import { AppState } from 'react-native';
-// import {focusManager, onlineManager} from 'react-query';
 import { focusManager, onlineManager } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
 import { QueryClient } from '@tanstack/react-query';

@@ -29,18 +29,16 @@ import useTradingBotsQuery from '../../ReusableComponents/Hooks/useTradingBotsQu
 import useNewsQuery from '../../ReusableComponents/Hooks/useNewsQuery';
 import RiskDisclosureScreen from '../../ReusableComponents/riskDisclosureModal';
 import snackbarHandler from '../../Utils/snackbarHandler';
-// import PaymentScreen from '../../ReusableComponents/paymentComponent';
 import useCreatePaymentOrderMutation from '../../Screens/MarketPlaceScreen/Hooks/useCreatePaymentOrderMutation';
 import useProfileQuery from '../../Screens/ProfileScreen/Hooks/useProfileQuery';
 import { startRazorpayPayment } from '../../ReusableComponents/paymentComponent';
 import useStartStopBotMutation from '../../Screens/HomeScreen/Hooks/useStartStopBotMutation';
 import useVerifyPaymentMutation from '../../Screens/MarketPlaceScreen/Hooks/usePaymentVerifyMutation';
-import { getLastByKey, onWsMessage, registerSubscription, SubscribePayload, unregisterSubscription } from '../../Utils/ws/marketSocket';
+import { onWsMessage, registerSubscription, SubscribePayload, unregisterSubscription } from '../../Utils/ws/marketSocket';
 import { mapApiToWsSegment } from '../../Utils/ws/wsSegmentMapper';
-import { computeChange, computeChange1 } from '../../Utils/ws/commonWebSocketFunctions';
+import { computeChange1 } from '../../Utils/ws/commonWebSocketFunctions';
 import { getInitials } from '../../ReusableComponents/commonFunctions';
-import { useIsFocused } from '@react-navigation/native';
-import ExploreSkeleton, { BotCardSkeleton, MoversGridSkeleton, NewsListSkeleton } from '../../Screens/HomeScreen/Skeleton/ExploreSkeleton/ExploreSkeleton';
+import { BotCardSkeleton, MoversGridSkeleton, NewsListSkeleton } from '../../Screens/HomeScreen/Skeleton/ExploreSkeleton/ExploreSkeleton';
 const { width: SCREEN_WIDTH } = Dimensions.get('screen');
 type ExploreProps = {
   navigation?: MainStackScreenProps<'HomeTab'>['navigation'];
@@ -49,13 +47,10 @@ export default function ExploreComponent(props: ExploreProps) {
   const CARD_WIDTH = SCREEN_WIDTH - scaler(30);
   const CARD_GAP = scaler(12); // space between cards
   const [activeMoverTab, setActiveMoverTab] = useState('Gainers');
-  const isFocused = useIsFocused();
-  // const [featureIndex, setFeatureIndex] = useState(0);
   const [selectedValue, setSelectedValue] = useState<string>('today');
   const [moverLimit, setMoverLimit] = useState<'5' | '15'>('5');
   const isMarketHours = isMarketOpenIST();
   const [showRiskModal, setShowRiskModal] = useState(false);
-  // const [tick, setTick] = useState(0);
   const featureListRef = React.useRef<FlatList<any>>(null);
   const topMoversListRef = useRef<FlatList<any>>(null);
   const featureIndexRef = React.useRef(0); // avoids re-renders
@@ -108,7 +103,6 @@ export default function ExploreComponent(props: ExploreProps) {
   // console.log('Trading Bots Data:', tradingBotData);
   const { data: newsApiData, refetch: refetchNews, isLoading: newsLoading } = useNewsQuery();
   const bots = tradingBotData ?? [];
-  useEffect(() => { refetchNews() }, [isFocused]);
   const loopedBots = React.useMemo(() => {
     if (!bots.length) return [];
     return [...bots, bots[0]]; // 👈 add first item at end
@@ -150,10 +144,6 @@ export default function ExploreComponent(props: ExploreProps) {
     }
   };
   const newsData = newsApiData?.data?.data?.results;
-  const isExploreSkeleton =
-    (botsLoading && !bots.length) ||
-    (moversLoading && !moversApiData.length) ||
-    (newsLoading && !newsData?.length);
   // console.log('NewsData', newsData);
   const handleCardAction = (item: any) => {
     const isSubscribed = item?.is_subscribed;
@@ -439,13 +429,6 @@ export default function ExploreComponent(props: ExploreProps) {
       </TouchableOpacity>
     );
   };
-  // if (isExploreSkeleton) {
-  //   return (
-  //     <View style={styles.mainView}>
-  //       <ExploreSkeleton />
-  //     </View>
-  //   );
-  // }
   return (
     <View style={styles.mainView}>
       {/* -------------------- BIG CARD (UNCHANGED SECTION) -------------------- */}

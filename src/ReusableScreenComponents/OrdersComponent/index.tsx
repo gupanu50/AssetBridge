@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { View, Text, TouchableOpacity, FlatList, Image, Alert } from 'react-native';
+import { View, Text, FlatList, Image, Alert } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatItem } from './types';
 import { getApiErrorMessage, isMarketOpenIST, mainColors } from '../../Utils/helper';
@@ -20,8 +20,7 @@ import OrderEditModal from './OrderEditModal';
 import useCancelOrderMutation from './Hooks/useCancelOrderMutation';
 
 const OrderComponent = (props?: any) => {
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const { data, error } = useOrdersQuery(props?.symbol);
+  const { data } = useOrdersQuery(props?.symbol);
   const orderData = data?.data?.data?.results;
   const [visible, setVisible] = useState(false);
   // console.log('OrderData', orderData);
@@ -129,15 +128,7 @@ const OrderComponent = (props?: any) => {
 
     return () => off();
   }, []);
-  // const toggleRow = (id: number) => {
-  //   setSelectedIds(prev => {
-  //     const next = new Set(prev);
-  //     if (next.has(id)) next.delete(id);
-  //     else next.add(id);
-  //     return next;
-  //   });
-  // };
-  // Filter orderData based on search input
+
   const filteredOrderData = useMemo(() => {
     if (!input.trim()) {
       return orderData; // If input is empty, return all orders
@@ -158,7 +149,6 @@ const OrderComponent = (props?: any) => {
     ]);
   }
   const renderCardData = ({ item }: { item: FlatItem }) => {
-    const checked = selectedIds.has(item.id);
     const statusColor =
       item.status?.toLowerCase() === "filled"
         ? mainColors.green
@@ -175,7 +165,6 @@ const OrderComponent = (props?: any) => {
     return (
       <View
         style={styles.orderCard}
-      // onPress={() => { setVisible(true), setSelectedItem(item) }}
       >
         {/* Top row: checkbox + Name + Exchange badge */}
         <View style={styles.cardTopRow}>

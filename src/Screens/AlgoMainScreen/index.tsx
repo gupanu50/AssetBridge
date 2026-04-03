@@ -1,15 +1,12 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { Image, Text, View } from 'react-native'
 import React, { useMemo, useRef, useState } from 'react'
-import { fontFamily, mainColors } from '../../Utils/helper'
+import { mainColors } from '../../Utils/helper'
 import scaler from '../../Utils/scaler'
 import IconButton from '../../ReusableComponents/iconButton'
 import { Images } from '../../Assets'
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import { TopTabProps } from '../../ReusableComponents/commonTypes'
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider'
-import OrderComponent from '../../ReusableScreenComponents/OrdersComponent'
-import PositionsOpenComponent from '../../ReusableScreenComponents/PositionsOpenComponent'
-import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsClosedComponent'
 import OverviewComponent from '../../ReusableScreenComponents/OverviewComponent'
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
 import { styles } from './styles'
@@ -19,7 +16,7 @@ import PositionsBotClosedComponent from '../../ReusableScreenComponents/Position
 import OrderBotComponent from '../../ReusableScreenComponents/OrdersBotComponent'
 type Props = MainStackScreenProps<'AlgoMain'>;
 const AlgoMainScreen = ({ navigation, route }: Props) => {
-  console.log('RouteAlgomainScreen', route?.params?.item);
+  // console.log('RouteAlgomainScreen', route?.params?.item);
   const routeParams = route?.params?.item;
   const [activeTopTab, setActiveTopTab] = useState('Opened Positions');
   const topTabListRef: any = useRef(null);
@@ -38,7 +35,6 @@ const AlgoMainScreen = ({ navigation, route }: Props) => {
   const todayPnl = routeParams?.backtest_results?.daily_pnl[routeParams?.backtest_results?.daily_pnl?.length - 1]?.pnl;
   const unrealPnl = routeParams?.backtest_results?.daily_pnl[routeParams?.backtest_results?.daily_pnl?.length - 1]?.cumulative_pnl;
   const todayPnlString = todayPnl?.toString();
-  const unrealPnlString = unrealPnl?.toString();
   // -------------------- RENDERERS --------------------
   const renderTopTab = ({ item, index }: { item: TopTabProps; index: number }) => {
     const isActive = activeTopTab === item.label;

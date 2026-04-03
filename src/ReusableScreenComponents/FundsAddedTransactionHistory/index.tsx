@@ -1,4 +1,4 @@
-import { FlatList, Image, ScrollView, Text, View } from 'react-native'
+import { FlatList, ScrollView, Text, View } from 'react-native'
 import React from 'react'
 import IconButton from '../../ReusableComponents/iconButton';
 import scaler from '../../Utils/scaler';
@@ -6,25 +6,10 @@ import { mainColors } from '../../Utils/helper';
 import { styles } from './styles';
 import useTransactionQuery from '../../Screens/ProfileScreen/Hooks/useTransactionSummary';
 import moment from 'moment';
-import { formatAmount } from '../../ReusableComponents/commonFunctions';
+import { formatAmount, getInitials } from '../../ReusableComponents/commonFunctions';
 
 const FundsAddedComponent = () => {
     const { data } = useTransactionQuery();
-    const getInitials = (name?: string) => {
-        const n = (name || '').trim();
-        if (!n) return '?';
-
-        const parts = n.split(/\s+/).filter(Boolean);
-
-        // If multiple words => first char of first + first char of last
-        if (parts.length >= 2) {
-            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-        }
-
-        // Single word => first 2 chars
-        const word = parts[0];
-        return word.slice(0, 2).toUpperCase();
-    };
     // console.log('DataTransactionHistory', data?.data?.data?.results);
     const transactionData = data?.data?.data?.results;
     const renderTransactionItem = ({ item }: any) => (

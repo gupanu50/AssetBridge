@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import { Alert, FlatList, Image, Platform, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
 import { getApiErrorMessage, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
 import { styles } from './styles';
@@ -303,7 +303,7 @@ const PositionsOpenBotComponent = (bot_id: any) => {
   }
   return (
     <View style={styles.main}>
-      <View style={[styles.flexView, styles.lineView]}>
+      {filteredOrderData?.length > 0 && <View style={[styles.flexView, styles.lineView]}>
         <IconButton
           vectorType="MaterialCommunityIcons"
           name={isAllSelected ? 'checkbox-marked' : 'checkbox-blank-outline'}
@@ -329,7 +329,7 @@ const PositionsOpenBotComponent = (bot_id: any) => {
           color={mainColors.mainButton}
           backgroundColor={mainColors.black}
         />
-      </View>
+      </View>}
       <FlatList
         data={filteredOrderData}
         renderItem={renderCardData}

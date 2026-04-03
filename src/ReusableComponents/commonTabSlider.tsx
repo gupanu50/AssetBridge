@@ -7,6 +7,7 @@ import { fontFamily, mainColors } from '../Utils/helper';
 const CommonTabSlider = (props: TopTabProps) => {
   const topTabListRef: any = useRef(null);
   const onPressTopTab = (label: string, index: number) => {
+    if (props?.disabled) return;
     props?.setIsActive(label);
     try {
       topTabListRef.current?.scrollToIndex({
@@ -18,7 +19,7 @@ const CommonTabSlider = (props: TopTabProps) => {
   };
   return (
     <TouchableOpacity
-      activeOpacity={0.85}
+      activeOpacity={props?.disabled ? 1 : 0.85}
       onPress={() => onPressTopTab(props.label ?? '', props.index ?? 0)}
       style={[styles.topTabBtn, props?.style]}
     >
@@ -28,6 +29,7 @@ const CommonTabSlider = (props: TopTabProps) => {
             style={[
               styles.topTabText,
               props?.isActive && styles.topTabTextActive,
+              props?.disabled && styles.topTabTextDisabled,
             ]}
           >
             {props.label}
@@ -37,8 +39,8 @@ const CommonTabSlider = (props: TopTabProps) => {
               <Text style={styles.newText}>New</Text>
             </View>
           ) : (
-            <View style={styles.buyView}>
-              <Text style={styles.buyText}>Buy 1x</Text>
+            <View style={[styles.buyView, props?.disabled && styles.buyViewDisabled]}>
+              <Text style={[styles.buyText, props?.disabled && styles.buyTextDisabled]}>Buy 1x</Text>
             </View>
           )}
         </View>
@@ -47,6 +49,7 @@ const CommonTabSlider = (props: TopTabProps) => {
           style={[
             styles.topTabText,
             props?.isActive && styles.topTabTextActive,
+            props?.disabled && styles.topTabTextDisabled,
           ]}
         >
           {props.label}
@@ -119,5 +122,16 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.poppinsMedium,
     fontSize: scaler(10),
     color: mainColors.greenText,
+  },
+  topTabTextDisabled: {
+    color: mainColors.textGrey,   // grey text
+    opacity: 0.5,
+  },
+  buyViewDisabled: {
+    backgroundColor: mainColors.pnlCard,
+    borderColor: mainColors.textGrey,
+  },
+  buyTextDisabled: {
+    color: mainColors.textGrey,
   },
 });

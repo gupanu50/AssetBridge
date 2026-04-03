@@ -1,8 +1,7 @@
-import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, ScrollView, Text, View } from 'react-native'
 import React, { useMemo, useRef, useState } from 'react'
 import scaler from '../../Utils/scaler'
-import IconButton from '../../ReusableComponents/iconButton'
-import { fontFamily, mainColors } from '../../Utils/helper'
+import { mainColors } from '../../Utils/helper'
 import { Images } from '../../Assets'
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider'
 import { TopTabProps } from '../../ReusableComponents/commonTypes'
@@ -20,8 +19,13 @@ const PortfolioScreen = () => {
     const totalData = data?.data?.data?.total_invested_value;
     const totalPnl = data?.data?.data?.total_pnl;
     const unrealPnl = data?.data?.data?.total_unrealized_pnl;
-    console.log('DataAllOpenPositions', data?.data?.data)
-    console.log('dataOpenPostions', totalData);
+    const currentValue = totalData + unrealPnl;
+
+    // ✅ Is overall a gain or loss?
+    const isOverallLoss = totalPnl < 0;
+    const isGain = unrealPnl >= 0;
+    // console.log('DataAllOpenPositions', data?.data?.data)
+    // console.log('dataOpenPostions', totalData);
     // refs to keep tab visible while sliding
     const topTabListRef: any = useRef(null);
 
@@ -74,7 +78,7 @@ const PortfolioScreen = () => {
                 </View>
                 <View style={styles.boxView}>
                     <View style={styles.innerBoxView}>
-                        <Text style={styles.amtText}>₹{formatAmount(totalData)}</Text>
+                        <Text style={styles.amtText}>₹{formatAmount(currentValue)}</Text>
                         {/* <TouchableOpacity>
                             <Image
                                 source={Images.swiperView}
@@ -85,11 +89,19 @@ const PortfolioScreen = () => {
                     </View>
                     <View style={styles.innerBoxView1}>
                         <Image
-                            source={Images.swiperDown}
+                            source={isOverallLoss ? Images.swiperDown : Images.swiperUp}
                             resizeMode="contain"
                             style={styles.swiperUpImg}
                         />
-                        <Text style={styles.overallText}>Overall Loss <Text style={styles.overallText1}>-₹{formatAmount(totalPnl?.toString().replace("-", ""))}</Text></Text>
+                        <Text style={styles.overallText}>
+                            {isOverallLoss ? 'Overall Loss ' : 'Overall Gain '}
+                            <Text style={[
+                                styles.overallText1,
+                                { color: isOverallLoss ? mainColors.redText : mainColors.greenText }
+                            ]}>
+                                {isOverallLoss ? '-' : '+'}₹{formatAmount(Math.abs(totalPnl))}
+                            </Text>
+                        </Text>
                     </View>
                     <View style={[styles.innerBoxView1, { marginTop: scaler(10) }]}>
                         <View style={[styles.pnlView, { width: scaler(145), marginRight: scaler(15) }]}>
@@ -98,7 +110,12 @@ const PortfolioScreen = () => {
                         </View>
                         <View style={[styles.pnlView, { width: scaler(145) }]}>
                             <Text style={styles.todayText}>Today’s Gain</Text>
-                            <Text style={[styles.todayValueText, { color: unrealPnl < 0 ? mainColors.redText : mainColors.greenText }]}>₹ {formatAmount(unrealPnl?.toString().replace("-", ""))}</Text>
+                            <Text style={[
+                                styles.todayValueText,
+                                { color: isGain ? mainColors.greenText : mainColors.redText }
+                            ]}>
+                                {isGain ? '+' : '-'}₹ {formatAmount(Math.abs(unrealPnl))}
+                            </Text>
                         </View>
                     </View>
                     <View style={styles.belowBox}>

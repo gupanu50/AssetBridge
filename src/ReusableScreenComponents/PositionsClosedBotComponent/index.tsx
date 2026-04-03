@@ -151,7 +151,7 @@ const PositionsBotClosedComponent = (bot_id: any) => {
   }
   return (
     <View style={styles.main}>
-      <View style={[styles.flexView, styles.lineView]}>
+      {filteredOrderData?.length > 0 && <View style={[styles.flexView, styles.lineView]}>
         <View style={styles.searchBox}>
           <CommonTextInput
             value={input}
@@ -169,7 +169,7 @@ const PositionsBotClosedComponent = (bot_id: any) => {
           color={mainColors.mainButton}
           backgroundColor={mainColors.black}
         />
-      </View>
+      </View>}
       <FlatList
         data={filteredOrderData}
         renderItem={renderCardData}

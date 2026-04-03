@@ -12,25 +12,10 @@ import { fontFamily, mainColors } from '../Utils/helper';
 import { Images } from '../Assets';
 import scaler from '../Utils/scaler';
 import { PropCommonCardTypes } from './commonTypes';
-import { formatAmount } from './commonFunctions';
+import { formatAmount, getInitials } from './commonFunctions';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const CommonCard = (props: PropCommonCardTypes) => {
-  const getInitials = (name?: string) => {
-    const n = (name || '').trim();
-    if (!n) return '?';
-
-    const parts = n.split(/\s+/).filter(Boolean);
-
-    // If multiple words => first char of first + first char of last
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-
-    // Single word => first 2 chars
-    const word = parts[0];
-    return word.slice(0, 2).toUpperCase();
-  };
   const [activeDayMonthMoverTab, setActiveDayMonthMoverTab] = useState('Month');
   const ltpColor = (props.ltpChange > 0 || props?.ltpChangeMonth > 0)
     ? mainColors.greenText

@@ -19,6 +19,8 @@ import { styles } from './styles';
 import OrderComponent from '../../ReusableScreenComponents/OrdersComponent';
 import PositionsOpenComponent from '../../ReusableScreenComponents/PositionsOpenComponent';
 import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsClosedComponent';
+import ChartComponent from '../../ReusableComponents/ChartComponent';
+import LivePrice from '../../ReusableComponents/LivePrice';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import CommonTabSlider from '../../ReusableComponents/commonTabSlider';
 import { CandlestickChart } from "react-native-wagmi-charts";
@@ -30,6 +32,7 @@ import CommonButton from '../../ReusableComponents/commonButton';
 import useCandleStickQuery from './Hooks/useCandleStickQuery';
 import { buildFromToISO } from './commonFunctions';
 import SkeletonBlock from '../../ReusableComponents/commonSkeletonBlock';
+import VolumeChart from '../../ReusableComponents/commonVolumeChart';
 type Props = MainStackScreenProps<'Instrument'>;
 const InstumentScreen = ({ navigation, route }: Props) => {
   const [selectedLabel, setSelectedLabel] = useState<string>('1D');
@@ -41,11 +44,32 @@ const InstumentScreen = ({ navigation, route }: Props) => {
   const isMarketHours = isMarketOpenIST();
   const [activeTopTab, setActiveTopTab] = useState('Opened Positions');
   const { fromDate, toDate } = useMemo(() => buildFromToISO(selectedLabel), [selectedLabel]);
-  const [symbolData, setSymbolData] = useState<any>({
-    ltp: 0,
-    abs: 0,
-    pct: 0,
-  });
+  const getTimeframe = (label: string) => {
+    switch (label) {
+      case "1D":
+        return "1m";
+      case "1W":
+        return "5m";
+      case "1M":
+        return "15m";
+      case "2M":
+      case "3M":
+        return "1h";
+      case "6M":
+        return "1d";
+      case "1Y":
+        return "1d";
+      case "5Y":
+        return "1w";
+      case "10Y":
+        return "1w";
+      case "All":
+        return "1M";
+      default:
+        return "1d";
+    }
+  };
+  const timeframe = useMemo(() => getTimeframe(selectedLabel), [selectedLabel]);
   const { data: candleData, isLoading: candleLoading } = useCandleStickQuery({
     index: paramIndex,
     symbol: paramItem?.symbol.replace(' ', '').toUpperCase() ?? route?.params?.symbol.toUpperCase(),
@@ -53,15 +77,40 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     fromDate,
     toDate,
     segment: paramItem?.segment ?? paramItem?.exchange ?? 'NFO-OPT',
+    timeframe,
   });
   // console.log('CandleStickData', candleData);
   const candleData120 = useMemo(() => {
-    return candleData?.data?.data?.candles?.map((item: any) => ({
+    const candles = candleData?.data?.data?.candles || [];
+
+    const MAX_POINTS = 80; // screen capacity
+
+    if (candles.length <= MAX_POINTS) {
+      return candles.map((item: any) => ({
+        timestamp: item.time,
+        open: item.open,
+        high: item.high,
+        low: item.low,
+        close: item.close,
+        volume: item?.volume,
+      }));
+    }
+
+    const step = Math.ceil(candles.length / MAX_POINTS);
+
+    const compressed = [];
+
+    for (let i = 0; i < candles.length; i += step) {
+      compressed.push(candles[i]);
+    }
+
+    return compressed.map((item: any) => ({
       timestamp: item.time,
       open: item.open,
       high: item.high,
       low: item.low,
       close: item.close,
+      volume: item?.volume,
     }));
   }, [candleData]);
   // console.log('candleData', candleData);
@@ -101,13 +150,13 @@ const InstumentScreen = ({ navigation, route }: Props) => {
   // console.log('RawSymbol', rawSymbol);
   const symbol = normalizeWsSymbol(rawSymbol);
   // console.log('Symbol', symbol);
-  const [live, setLive] = useState(() => {
-    const payload =
-      getLastByKey(`INDICES:${symbol}`) ||
-      getLastByKey(symbol); // snapshot cache key
-    const { ltp, abs, pct } = computeChange(payload);
-    return { ltp, abs, pct };
-  });
+  //   const [live, setLive] = useState(() => {
+  //     const payload =
+  //       getLastByKey(`INDICES:${symbol}`) ||
+  //       getLastByKey(symbol); // snapshot cache key
+  //     const { ltp, abs, pct } = computeChange(payload);
+  //     return { ltp, abs, pct };
+  //   });
   const symbolNormalized = normalizeWsSymbol(symbol);
   useEffect(() => {
     if (!symbol) return;
@@ -130,38 +179,38 @@ const InstumentScreen = ({ navigation, route }: Props) => {
   }, [symbolNormalized]);
 
   // WebSocket message handler
-  useEffect(() => {
-    const off = onWsMessage((msg) => {
-      if (msg?.type !== "snapshot" && msg?.type !== "update") return;
-      if (!msg?.data || typeof msg.data !== "object") return;
-
-      let payload: any;
-      if (msg.type === "snapshot") {
-        payload = msg.data?.[symbolNormalized];
-      } else {
-        for (const [key, value] of Object.entries(msg.data)) {
-          if (lastPart(key) === symbolNormalized) {
-            payload = value;
-            break;
-          }
-        }
-      }
-
-      if (!payload) return;
-
-      if (paramNav === 'movers') {
-        const { ltp, abs, pct } = computeChange1(payload, paramItem?.previous_close);
-        setLive((prev) => (prev.ltp !== ltp || prev.abs !== abs || prev.pct !== pct ? { ltp, abs, pct } : prev));
-        setSymbolData({ ltp, abs, pct });
-      } else {
-        const { ltp, abs, pct } = computeChange(payload);
-        setLive((prev) => (prev.ltp !== ltp || prev.abs !== abs || prev.pct !== pct ? { ltp, abs, pct } : prev));
-        setSymbolData({ ltp, abs, pct });
-      }
-    });
-
-    return () => off();
-  }, [symbolNormalized]);
+  //   useEffect(() => {
+  //     const off = onWsMessage((msg) => {
+  //       if (msg?.type !== "snapshot" && msg?.type !== "update") return;
+  //       if (!msg?.data || typeof msg.data !== "object") return;
+  //
+  //       let payload: any;
+  //       if (msg.type === "snapshot") {
+  //         payload = msg.data?.[symbolNormalized];
+  //       } else {
+  //         for (const [key, value] of Object.entries(msg.data)) {
+  //           if (lastPart(key) === symbolNormalized) {
+  //             payload = value;
+  //             break;
+  //           }
+  //         }
+  //       }
+  //
+  //       if (!payload) return;
+  //
+  //       if (paramNav === 'movers') {
+  //         const { ltp, abs, pct } = computeChange1(payload, paramItem?.previous_close);
+  //         setLive((prev) => (prev.ltp !== ltp || prev.abs !== abs || prev.pct !== pct ? { ltp, abs, pct } : prev));
+  //         setSymbolData({ ltp, abs, pct });
+  //       } else {
+  //         const { ltp, abs, pct } = computeChange(payload);
+  //         setLive((prev) => (prev.ltp !== ltp || prev.abs !== abs || prev.pct !== pct ? { ltp, abs, pct } : prev));
+  //         setSymbolData({ ltp, abs, pct });
+  //       }
+  //     });
+  //
+  //     return () => off();
+  //   }, [symbolNormalized]);
 
   const topTabs = useMemo(
     () => [
@@ -225,18 +274,18 @@ const InstumentScreen = ({ navigation, route }: Props) => {
           : 'NSE'),
       current_price:
         route?.params?.ltp ??
-        symbolData?.ltp ??
-        live?.ltp ??
+        // symbolData?.ltp ??
+        // live?.ltp ??
         0,
       absolute_change:
         route?.params?.abs ??
-        symbolData?.abs ??
-        live?.abs ??
+        // symbolData?.abs ??
+        // live?.abs ??
         0,
       percentage_change:
         route?.params?.pct ??
-        symbolData?.pct ??
-        live?.pct ??
+        // symbolData?.pct ??
+        // live?.pct ??
         0,
       index: route?.params?.index,
     };
@@ -266,7 +315,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
   return (
     <View style={styles.conatiner}>
       <CommonBackHeader navigation={navigation} />
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.main}>
           <View style={styles.flexView}>
             <View style={styles.logoCircle}>
@@ -310,25 +359,14 @@ const InstumentScreen = ({ navigation, route }: Props) => {
           </View>
           <View style={[styles.flexView, styles.onlyMarginVertical]}>
             <View>
-              {isMarketHours ?
-                <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? symbolData.ltp : formatNumber(live.ltp, 2)}</Text> :
-                <Text style={styles.amountHeading}>{'\u20B9'} {paramItem?.segment ? moversDetails?.current_price : !paramItem?.segment ? paramItem?.current_price : formatNumber(live.ltp, 2)}</Text>}
-              {(paramItem?.segment && isMarketHours) ?
-                <Text style={[styles.amountPosLosHeading, { color: moversDetails?.absolute_change > 0 ? mainColors.greenText : mainColors.redText }]}>
-                  {symbolData.abs.toFixed(3)}({symbolData.pct.toFixed(2)}%) <Text style={styles.innerText}>{selectedLabel}</Text>
-                </Text> :
-                (paramItem?.segment && !isMarketHours) ?
-                  <Text style={[styles.amountPosLosHeading, { color: moversDetails?.absolute_change > 0 ? mainColors.greenText : mainColors.redText }]}>
-                    {moversDetails?.absolute_change}({moversDetails?.percentage_change}%) <Text style={styles.innerText}>{selectedLabel}</Text>
-                  </Text> :
-                  (!paramItem?.segment && !isMarketHours) ?
-                    <Text style={[styles.amountPosLosHeading, { color: formatChange(live.abs, live.pct).includes('-') ? mainColors.redText : mainColors.greenText }]}>
-                      {paramItem?.percentage_change} <Text style={styles.innerText}>{selectedLabel}</Text>
-                    </Text> :
-                    <Text style={[styles.amountPosLosHeading, { color: formatChange(live.abs, live.pct).includes('-') ? mainColors.redText : mainColors.greenText }]}>
-                      {formatChange(live.abs, live.pct)} <Text style={styles.innerText}>{selectedLabel}</Text>
-                    </Text>
-              }
+              <LivePrice
+                symbol={symbolNormalized}
+                paramNav={paramNav ?? route?.params}
+                paramItem={paramItem ?? route?.params}
+                isMarketHours={isMarketHours}
+                moversDetails={moversDetails}
+                selectedLabel={selectedLabel}
+              />
             </View>
             {/* <View style={styles.eCommerceView}>
               <Text style={[styles.subHeadingText, styles.onlyFontSize]}>
@@ -349,12 +387,9 @@ const InstumentScreen = ({ navigation, route }: Props) => {
                   <SkeletonBlock width={scaler(30)} height={scaler(12)} radius={6} />
                 </View>
               </View>
-            ) : (<CandlestickChart.Provider data={candleData120}>
-              <CandlestickChart width={W} height={scaler(230)}>
-                <CandlestickChart.Candles />
-                <CandlestickChart.Crosshair />
-              </CandlestickChart>
-            </CandlestickChart.Provider>)}
+            ) : (
+              <ChartComponent data={candleData120} />
+            )}
 
           </View>
           {!isChartLoading ? (
@@ -373,19 +408,52 @@ const InstumentScreen = ({ navigation, route }: Props) => {
           ) : null}
           {!isChartLoading ? <>
             <View style={styles.barChartView}>
-              <Image
+              {/* <Image
                 source={Images.smallBarGraph}
                 resizeMode="contain"
                 style={styles.candle}
-              />
+              /> */}
+              <VolumeChart data={candleData120} />
             </View>
-            <FlatList
-              data={data}
-              renderItem={renderItem}
-              keyExtractor={item => item.label}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-            />
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between', // 🔥 evenly distribute
+                alignItems: 'center',
+                paddingHorizontal: 12,
+                marginTop: 8,
+              }}
+            >
+              {data.map((item) => {
+                const isSelected = item.label === selectedLabel;
+
+                return (
+                  <TouchableOpacity
+                    key={item.label}
+                    activeOpacity={0.7}
+                    onPress={() => setSelectedLabel(item.label)}
+                    style={{
+                      paddingVertical: 6,
+                      paddingHorizontal: 8,
+                      borderRadius: 14,
+                      backgroundColor: isSelected ? '#1C1C1E' : 'transparent',
+                      minWidth: 32,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: isSelected ? '#fff' : '#888',
+                        fontSize: 12,
+                        fontWeight: '500',
+                      }}
+                    >
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </> : null}
         </View>
         <View style={styles.topTabsWrap}>

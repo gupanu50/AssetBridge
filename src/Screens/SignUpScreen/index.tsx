@@ -1,4 +1,4 @@
-import { Alert, Image, ImageBackground, Text, TouchableOpacity, View } from 'react-native'
+import { Image, ImageBackground, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { Images } from '../../Assets'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -29,18 +29,23 @@ const SignUpScreen = ({ navigation }: Props) => {
     setLoader(true);
     if (!email) {
       setEmailError('Please enter mobile number');
+      setLoader(false);
       return;
     } else if (email.length < 10) {
       setEmailError('Please enter 10 digit mobile number');
+      setLoader(false);
       return;
     } else if (!password) {
       setPasswordError('Please enter password');
+      setLoader(false);
       return;
     } else if (!password1) {
       setConfirmPasswordError('Please enter confirm password');
+      setLoader(false);
       return;
     } else if (password1 !== password) {
       setConfirmPasswordError('Confirm Password does not match with password');
+      setLoader(false);
       return;
     }
     mutate({
@@ -49,7 +54,7 @@ const SignUpScreen = ({ navigation }: Props) => {
       password: password
     },
       {
-        onSuccess: response => {
+        onSuccess: () => {
           snackbarHandler.successToast('Register')
           setLoader(false);
           navigation.navigate('Otp', { mobile: email, navScr: 'register' });

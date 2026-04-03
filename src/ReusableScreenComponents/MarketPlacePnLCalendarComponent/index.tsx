@@ -1,12 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo, useState } from "react";
 import {
-    Modal,
-    Pressable,
-    ScrollView,
     StyleSheet,
     Text,
-    TouchableOpacity,
     View,
 } from "react-native";
 import { fontFamily, mainColors } from "../../Utils/helper";
@@ -55,48 +51,6 @@ function statusStyle(status: DayStatus) {
     if (status === "loss") return { bg: "#EA4335", text: mainColors.white };
     return { bg: "#636363", text: mainColors.white };
 }
-
-// function Dropdown({
-//     valueLabel,
-//     options,
-//     onSelect,
-// }: {
-//     valueLabel: string;
-//     options: string[];
-//     onSelect: (idx: number) => void;
-// }) {
-//     const [open, setOpen] = useState(false);
-
-//     return (
-//         <>
-//             <TouchableOpacity onPress={() => setOpen(true)} style={s.ddBtn} activeOpacity={0.8}>
-//                 <Text style={s.ddText}>{valueLabel}</Text>
-//                 <Text style={s.ddArrow}>▾</Text>
-//             </TouchableOpacity>
-
-//             <Modal visible={open} transparent animationType="fade">
-//                 <Pressable style={s.modalOverlay} onPress={() => setOpen(false)}>
-//                     <Pressable style={s.modalCard} onPress={() => { }}>
-//                         <ScrollView showsVerticalScrollIndicator={false}>
-//                             {options.map((t, idx) => (
-//                                 <TouchableOpacity
-//                                     key={`${t}-${idx}`}
-//                                     onPress={() => {
-//                                         setOpen(false);
-//                                         onSelect(idx);
-//                                     }}
-//                                     style={s.modalItem}
-//                                 >
-//                                     <Text style={s.modalItemText}>{t}</Text>
-//                                 </TouchableOpacity>
-//                             ))}
-//                         </ScrollView>
-//                     </Pressable>
-//                 </Pressable>
-//             </Modal>
-//         </>
-//     );
-// }
 
 export default function MarketPlacePnlCalendarComponent({
     dailyPnl,

@@ -1,6 +1,5 @@
 import { View, FlatList, Alert } from 'react-native';
-import React, { useMemo, useState } from 'react';
-import { Images } from '../../Assets';
+import React, { useState } from 'react';
 import { styles } from './styles';
 import CommonAlgoMarketPlaceCard from '../../ReusableComponents/commonCardsAlgoMarketPlaceCard';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
@@ -11,7 +10,6 @@ import snackbarHandler from '../../Utils/snackbarHandler';
 // import PaymentScreen from '../../ReusableComponents/paymentComponent';
 import useProfileQuery from '../../Screens/ProfileScreen/Hooks/useProfileQuery';
 import useCreatePaymentOrderMutation from '../../Screens/MarketPlaceScreen/Hooks/useCreatePaymentOrderMutation';
-import { s } from '../MarketPlaceTradesComponent/styles';
 import { startRazorpayPayment } from '../../ReusableComponents/paymentComponent';
 import useStartStopBotMutation from '../../Screens/HomeScreen/Hooks/useStartStopBotMutation';
 import useVerifyPaymentMutation from '../../Screens/MarketPlaceScreen/Hooks/usePaymentVerifyMutation';

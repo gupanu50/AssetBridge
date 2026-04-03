@@ -16,7 +16,7 @@ const PositionsClosedComponent = (props?: any) => {
   const flatData = data?.data?.data?.results;
   const [input, setInput] = useState('');
   const totalData = data?.data?.data?.total_invested_value
-  // console.log('dataClosedPostions', data?.data?.data);
+  // console.log('dataClosedPostions', data?.data?.data); 
 
   const renderCardData = ({ item }: { item: FlatItem }) => {
     const statusColor =
@@ -52,7 +52,7 @@ const PositionsClosedComponent = (props?: any) => {
           <View style={styles.cardCol}>
             <View style={styles.kvRow}>
               <Text style={styles.kLabel}>Qty </Text>
-              <Text style={styles.kValue}>: {item.quantity}</Text>
+              <Text style={styles.kValue}>: {item.original_quantity}</Text>
             </View>
 
             <View style={styles.kvRow}>

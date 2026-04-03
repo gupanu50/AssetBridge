@@ -50,7 +50,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#101010',
     alignItems: 'center',
-    paddingHorizontal: PAD_H,
+    paddingHorizontal: scaler(14),
     height: scaler(30),
   },
   headerText: {
@@ -70,24 +70,33 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: scaler(44),
     paddingVertical: scaler(6),
+    paddingHorizontal: scaler(14),
   },
 
-  cellLeft: { flex: 1 },
+  cellLeft: {
+    flex: 1,
+    alignItems: 'flex-start',
+    paddingRight: scaler(6),
+  },
   cellMid: {
-    width: scaler(90),
+    width: scaler(80),
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cellRight: { flex: 1, alignItems: 'flex-end' },
+  cellRight: {
+    flex: 1,
+    alignItems: 'flex-end',
+    paddingLeft: scaler(6),
+  },
 
   moneyText: {
     color: mainColors.white,
-    fontSize: scaler(12),
-    fontFamily: fontFamily.poppinsRegular,
+    fontSize: scaler(11),
+    fontFamily: fontFamily.poppinsMedium,
   },
   pctText: {
-    marginTop: scaler(2),
-    fontSize: scaler(11),
+    marginTop: scaler(1),
+    fontSize: scaler(10),
     fontFamily: fontFamily.poppinsRegular,
   },
 
@@ -179,17 +188,18 @@ export const styles = StyleSheet.create({
   },
 
   centerDividerPill: {
-    marginHorizontal: scaler(12), // ✅ space between line and pill
-    paddingHorizontal: scaler(14),
-    paddingVertical: scaler(7),
+    marginHorizontal: scaler(8),
+    paddingHorizontal: scaler(12),
+    paddingVertical: scaler(6),
     borderRadius: scaler(12),
     backgroundColor: 'rgba(90,90,90,0.9)',
+    flexShrink: 1,
   },
-
   centerDividerText: {
-    color: mainColors.white,
     fontSize: scaler(11),
     fontFamily: fontFamily.poppinsRegular,
+    flexShrink: 1,
+    color: '#fff',
   },
   tickTrack2: {
     marginTop: scaler(6),
@@ -203,25 +213,33 @@ export const styles = StyleSheet.create({
 
   tickLeftRed: {
     position: "absolute",
-    left: "50%",
+    right: "50%",   // ← was left: "50%"
     top: 0,
     bottom: 0,
     backgroundColor: mainColors.red,
-    transform: [{ translateX: -1 }], // tiny center gap effect
+    transform: [{ translateX: 1 }],
   },
 
   tickRightGreen: {
     position: "absolute",
-    right: "50%",
+    left: "50%",    // ← was right: "50%"
     top: 0,
     bottom: 0,
     backgroundColor: mainColors.green,
-    transform: [{ translateX: 1 }], // tiny center gap effect
+    transform: [{ translateX: -1 }],
   },
   skeletonCell: {
     height: 40,
     borderRadius: 4,
     backgroundColor: 'rgba(255,255,255,0.1)',
     marginVertical: 2,
-  }
+  },
+cellPressed: {
+  backgroundColor: 'rgba(255,255,255,0.06)',
+  borderRadius: scaler(6),
+},
+rowNavigating: {
+  backgroundColor: 'rgba(255,255,255,0.04)',
+  // Poori row thodi highlight hogi jab navigate ho raha ho
+},
 });

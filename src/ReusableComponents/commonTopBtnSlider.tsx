@@ -14,7 +14,6 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
     const isMarketOpen = isMarketOpenIST();
     const offlineLtp = data?.data?.data?.results;
     // console.log('OfflineLtp',offlineLtp)
-    const WANT: IndexKey[] = ['NIFTY50', 'SENSEX', 'NIFTYBANK'];
     const [indexRows, setIndexRows] = useState<Record<IndexKey, IndexRow>>(() => {
         // ✅ initial from cache (works even if market closed and ws paused)
         const keys: IndexKey[] = ['NIFTY50', 'SENSEX', 'NIFTYBANK'];

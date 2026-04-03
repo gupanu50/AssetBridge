@@ -14,7 +14,7 @@ const SplashScreen = ({ navigation }: Props) => {
       navigation.reset({
         index: 0,
         routes: [{
-          name: isLogin ? 'HomeTab' : 'Onboard'
+          name: isLogin ? 'LoginMPin' : 'Onboard'
         }]
       })
     }, 3000);

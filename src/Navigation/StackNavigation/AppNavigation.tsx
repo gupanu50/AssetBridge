@@ -21,6 +21,8 @@ import TransactionHistoryScreen from '../../Screens/TransactionHistoryScreen';
 import AlgoMainScreen from '../../Screens/AlgoMainScreen';
 import NoDataFoundComponent from '../../ReusableScreenComponents/NoDataFoundComponent';
 import TradingViewScreen from '../../Screens/TradingViewScreen';
+import MPinScreen from '../../Screens/MPin';
+import MPinLoginScreen from '../../Screens/LoginMPin';
 export default function AppNavigation() {
   const Stack = createNativeStackNavigator<MainStackParamList>();
   return (
@@ -36,6 +38,8 @@ export default function AppNavigation() {
           <Stack.Screen name="HomeTab" component={BottamTabNavigation} />
           <Stack.Screen name="WatchList" component={WatchListScreen} />
           <Stack.Screen name="Otp" component={OtpScreen} />
+          <Stack.Screen name="MPin" component={MPinScreen} />
+          <Stack.Screen name="LoginMPin" component={MPinLoginScreen} />
           <Stack.Screen name="Forget" component={ForgetPassword} />
           <Stack.Screen name="Instrument" component={InstumentScreen} />
           <Stack.Screen name="OptionsChain" component={OptionsChainScreen} />

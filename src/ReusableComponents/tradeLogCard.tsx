@@ -34,7 +34,7 @@ const dirPillStyle = (direction: "LONG" | "SHORT") => {
     return { bg: "rgba(255,77,79,0.20)", text: mainColors.errorRed };
 };
 
-const statusPillStyle = (status: string) => {
+const statusPillStyle = () => {
     // screenshot shows grey pill
     return { bg: "#2A2A2A", text: mainColors.white };
 };
@@ -57,7 +57,6 @@ const Row = ({ l1, l2, v1, v2 }: { l1: string; l2: string; v1: string; v2: strin
 
 export default function TradeLogCard({ item, otherData }: Props) {
     const dir = dirPillStyle(item.Direction);
-    const st = statusPillStyle(item.status);
 
     return (
         <View style={s.card}>

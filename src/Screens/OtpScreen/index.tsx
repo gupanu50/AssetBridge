@@ -48,7 +48,7 @@ const OtpScreen = ({ navigation, route }: Props) => {
       index: 0,
       routes: [
         {
-          name: nav === 'register' ? 'Login' : nav === 'forgot_password' ? 'ChangePassword' : 'HomeTab',
+          name: nav === 'register' ? 'MPin' : nav === 'forgot_password' ? 'ChangePassword' : 'HomeTab',
         },
       ],
     });

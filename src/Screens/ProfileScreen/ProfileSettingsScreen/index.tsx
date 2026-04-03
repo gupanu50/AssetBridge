@@ -112,7 +112,13 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
             <CommonDrawerBackHeader title='Profile Settings' navigation={navigation} />
             <View style={styles.headerRow}>
-                <View style={styles.avatarWrap}>
+                <TouchableOpacity style={styles.avatarWrap}
+                    onPress={() => launchGallery({
+                        mediaType: 'photo',
+                        compressImageMaxHeight: 800,
+                        compressImageMaxWidth: 800,
+                    })}
+                >
                     {image ?
                         <Image
                             source={{ uri: image?.path }}
@@ -130,14 +136,10 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
                                 style={styles.avatar}
                                 borderRadius={100 / 2}
                             />}
-                    <TouchableOpacity activeOpacity={0.85} style={styles.avatarDownBtn} onPress={() => launchGallery({
-                        mediaType: 'photo',
-                        compressImageMaxHeight: 800,
-                        compressImageMaxWidth: 800,
-                    })}>
+                    <View style={styles.avatarDownBtn}>
                         <IconButton name="upload" vectorType="AntDesign" size={scaler(13)} color={mainColors.white} />
-                    </TouchableOpacity>
-                </View>
+                    </View>
+                </TouchableOpacity>
 
                 <View style={styles.headerMid}>
                     <Text style={styles.headerId}>{profileData?.username}</Text>

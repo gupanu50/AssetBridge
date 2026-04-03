@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import IconButton from '../../ReusableComponents/iconButton'
 import { mainColors } from '../../Utils/helper'

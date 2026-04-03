@@ -1,10 +1,14 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import IconButton from '../../ReusableComponents/iconButton';
 import { Images } from '../../Assets';
 import { mainColors } from '../../Utils/helper';
 import { styles } from './styles';
 import { WatchRow } from './type';
+
+// ✅ ADD THESE IMPORTS
+import { onWsMessage, getLastByKey } from '../../Utils/ws/marketSocket';
+import { computeChange } from '../../Utils/ws/commonWebSocketFunctions';
 
 type AnchorRect = { x: number; y: number; width: number; height: number };
 
@@ -17,14 +21,62 @@ type RowProps = {
 const WatchRowItem = ({ item, onOpenMenu, onPressRow }: RowProps) => {
     const dotsRef = useRef<View>(null);
 
+    // ✅ LOCAL STATE (per row)
+    const [wsPayload, setWsPayload] = useState<any>(null);
+
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    const timerRef = useRef<any>(null);
     const openMenu = () => {
         dotsRef.current?.measureInWindow((x, y, width, height) => {
             onOpenMenu({ x, y, width, height }, item);
         });
     };
 
-    const arrowImg = item.isUp ? Images.profitUp : Images.lossDown;
-    const priceColor = item.isUp ? mainColors.green : mainColors.red;
+    // ✅ LISTEN ONLY FOR THIS ROW
+    useEffect(() => {
+        if (!item?.wsKey) return;
+
+        const initial = getLastByKey(item.wsKey);
+        if (initial) setWsPayload(initial);
+
+        const off = onWsMessage((msg) => {
+            if (!msg?.data) return;
+
+            const data = msg.data[item.wsKey];
+            if (!data) return;
+
+            // 🔥 trigger flash
+            setIsUpdating(true);
+            setWsPayload(data);
+
+            // remove flash after 300ms
+            setTimeout(() => {
+                setIsUpdating(false);
+            }, 300);
+        });
+
+        return () => {
+            off();
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, [item?.wsKey]);
+
+    // ✅ COMPUTE FROM WS OR FALLBACK
+    const { ltp, abs, pct } = computeChange(wsPayload);
+
+    const finalPrice = ltp ?? null;
+
+    const isLoading = finalPrice == null;
+    const finalChange =
+        abs != null && pct != null
+            ? `${abs >= 0 ? '+' : ''}${abs.toFixed(2)} (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`
+            : item.change;
+
+    const isUp = (abs ?? item.absolute_change ?? 0) >= 0;
+
+    const arrowImg = isUp ? Images.profitUp : Images.lossDown;
+    const priceColor = isUp ? mainColors.green : mainColors.red;
 
     return (
         <TouchableOpacity activeOpacity={0.85} style={styles.watchRow} onPress={onPressRow}>
@@ -38,20 +90,43 @@ const WatchRowItem = ({ item, onOpenMenu, onPressRow }: RowProps) => {
             </View>
 
             <View style={styles.watchRight}>
-                <Text style={[styles.watchPrice, { color: priceColor }]} numberOfLines={1}>
-                    {item.price}
-                </Text>
+                {isLoading ? (
+                    // 🔥 SHIMMER SKELETON
+                    <View style={{
+                        height: 16,
+                        width: 60,
+                        borderRadius: 4,
+                        backgroundColor: '#2a2a2a',
+                        overflow: 'hidden'
+                    }}>
+                        <View style={{
+                            height: '100%',
+                            width: '100%',
+                            backgroundColor: '#3a3a3a',
+                            opacity: 0.6
+                        }} />
+                    </View>
+                ) : (
+                    // ✅ REAL VALUE
+                    <Text
+                        style={[
+                            styles.watchPrice,
+                            { color: priceColor }
+                        ]}
+                        numberOfLines={1}
+                    >
+                        {finalPrice}
+                    </Text>
+                )}
 
                 <View style={styles.watchChangeRow}>
                     <Text style={[styles.watchChange, { color: mainColors.white }]} numberOfLines={1}>
-                        {item.change}
+                        {finalChange}
                     </Text>
-                    {/* <Image source={arrowImg} style={styles.watchArrowImg} resizeMode="contain" /> */}
                 </View>
             </View>
 
-            {/* measure wrapper */}
-            <View ref={dotsRef} collapsable={false} style={{}}>
+            <View ref={dotsRef} collapsable={false}>
                 <IconButton
                     vectorType="MaterialCommunityIcons"
                     name="dots-vertical"

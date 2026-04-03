@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import { Alert, FlatList, Image, Platform, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
 import { getApiErrorMessage, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
 import { styles } from './styles';
@@ -28,6 +28,7 @@ const PositionsOpenComponent = (props?: any) => {
   const ORDER_OWNER_ID = "openPostions";
   const [tick, setTick] = useState(0);
   const [input, setInput] = useState('');
+  const isMarketOpen = isMarketOpenIST();
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const { mutate } = useExitPostionsMutation();
   const exitPositions = async () => {
@@ -346,7 +347,7 @@ const PositionsOpenComponent = (props?: any) => {
           { marginBottom: scaler(10), alignItems: 'center' },
         ]}
       >
-        {selectedIds.size ? <TouchableOpacity style={styles.exitView} onPress={() => exitPositions()}>
+        {(selectedIds.size && isMarketOpen) ? <TouchableOpacity style={styles.exitView} onPress={() => exitPositions()}>
           <Text style={styles.exitText}>{`Exit ${selectedIds.size} Positions`}</Text>
         </TouchableOpacity> : <View style={{ width: scaler(100) }} />}
         {filteredOrderData?.length > 0 && <><Text style={styles.totalText}>Total</Text>

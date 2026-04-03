@@ -5,8 +5,6 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
-  Pressable,
-  Alert,
 } from 'react-native';
 import { fontFamily, isMarketOpenIST, mainColors } from '../../Utils/helper';
 import IconButton from '../../ReusableComponents/iconButton';
@@ -19,22 +17,13 @@ import useOptionChainDatesDataQuery from './Hooks/useGetOptionDatesDataQuery';
 import useOptionChainDataQuery from './Hooks/useGetOptionsDataQuery';
 import OptionChainSkeletonList, { OptionChainCenterBoxSkeleton, OptionChainHeaderSkeleton, OptionChainRowSkeleton, OptionChainTableHeaderSkeleton } from './SkLoading/OptionChainSkeleton';
 
-type Row = {
-  id: string;
-  callLtp: number;
-  callChgPct: number;
-  strike: number;
-  putLtp: number;
-  putChgPct: number;
-  midTick: 'green' | 'red' | 'none';
-};
-
 const fmtMoney = (v: number) => `${v?.toFixed(2)}`;
 type Props = MainStackScreenProps<'OptionsChain'>;
 export default function OptionsChainScreen({ navigation, route }: Props) {
   // console.log('RouteOptionsChaain', route?.params?.segment, route?.params?.symbol, route?.params);
   // Extracting segment and symbol dynamically from route params
   // const segment = route?.params?.segment;
+  const flatListRef = React.useRef<FlatList>(null);
   const symbol = route?.params?.symbol.replace(" ", "");
   const { data: optionChainDatesData } = useOptionChainDatesDataQuery({
     symbol: String(symbol),
@@ -54,12 +43,6 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     return String(raw ?? "").trim().toUpperCase();
   };
   const normalizedSymbol = normalizeWsSymbol(symbol);
-  const pctFromLtpClose = (ltp?: number, close?: number) => {
-    const l = Number(ltp ?? 0);
-    const c = Number(close ?? 0);
-    if (!c) return 0;
-    return ((l - c) / c) * 100;
-  };
   const fmtPct = (v: number) => `${v >= 0 ? "" : ""}${v?.toFixed(2)}%`;
   useEffect(() => {
     const first = optionChainDatesData?.data?.data?.data?.[0];
@@ -249,81 +232,127 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
     return out;
 
   }, [rows, live]);
-  // const keyFor = (sym: string) => `${ String(wsSeg).toUpperCase() }:${ String(sym).toUpperCase() } `;
-  const renderRow = (item: { strike: number; callSymbol: any; putSymbol: any }) => {
-    // console.log('Items', item)
-    const callKey = keyFor(item.callSymbol.symbol);
-    const putKey = keyFor(item.putSymbol.symbol);
-    const call = wsPrices[callKey];
-    const put = wsPrices[putKey];
-    // If data not ready yet, render skeleton
-    if (call?.ltp === undefined || put?.ltp === undefined) {
-      // Show skeleton only if data is actually missing
+
+  const atmIndex = useMemo(() => {
+    if (!listWithBox.length || !live?.ltp) return 0;
+
+    return listWithBox.findIndex(
+      (item) =>
+        item.type === "row" &&
+        item.strike === findClosestStrike(
+          live.ltp,
+          rows.map((r: any) => r.strike)
+        )
+    );
+  }, [listWithBox, live]);
+
+  useEffect(() => {
+    if (atmIndex > 0 && flatListRef.current) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({
+          index: atmIndex,
+          animated: false, // first load pe smooth nahi, direct jump
+        });
+      }, 100); // wait for render
+    }
+  }, [atmIndex]);
+
+  const OptionRow = React.memo(
+    ({ item, call, put, navigation }: any) => {
+      if (call?.ltp === undefined || put?.ltp === undefined) {
+        return <OptionChainRowSkeleton />;
+      }
+
+      const fmtMoney = (v: number) => `${v?.toFixed(2)}`;
+      const fmtPct = (v: number) => `${v?.toFixed(2)}%`;
+
+      const pctFromLtpClose = (ltp?: number, close?: number) => {
+        const l = Number(ltp ?? 0);
+        const c = Number(close ?? 0);
+        if (!c) return 0;
+        return ((l - c) / c) * 100;
+      };
+
+      const callLtp = call?.ltp;
+      const putLtp = put?.ltp;
+
+      const callPct = pctFromLtpClose(call?.ltp, call?.close);
+      const putPct = pctFromLtpClose(put?.ltp, put?.close);
+
+      const clamp = (n: number, min: number, max: number) =>
+        Math.max(min, Math.min(max, n));
+
+      const callStrength = clamp(Math.abs(callPct), 0, 10);
+      const putStrength = clamp(Math.abs(putPct), 0, 10);
+
+      const sum = callStrength + putStrength || 1;
+
+      const leftPct = (putStrength / sum) * 50;
+      const rightPct = (callStrength / sum) * 50;
+
       return (
-        // <View style={styles.rowWrap}>
-        //   <View style={[styles.cellLeft, styles.skeletonCell]} />
-        //   <View style={[styles.cellMid, styles.skeletonCell]} />
-        //   <View style={[styles.cellRight, styles.skeletonCell]} />
-        // </View>
-        <OptionChainRowSkeleton />
+        <View style={styles.rowWrap}>
+          {/* LEFT: CALL */}
+          <TouchableOpacity
+            style={styles.cellLeft}
+            onPress={() =>
+              navigation.navigate("Instrument", {
+                symbol: item.callSymbol.symbol,
+                ltp: callLtp,
+                abs: callPct,
+              })
+            }
+          >
+            <Text style={styles.moneyText}>{fmtMoney(callLtp)}</Text>
+            <Text
+              style={[
+                styles.pctText,
+                callPct >= 0 ? styles.green : styles.red,
+              ]}
+            >
+              {fmtPct(callPct)}
+            </Text>
+          </TouchableOpacity>
+
+          {/* MIDDLE: STRIKE + BAR */}
+          <View style={styles.cellMid}>
+            <Text style={styles.strikeText}>{item.strike}</Text>
+
+            <View style={styles.tickTrack2}>
+              <View
+                style={[styles.tickLeftRed, { width: `${leftPct}%` }]}
+              />
+              <View
+                style={[styles.tickRightGreen, { width: `${rightPct}%` }]}
+              />
+            </View>
+          </View>
+
+          {/* RIGHT: PUT */}
+          <TouchableOpacity
+            style={styles.cellRight}
+            onPress={() =>
+              navigation.navigate("Instrument", {
+                symbol: item.putSymbol.symbol,
+                ltp: putLtp,
+                abs: putPct,
+              })
+            }
+          >
+            <Text style={styles.moneyText}>{fmtMoney(putLtp)}</Text>
+            <Text
+              style={[
+                styles.pctText,
+                putPct >= 0 ? styles.green : styles.red,
+              ]}
+            >
+              {fmtPct(putPct)}
+            </Text>
+          </TouchableOpacity>
+        </View>
       );
     }
-    // console.log('WSPricesinsideRender', call, put)
-    const callLtp = call?.ltp;
-    const putLtp = put?.ltp;
-    const callPct = pctFromLtpClose(call?.ltp, call?.close);
-    const putPct = pctFromLtpClose(put?.ltp, put?.close);
-    // console.log('WSPricesinsideRenderCallLTPPutLtp', callLtp, putLtp)
-    const diff = callPct - putPct; // >0 => call stronger
-    // const abs = Math.min(Math.abs(diff), 5); // clamp to 5%
-    // const barWidthPct = 30 + (abs / 5) * 70; // 30%..100%
-    const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
-    // Use abs % changes as “strength”
-    const callStrength = clamp(Math.abs(callPct), 0, 10); // cap at 10%
-    const putStrength = clamp(Math.abs(putPct), 0, 10);
-
-    const sum = callStrength + putStrength || 1;
-    // console.log('CallPct', callPct)
-    // Split track into left half (red) + right half (green)
-    const leftPct = (putStrength / sum) * 50;   // max 50%
-    const rightPct = (callStrength / sum) * 50; // max 50%
-    // console.log("STRENGTH", { leftPct, rightPct });
-    // const barColorStyle = diff > 0 ? styles.tickGreen : diff < 0 ? styles.tickRed : styles.tickNone;
-    return (
-      <View style={styles.rowWrap}>
-        {/* Left: Call LTP */}
-        <TouchableOpacity style={styles.cellLeft} onPress={() => navigation.navigate('Instrument', { symbol: item.callSymbol.symbol, ltp: callLtp, abs: callPct })}>
-          <Text style={styles.moneyText}>{fmtMoney(callLtp)}</Text>
-          <Text
-            style={[styles.pctText, callPct >= 0 ? styles.green : styles.red]}
-          >
-            {fmtPct(callPct)}
-          </Text>
-        </TouchableOpacity>
-
-        {/* Middle: Strike */}
-        <View style={styles.cellMid}>
-          <Text style={styles.strikeText}>{item.strike}</Text>
-          <View style={styles.tickTrack2}>
-            <View style={[styles.tickLeftRed, { width: `${leftPct}%` }]} />
-            <View style={[styles.tickRightGreen, { width: `${rightPct}%` }]} />
-          </View>
-        </View>
-
-        {/* Right: Put LTP */}
-        <TouchableOpacity style={styles.cellRight} onPress={() => navigation.navigate('Instrument', { symbol: item.putSymbol.symbol, ltp: putLtp, abs: putPct })}>
-          <Text style={styles.moneyText}>{fmtMoney(putLtp)}</Text>
-          <Text
-            style={[
-              styles.pctText, putPct >= 0 ? styles.green : styles.red
-            ]}
-          >
-            {fmtPct(putPct)}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  );
   const isDatesLoading = !optionChainDatesData?.data?.data?.data?.length;
   const isRowsLoading = !rows?.length;
   const showSkeleton = !dataReady || isDatesLoading || isRowsLoading;
@@ -379,18 +408,31 @@ export default function OptionsChainScreen({ navigation, route }: Props) {
               keyExtractor={(item, index) =>
                 item.type === "box" ? item.id : `${item.strike}-${index}`
               }
-              renderItem={({ item }) => {
-                // console.log('ItemInsideFlatListDirect', item)
+              renderItem={({ item }: any) => {
                 if (item.type === "box") {
-                  // example text like figma: 23950.00 | 23950.00 (0.00%)
-                  // const boxText = `${fmtMoney(item.strike)}  |  ${fmtMoney(item.strike)} (0.00%)`;
                   return <CenterBoxRow ltp={item.ltp} close={item?.close} />;
                 }
+                const callKey = keyFor(item.callSymbol.symbol);
+                const putKey = keyFor(item.putSymbol.symbol);
 
-                return renderRow(item); // IMPORTANT: renderRow(item) not renderRow({item})
+                return (
+                  <OptionRow
+                    item={item}
+                    call={wsPrices[callKey]}
+                    put={wsPrices[putKey]}
+                    navigation={navigation}
+                  />
+                );
               }}
-              contentContainerStyle={styles.listContent}
-              showsVerticalScrollIndicator={false}
+              initialNumToRender={20}
+              windowSize={10}
+              removeClippedSubviews={true}
+
+              getItemLayout={(data, index) => ({
+                length: 60, // approx row height (adjust if needed)
+                offset: 60 * index,
+                index,
+              })}
             />
           </>
         )}

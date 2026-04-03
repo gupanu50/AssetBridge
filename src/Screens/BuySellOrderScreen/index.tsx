@@ -1,4 +1,4 @@
-import { FlatList, Image, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { fontFamily, getApiErrorMessage, isMarketOpenIST, mainColors } from '../../Utils/helper'
 import IconButton from '../../ReusableComponents/iconButton'
@@ -9,7 +9,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import CommonTextInput from '../../ReusableComponents/commonTextInput'
 import { Images } from '../../Assets'
 import { Dropdown } from 'react-native-element-dropdown';
-import { horizontalFlatDataType } from './types'
 import CommonButton from '../../ReusableComponents/commonButton'
 import { styles } from './styles'
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
@@ -26,11 +25,10 @@ type Props = MainStackScreenProps<'BuySellOrder'>;
 const BuySellOrderScreen = ({ navigation, route }: Props) => {
     const [activeTopTab, setActiveTopTab] = useState(route?.params?.buySelldata?.isOptionChainFlow ? 'Carry Forward' : 'Delivery');
     const [valueShares, setValueShares] = useState(0);
-    const [marketPrice, setMarketPrice] = useState(200);
+    const [marketPrice, setMarketPrice] = useState(2000);
     const { data } = useProfileQuery();
     const profileData = data?.data?.data[0]
-    // console.log('ProfileData', profileData)
-    const [disclosedQuantity, setDisclosedQuantity] = useState('0');
+    // console.log('ProfileData', profileData);
     const [isBuySellEnable, setIsBuySellEnable] = useState(true);
     const [selectedPercentId, setSelectedPercentId] = useState<number | null>(null);
     const [showImg, setShowImg] = useState(true);
@@ -42,7 +40,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
     const [isEnabled, setIsEnabled] = useState(false);
     const [isEnabled1, setIsEnabled1] = useState(false);
     const isMarketHours = isMarketOpenIST();
-    console.log('routeParamsBuySell', route?.params?.buySelldata);
+    // console.log('routeParamsBuySell', route?.params?.buySelldata);
     const buySellParams = route?.params?.buySelldata;
     const [selectedValue, setSelectedValue] = useState<string | null>('day');
     const safeParamItem = buySellParams?.paramItem ?? {
@@ -54,7 +52,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
         percentage_change: 0,
         index: undefined,
     };
-    let moversDetails;
+    let moversDetails: any;
     if (safeParamItem?.segment && !String(safeParamItem.symbol || '').includes('CE') && !String(safeParamItem.symbol || '').includes('PE')) {
         const { data: moversPercentageData } = useTopMoversPercentageQuery({
             exchange: buySellParams?.nav === 'movers' ? safeParamItem?.segment : safeParamItem?.exchange,
@@ -70,6 +68,20 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
             return moverPercentageDataDetails
         }, [moverPercentageDataDetails]);
     }
+    const [live, setLive] = useState(() => {
+        const payload =
+            getLastByKey(`INDICES:${symbol}`) ||
+            getLastByKey(symbol); // snapshot cache key
+        const { ltp, abs, pct } = computeChange(payload);
+        return { ltp, abs, pct };
+    });
+    const ltp = Number(
+        live?.ltp ?? moversDetails?.current_price ?? safeParamItem?.current_price ?? 0
+    );
+    useEffect(() => {
+        setStopLossValue(ltp);
+        setTakeProfitValue(ltp);
+    }, [ltp]);
     const horFlatData = [
         { id: 1, name: "+2.5%", percent: 2.5 },
         { id: 2, name: "+5%", percent: 5 },
@@ -77,12 +89,6 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
         { id: 4, name: "+15%", percent: 15 },
         { id: 5, name: "Custom", percent: null },
     ];
-    // const renderHoriFlatData = ({ item }: { item: horizontalFlatDataType }) => (
-    //     <TouchableOpacity style={styles.flatItem}>
-    //         <Text style={styles.flatItemText}>{item.name}</Text>
-    //     </TouchableOpacity>
-    // );
-
     const renderHoriFlatData = ({ item }: { item: any }) => {
         const isActive = selectedPercentId === item.id;
 
@@ -128,6 +134,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
     ];
     const renderTopTab = ({ item, index }: { item: TopTabProps; index: number }) => {
         const isActive = activeTopTab === item.label;
+        const isDisabled = item.label === 'Intraday' && !isMarketHours;
         return (
             <CommonTabSlider
                 activeTab={buySellParams?.isOptionChainFlow ? 'Carry Forward' : "Delivery"}
@@ -137,48 +144,79 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                 isRightText={item?.isRightText}
                 isActive={isActive}
                 setIsActive={setActiveTopTab}
+                disabled={isDisabled}
             />
         );
     };
     const topTabListRef: any = useRef(null);
-    const applyPercentToStopLoss = (percent: number, id?: number) => {
-        setStopLossValue((prev: any) => {
-            const base =
-                typeof prev === "number"
-                    ? prev
-                    : parseFloat(String(prev).replace(/[^\d.]/g, "")) || 0;
+    // const applyPercentToStopLoss = (percent: number, id?: number) => {
+    //     setStopLossValue((prev: any) => {
+    //         const base =
+    //             typeof prev === "number"
+    //                 ? prev
+    //                 : parseFloat(String(prev).replace(/[^\d.]/g, "")) || 0;
 
-            const next = base + (base * percent) / 100;
+    //         const next = base + (base * percent) / 100;
 
-            // If you want integer values only:
-            // return Math.round(next);
+    //         // If you want integer values only:
+    //         // return Math.round(next);
 
-            // If you want 2 decimals:
-            return Number(next.toFixed(2));
-        });
+    //         // If you want 2 decimals:
+    //         return Number(next.toFixed(2));
+    //     });
 
-        if (typeof id === "number") setSelectedPercentId(id);
-    };
-    const applyPercentToTakeProfit = (percent: number, id?: number) => {
-        setTakeProfitValue((prev: any) => {
-            const base =
-                typeof prev === "number"
-                    ? prev
-                    : parseFloat(String(prev).replace(/[^\d.]/g, "")) || 0;
+    //     if (typeof id === "number") setSelectedPercentId(id);
+    // };
+    // const applyPercentToTakeProfit = (percent: number, id?: number) => {
+    //     setTakeProfitValue((prev: any) => {
+    //         const base =
+    //             typeof prev === "number"
+    //                 ? prev
+    //                 : parseFloat(String(prev).replace(/[^\d.]/g, "")) || 0;
 
-            const next = base + (base * percent) / 100;
+    //         const next = base + (base * percent) / 100;
 
-            // If you want integer values only:
-            // return Math.round(next);
+    //         // If you want integer values only:
+    //         // return Math.round(next);
 
-            // If you want 2 decimals:
-            return Number(next.toFixed(2));
-        });
+    //         // If you want 2 decimals:
+    //         return Number(next.toFixed(2));
+    //     });
 
-        if (typeof id === "number") setSelectedPercentId1(id);
-    };
+    //     if (typeof id === "number") setSelectedPercentId1(id);
+    // };
     // -------------------- DATA --------------------
     // Tabs exactly like image (slidable) + counts
+    const applyPercentToStopLoss = (percent: number, id?: number) => {
+        let newValue: number;
+
+        if (buySellParams?.buynav === 'buy') {
+            // Buy: SL = LTP - %
+            newValue = ltp - (ltp * percent) / 100;
+        } else {
+            // Sell: SL = LTP + %
+            newValue = ltp + (ltp * percent) / 100;
+        }
+
+        setStopLossValue(Number(newValue.toFixed(2)));
+        if (typeof id === 'number') setSelectedPercentId(id);
+    };
+
+    const applyPercentToTakeProfit = (percent: number, id?: number) => {
+
+        let newValue: number;
+
+        if (buySellParams?.buynav === 'buy') {
+            // Buy: TP = LTP + %
+            newValue = ltp + (ltp * percent) / 100;
+        } else {
+            // Sell: TP = LTP - %
+            newValue = ltp - (ltp * percent) / 100;
+        }
+
+        setTakeProfitValue(Number(newValue.toFixed(2)));
+        if (typeof id === 'number') setSelectedPercentId1(id);
+    };
     const topTabs = useMemo(
         () => [
             { id: 't1', label: buySellParams?.isOptionChainFlow ? 'Carry Forward' : 'Delivery', isRightText: false },
@@ -199,15 +237,6 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
     const rawSymbol =
         safeParamItem?.symbol;
     const symbol = normalizeWsSymbol(rawSymbol);
-
-    const [live, setLive] = useState(() => {
-        const payload =
-            getLastByKey(`INDICES:${symbol}`) ||
-            getLastByKey(symbol); // snapshot cache key
-        const { ltp, abs, pct } = computeChange(payload);
-        return { ltp, abs, pct };
-    });
-
     useEffect(() => {
         if (!symbol) return;
 
@@ -501,19 +530,19 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                         <Text style={styles.noSharesText}>Limit Price</Text>
                         <View style={styles.imgView}>
                             <TouchableOpacity onPress={() => bumpMarketPrice(-1)} disabled={limitMarket === 'market' ? true : false}>
-                                <Image source={Images.decrease} resizeMode='contain' style={styles.img} />
+                                <Image source={Images.decrease} resizeMode='contain' style={[styles.img, { tintColor: limitMarket === 'market' ? mainColors.inputLabel : mainColors.mainButton }]} />
                             </TouchableOpacity>
                             <CommonTextInput
                                 value={String(marketPrice)}
                                 setValue={setMarketPrice}
                                 editable={limitMarket === 'market' ? false : true}
                                 keyboardType='numeric'
-                                style={styles.onlyWidth}
+                                style={{ color: limitMarket === 'market' ? mainColors.textGrey : mainColors?.white }}
                                 containerStyle={styles.inputContainerStyle}
-                                max={3}
+                                max={4}
                             />
                             <TouchableOpacity onPress={() => bumpMarketPrice(+1)} disabled={limitMarket === 'market' ? true : false}>
-                                <Image source={Images.increase} resizeMode='contain' style={styles.img} />
+                                <Image source={Images.increase} resizeMode='contain' style={[styles.img, { tintColor: limitMarket === 'market' ? mainColors.inputLabel : mainColors.mainButton }]} />
                             </TouchableOpacity>
                             <View style={styles.limitMarketView}>
                                 <TouchableOpacity style={[styles.limitView, { backgroundColor: limitMarket === 'limit' ? mainColors.buySellColor : mainColors.pnlCard }]} onPress={() => setLimitMarket('limit')}>

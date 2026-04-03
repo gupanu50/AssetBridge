@@ -8,13 +8,12 @@ import {
     StyleSheet,
     TouchableOpacity,
 } from 'react-native';
-import { fontFamily, getApiErrorMessage, mainColors } from '../../Utils/helper';
+import { getApiErrorMessage, mainColors } from '../../Utils/helper';
 import scaler from '../../Utils/scaler';
 import { NotificationTypeProps } from './types';
 import { s } from './styles';
 import useNotiDataQuery from './Hooks/useGetNotiQuery';
 import moment from 'moment';
-import { ScrollView } from 'react-native-gesture-handler';
 import useReadNotiMutation from './Hooks/useReadNotificationMutation';
 import IconButton from '../../ReusableComponents/iconButton';
 import useDeleteNotiMutation from './Hooks/useDeleteNotificationMutation';

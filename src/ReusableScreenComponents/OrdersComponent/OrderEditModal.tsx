@@ -1,4 +1,4 @@
-import { Alert, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { EditModalProps } from './types'
 import scaler from '../../Utils/scaler'

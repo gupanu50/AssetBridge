@@ -10,12 +10,10 @@ import {
     Linking,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import scaler from '../../Utils/scaler';
 import { getApiErrorMessage, mainColors } from '../../Utils/helper';
 import { Images } from '../../Assets';
 import IconButton from '../../ReusableComponents/iconButton';
-import CommonButton from '../../ReusableComponents/commonButton';
 import { styles } from './styles';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
 import { logout } from '../../Redux/authSlice';
@@ -30,6 +28,7 @@ type Props = MainStackScreenProps<'Profile'>;
 const ProfileScreen = ({ navigation }: Props) => {
     const dispatch = useDispatch();
     const logoutUser = () => {
+        console.log('runningProfileLogout')
         dispatch(logout());
         navigation.reset({
             index: 0,
@@ -73,7 +72,13 @@ const ProfileScreen = ({ navigation }: Props) => {
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
             {/* Header */}
             <View style={styles.headerRow}>
-                <View style={styles.avatarWrap}>
+                <TouchableOpacity style={styles.avatarWrap}
+                    onPress={() => launchGallery({
+                        mediaType: 'photo',
+                        compressImageMaxHeight: 800,
+                        compressImageMaxWidth: 800,
+                    })}
+                >
                     {image ?
                         <Image
                             source={{ uri: image?.path }}
@@ -91,14 +96,10 @@ const ProfileScreen = ({ navigation }: Props) => {
                                 style={styles.avatar}
                                 borderRadius={100 / 2}
                             />}
-                    <TouchableOpacity activeOpacity={0.85} style={styles.avatarDownBtn} onPress={() => launchGallery({
-                        mediaType: 'photo',
-                        compressImageMaxHeight: 800,
-                        compressImageMaxWidth: 800,
-                    })}>
+                    <View style={styles.avatarDownBtn}>
                         <IconButton name="upload" vectorType="AntDesign" size={scaler(15)} color={mainColors.white} />
-                    </TouchableOpacity>
-                </View>
+                    </View>
+                </TouchableOpacity>
 
                 <View style={styles.headerMid}>
                     <Text style={styles.headerId}>{profileData?.username}</Text>
@@ -218,22 +219,15 @@ const ProfileScreen = ({ navigation }: Props) => {
                 </View>
                 <View style={[styles.hr, { marginBottom: scaler(0) }]} />
                 {/* App Version */}
-                <View style={styles.versionRow}>
+                {/* <View style={styles.versionRow}>
                     <Text style={styles.versionText}>App Ver : 0.1.1.13</Text>
                     <CommonButton label='Update' backgroundColor={mainColors.black} textColor={mainColors.mainButton} />
-                </View>
+                </View> */}
             </View>
         </ScrollView>
     );
 };
 
-const Chip = ({ label, active }: { label: string; active?: boolean }) => {
-    return (
-        <TouchableOpacity style={styles.chip} >
-            <Text style={styles.chipText}>{label}</Text>
-        </TouchableOpacity>
-    );
-};
 
 const MenuItem = ({ icon, label, onPress }: { icon: ImageSourcePropType; label: string, onPress?: () => void }) => {
     return (

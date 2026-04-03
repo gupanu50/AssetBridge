@@ -256,7 +256,7 @@ const OrderBotComponent = (bot_id: any) => {
   }
   return (
     <View style={styles.main}>
-      <View style={[styles.flexView, styles.lineView]}>
+      {filteredOrderData?.length > 0 && <View style={[styles.flexView, styles.lineView]}>
         <IconButton
           vectorType="MaterialCommunityIcons"
           name={isAllSelected ? 'checkbox-marked' : 'checkbox-blank-outline'}
@@ -282,7 +282,7 @@ const OrderBotComponent = (bot_id: any) => {
           color={mainColors.mainButton}
           backgroundColor={mainColors.black}
         />
-      </View>
+      </View>}
       <FlatList
         data={filteredOrderData}
         renderItem={renderCardData}

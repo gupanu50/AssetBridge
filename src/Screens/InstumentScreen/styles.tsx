@@ -304,6 +304,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: scaler(10),
     flexDirection: 'row',
+    marginHorizontal: scaler(15)
   },
   searchInput: {
     flex: 1,

@@ -97,6 +97,7 @@ export type TopTabProps = {
   style?: ViewStyle;
   isRightText?: boolean;
   isRightNew?: boolean;
+  disabled?: boolean;
 };
 
 export type inputProps = {

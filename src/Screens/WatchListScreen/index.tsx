@@ -183,14 +183,16 @@ const WatchListScreen = ({ navigation }: Props) => {
       unregisterSubscription(OWNER_ID);
     };
   }, [wsPayload]);
-  useEffect(() => {
-    const off = onWsMessage((msg) => {
-      if (msg?.type !== "snapshot" && msg?.type !== "update") return;
-      if (!msg?.data || typeof msg.data !== "object") return;
-      setTick((t) => t + 1);
-    });
-    return () => off();
-  }, []);
+
+//   useEffect(() => {
+//     const off = onWsMessage((msg) => {
+//       if (msg?.type !== "snapshot" && msg?.type !== "update") return;
+//       if (!msg?.data || typeof msg.data !== "object") return;
+//       setTick((t) => t + 1);
+//     });
+//     return () => off();
+//   }, []);
+
   const activeWatchRows: WatchRow[] = useMemo(() => {
     if (!Array.isArray(watchListApiData) || !watchListApiData.length) return [];
 
@@ -245,7 +247,8 @@ const WatchListScreen = ({ navigation }: Props) => {
     });
   }, [activeWatchRows, tick]);
 
-  const showWatchlistSkeleton = watchlistLoading || (!activeTopTab || (activeWatchRows.length > 0 && !areActiveRowsHydrated));
+    //const showWatchlistSkeleton = watchlistLoading || (!activeTopTab || (activeWatchRows.length > 0 && !areActiveRowsHydrated));
+    const showWatchlistSkeleton = watchlistLoading || !activeTopTab;
   return (
     <View style={styles.container}>
       <CommonHeader onPressBell={() => setShowNoti(!showNoti)} navigation={navigation} />
@@ -449,7 +452,6 @@ const WatchListScreen = ({ navigation }: Props) => {
                     showsVerticalScrollIndicator={false}
                     ItemSeparatorComponent={() => <View style={styles.watchSeparator} />}
                     contentContainerStyle={{ paddingBottom: scaler(10) }}
-                    extraData={tick}
                   />
                 </View>
               )}

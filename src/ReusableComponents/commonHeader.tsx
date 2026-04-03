@@ -1,5 +1,5 @@
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import scaler from '../Utils/scaler';
 import { Images } from '../Assets';
 import { fontFamily, mainColors } from '../Utils/helper';
@@ -8,15 +8,23 @@ import useCompressQuery from '../Screens/HomeScreen/Hooks/useCompressQuery';
 import { CommonHeaderProps, ContractsObj, SearchItem } from './commonTypes';
 import { buildSearchIndex, searchItems, useDebounce } from './commonFunctions';
 import useNotiCountQuery from '../Screens/NotificationScreen/Hooks/useGetNotiCountQuery';
+import { useDispatch } from 'react-redux';
+import { compress } from '../Redux/compressSlice';
 
 const CommonHeader = (props: CommonHeaderProps) => {
   const [showSearch, setShowSearch] = useState(false);
+  const dispatch = useDispatch();
   const [value, setValue] = useState('');
   const debouncedValue = useDebounce(value, 300);
   const { data } = useCompressQuery();
-  const { data: notiCountData, refetch } = useNotiCountQuery();
+  const { data: notiCountData } = useNotiCountQuery();
   const notiCount = notiCountData?.data?.data?.unread || 0;
   const contracts: ContractsObj | undefined = data?.data?.data?.contracts;
+  useEffect(() => {
+    if (data?.data?.data?.contracts) {
+      dispatch(compress(data.data.data.contracts));
+    }
+  }, [data]);
   // ✅ build flattened list once per API update
   const searchIndex = useMemo(() => buildSearchIndex(contracts), [contracts]);
   // console.log('ContractsObj', contracts);

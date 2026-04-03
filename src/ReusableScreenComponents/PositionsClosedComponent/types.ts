@@ -13,7 +13,7 @@ export type FlatItem = {
   realized_pnl: number;
   direction: string;
   entry_time: string;
-  quantity: string;
+  original_quantity: string;
   entry_price: string;
   product_type: string
   Product: string;

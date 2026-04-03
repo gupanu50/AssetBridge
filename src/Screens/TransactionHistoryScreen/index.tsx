@@ -1,17 +1,9 @@
-import { FlatList, Image, TouchableOpacity, View } from 'react-native'
-import React, { useMemo, useRef, useState } from 'react'
+import { View } from 'react-native'
+import React from 'react'
 import CommonDrawerBackHeader from '../../ReusableComponents/commonDrawerBackHeader'
-import { mainColors } from '../../Utils/helper'
-import { TopTabProps } from '../../ReusableComponents/commonTypes'
-import CommonTabSlider from '../../ReusableComponents/commonTabSlider'
-import IconButton from '../../ReusableComponents/iconButton'
-import { Images } from '../../Assets'
-import FundsWithdrawalComponent from '../../ReusableScreenComponents/FundsWithdrawalTransactionHistoryComponent'
 import { styles } from './styles'
 import FundsAddedComponent from '../../ReusableScreenComponents/FundsAddedTransactionHistory'
-// import { Text } from 'react-native-gesture-handler'
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes'
-// import useTransactionQuery from '../ProfileScreen/Hooks/useTransactionSummary'
 type Props = MainStackScreenProps<'TransactionHistory'>;
 const TransactionHistoryScreen = ({ navigation }: Props) => {
     // const [activeTopTab, setActiveTopTab] = useState('Funds Added');

@@ -32,7 +32,6 @@ import MarketPlacePnlCalendarComponent from '../../ReusableScreenComponents/Mark
 import RiskDisclosureScreen from '../../ReusableComponents/riskDisclosureModal';
 import snackbarHandler from '../../Utils/snackbarHandler';
 import useCreatePaymentOrderMutation from './Hooks/useCreatePaymentOrderMutation';
-// import PaymentScreen, { startRazorpayPayment } from '../../ReusableComponents/paymentComponent';
 import useProfileQuery from '../ProfileScreen/Hooks/useProfileQuery';
 import { startRazorpayPayment } from '../../ReusableComponents/paymentComponent';
 import useVerifyPaymentMutation from './Hooks/usePaymentVerifyMutation';

@@ -1,4 +1,4 @@
-import { FlatList, ScrollView, Text, View } from 'react-native';
+import { FlatList, ScrollView, View } from 'react-native';
 import React, { useMemo, useRef, useState } from 'react';
 import CommonHeader from '../../ReusableComponents/commonHeader';
 import scaler from '../../Utils/scaler';

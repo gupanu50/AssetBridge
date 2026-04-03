@@ -3,3 +3,6 @@ export type apiData = {
     country_code: string;
     password: string;
 }
+export type mpinProps = {
+    mpin: string;
+}

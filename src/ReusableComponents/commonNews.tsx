@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { NewsItemProps } from './commonTypes';
 import { fontFamily, mainColors } from '../Utils/helper';
@@ -14,9 +14,6 @@ const CommonNews = (props: NewsItemProps) => {
         </View>
         <Text style={styles.newsTime}>{moment(props.published_at).fromNow()}</Text>
       </View>
-      {/* <View style={styles.newsLeft}>
-        <Image source={{ uri: props.img }} resizeMode="contain" style={styles.newsImg} borderRadius={15} />
-      </View> */}
       <View style={styles.newsRight}>
         <Text style={styles.newsTitle} numberOfLines={2}>
           {props.title}
