@@ -24,13 +24,13 @@ const PositionsOpenComponent = (props?: any) => {
   const flatData = data?.data?.data?.results;
   const totalData = data?.data?.data?.total_invested_value;
   // console.log('DataAllOpenPositions', data?.data?.data)
-  // console.log('dataOpenPostions', flatData, totalData);
+  // console.log('dataOpenPostions', flatData, totalData, props?.symbol);
   const ORDER_OWNER_ID = "openPostions";
   const [tick, setTick] = useState(0);
   const [input, setInput] = useState('');
   const isMarketOpen = isMarketOpenIST();
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const { mutate } = useExitPostionsMutation();
+  const { mutate } = useExitPostionsMutation('open', props?.symbol);
   const exitPositions = async () => {
     const ids = Array.from(selectedIds);
 
@@ -39,7 +39,7 @@ const PositionsOpenComponent = (props?: any) => {
     mutate({
       position_ids: ids
     }, {
-      onSuccess: (res) => {
+      onSuccess: () => {
         snackbarHandler.successToast('Exit order placed successfully');
         refetch();
       },
@@ -304,49 +304,49 @@ const PositionsOpenComponent = (props?: any) => {
     )
   }
   return (
-    <View style={styles.main}>
-      <View style={[styles.flexView, styles.lineView]}>
-        <IconButton
-          vectorType="MaterialCommunityIcons"
-          name={isAllSelected ? 'checkbox-marked' : 'checkbox-blank-outline'}
-          backgroundColor={mainColors.black}
-          color={isAllSelected ? mainColors.mainButton : mainColors.transactionTime}
-          onPress={() => toggleSelectAll()}
-        />
-        <Text style={styles.selectText}>Select All</Text>
-        <View style={styles.searchBox}>
-          <CommonTextInput
-            value={input}
-            setValue={setInput}
-            placeholder='Search'
-            containerStyle={{ height: scaler(38), width: scaler(65), borderWidth: 0 }}
-            style={{ fontSize: scaler(11) }}
+    <View style={styles.container}>
+      <View style={styles.container}>
+        <View style={styles.main}>
+          <View style={[styles.flexView, styles.lineView]}>
+            <IconButton
+              vectorType="MaterialCommunityIcons"
+              name={isAllSelected ? 'checkbox-marked' : 'checkbox-blank-outline'}
+              backgroundColor={mainColors.black}
+              color={isAllSelected ? mainColors.mainButton : mainColors.transactionTime}
+              onPress={() => toggleSelectAll()}
+            />
+            <Text style={styles.selectText}>Select All</Text>
+            <View style={styles.searchBox}>
+              <CommonTextInput
+                value={input}
+                setValue={setInput}
+                placeholder='Search'
+                containerStyle={{ height: scaler(38), width: scaler(65), borderWidth: 0 }}
+                style={{ fontSize: scaler(11) }}
+              />
+              <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
+            </View>
+            <IconButton
+              vectorType="AntDesign"
+              name="download"
+              onPress={() => handleDownload(flatData)}
+              color={mainColors.mainButton}
+              backgroundColor={mainColors.black}
+            />
+          </View>
+          <FlatList
+            data={filteredOrderData}
+            renderItem={renderCardData}
+            contentContainerStyle={{ paddingBottom: scaler(80) }}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={renderEmptyComponent}
+            ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
+          // scrollEnabled={false}
           />
-          <Image source={Images.search} resizeMode='contain' style={styles.searchLogo} />
+          {filteredOrderData?.length > 0 && <View style={styles.itemSeperator} />}
         </View>
-        <IconButton
-          vectorType="AntDesign"
-          name="download"
-          onPress={() => handleDownload(flatData)}
-          color={mainColors.mainButton}
-          backgroundColor={mainColors.black}
-        />
       </View>
-      <FlatList
-        data={filteredOrderData}
-        renderItem={renderCardData}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={renderEmptyComponent}
-        ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
-        scrollEnabled={false}
-      />
-      {filteredOrderData?.length > 0 && <View style={styles.itemSeperator} />}
-      <View
-        style={[
-          styles.buttonFlexView,
-          { marginBottom: scaler(10), alignItems: 'center' },
-        ]}
-      >
+      <View style={styles.fixedFooter}>
         {(selectedIds.size && isMarketOpen) ? <TouchableOpacity style={styles.exitView} onPress={() => exitPositions()}>
           <Text style={styles.exitText}>{`Exit ${selectedIds.size} Positions`}</Text>
         </TouchableOpacity> : <View style={{ width: scaler(100) }} />}

@@ -6,7 +6,7 @@ import { mainColors } from "../Utils/helper";
 import { styles } from "../Screens/InstumentScreen/styles";
 
 const LivePrice = ({ symbol, paramNav, paramItem, isMarketHours, moversDetails, selectedLabel }: any) => {
-  console.log('LivePricesProps', symbol, paramNav, paramItem, isMarketHours, moversDetails, selectedLabel)
+  // console.log('LivePricesProps', symbol, paramNav, paramItem, isMarketHours, moversDetails, selectedLabel)
   const [priceData, setPriceData] = useState({
     ltp: 0,
     abs: 0,

@@ -83,7 +83,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
   const candleData120 = useMemo(() => {
     const candles = candleData?.data?.data?.candles || [];
 
-    const MAX_POINTS = 80; // screen capacity
+    const MAX_POINTS = 70; // screen capacity
 
     if (candles.length <= MAX_POINTS) {
       return candles.map((item: any) => ({
@@ -468,9 +468,9 @@ const InstumentScreen = ({ navigation, route }: Props) => {
             onScrollToIndexFailed={() => { }}
           />
         </View>
-        {activeTopTab === 'Orders' && <OrderComponent symbol={paramItem?.symbol} />}
-        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent symbol={paramItem?.symbol} />}
-        {activeTopTab === 'Closed Positions' && <PositionsClosedComponent symbol={paramItem?.symbol} />}
+        {activeTopTab === 'Orders' && <OrderComponent symbol={paramItem?.symbol ?? route?.params?.symbol} />}
+        {activeTopTab === 'Opened Positions' && <PositionsOpenComponent symbol={paramItem?.symbol ?? route?.params?.symbol} />}
+        {activeTopTab === 'Closed Positions' && <PositionsClosedComponent symbol={paramItem?.symbol ?? route?.params?.symbol} />}
       </ScrollView>
       {(paramItem?.segment || symbolNormalized.includes('CE') || symbolNormalized.includes('PE')) ? <View style={styles.buttonFlexView}>
         <CommonButton

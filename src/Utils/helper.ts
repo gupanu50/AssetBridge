@@ -19,7 +19,7 @@ export const GOOGLE_PLACES_API_BASE_URL =
 type GenericApiError = {
   message?: string;
   detail?: string;
-  errors?: Record<string, string[]>;
+  errors?: Record<string, string[] | string>;
 };
 
 /**
@@ -77,21 +77,25 @@ export const getApiErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     const err = error as AxiosError<GenericApiError>;
     const data = err.response?.data;
-    const fieldMsg = data?.errors
-      ? Object.values(data.errors)?.[0]?.[0]
-      : undefined;
+
+    let fieldMsg: string | undefined;
+    if (data?.errors) {
+      const firstValue = Object.values(data.errors)[0];
+      // Handle both string[] and string
+      fieldMsg = Array.isArray(firstValue) ? firstValue[0] : firstValue;
+    }
+
     return (
       fieldMsg ||
       data?.message ||
       data?.detail ||
       err.message ||
-      "Something went wrong"
+      "Something went wrong, Please try again."
     );
   }
   if (error instanceof Error) return error.message;
-  return "Something went wrong";
+  return "Something went wrong, Please try again.";
 };
-
 export const ConstantStrings = {
   emailId: 'Email-Id',
   password: 'Password',

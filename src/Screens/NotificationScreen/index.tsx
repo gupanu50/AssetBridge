@@ -112,6 +112,13 @@ const NotificationsModal = ({
             </TouchableOpacity>
         );
     };
+    const renderEmptyComponent = () => {
+        return (
+            <View style={s.emptyView}>
+                <Text style={s.emptyText}>No Data Found</Text>
+            </View>
+        )
+    }
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
             <View style={s.backdrop} pointerEvents="box-none">
@@ -133,6 +140,7 @@ const NotificationsModal = ({
                             keyExtractor={(item) => String(item.id)}
                             renderItem={renderNotiData}
                             showsVerticalScrollIndicator={false}
+                            ListEmptyComponent={renderEmptyComponent}
                             ItemSeparatorComponent={() => <View style={s.lineSeperator} />}
                             contentContainerStyle={{ paddingBottom: scaler(6) }}
                             style={{ flex: 1 }}

@@ -7,7 +7,16 @@ export const s = StyleSheet.create({
         flex: 1,
         // backgroundColor: 'rgba(0,0,0,0.45)',
     },
-
+    emptyView: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: scaler(650)
+    },
+    emptyText: {
+        color: mainColors.white,
+        fontSize: scaler(15),
+        fontFamily: fontFamily.poppinsRegular
+    },
     // wrapper so we can position arrow + popover relative to screen
     popoverWrapper: {
         // flex: 1,

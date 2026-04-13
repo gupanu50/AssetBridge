@@ -8,6 +8,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import NetworkListener from './Utils/networkListener';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppNavigation from './Navigation/StackNavigation/AppNavigation';
+import { mainColors } from './Utils/helper';
 export default function App() {
   const queryClient = new QueryClient();
   return (
@@ -20,7 +21,7 @@ export default function App() {
                 <StatusBar
                   barStyle={'light-content'}
                   animated={true}
-                  backgroundColor={'transparent'}
+                  backgroundColor={mainColors.black}
                 />
                 <AppNavigation />
                 <NetworkListener />
@@ -38,6 +39,6 @@ const styles = StyleSheet.create({
   },
   safeView: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: mainColors.black,
   },
 });

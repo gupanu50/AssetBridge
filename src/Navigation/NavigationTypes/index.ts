@@ -9,6 +9,8 @@ export type MainStackParamList = {
   Otp: { mobile?: string, navScr?: string };
   MPin: { mobile?: string, navScr?: string };
   LoginMPin: undefined;
+  LoginMPinOtp: undefined;
+  ResetMPIN: undefined;
   Forget: undefined;
   Algo: undefined;
   Instrument: any;

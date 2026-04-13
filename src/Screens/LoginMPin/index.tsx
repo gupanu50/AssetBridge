@@ -1,4 +1,4 @@
-import { Image, ImageBackground, View } from 'react-native';
+import { Alert, Image, ImageBackground, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import { Images } from '../../Assets';
 import scaler from '../../Utils/scaler';
@@ -12,12 +12,13 @@ import IconButton from '../../ReusableComponents/iconButton';
 import snackbarHandler from '../../Utils/snackbarHandler';
 import useLoginMPinMutation from './Hooks/useaLoginMPinMutation';
 import { useDispatch, useSelector } from 'react-redux';
-import { login, selectUserData } from '../../Redux/authSlice';
+import { login, logout, selectUserData } from '../../Redux/authSlice';
 type Props = MainStackScreenProps<'LoginMPin'>;
 const MPinLoginScreen = ({ navigation }: Props) => {
     const [input, setInput] = useState('');
     const userData = useSelector(selectUserData);
     const contact = userData?.user?.contact;
+    const [showReset, setShowReset] = useState(false);
     const dispatch = useDispatch();
     const [errorInput, setErrorInput] = useState('');
     const { mutate } = useLoginMPinMutation();
@@ -37,9 +38,30 @@ const MPinLoginScreen = ({ navigation }: Props) => {
             },
             onError: (err) => {
                 const message = getApiErrorMessage(err);
+                const show = message.includes('locked');
+                setShowReset(show);
                 snackbarHandler.errorToast(message);
             }
         })
+    };
+    const logoutUser = () => {
+        dispatch(logout());
+        navigation.reset({
+            index: 0,
+            routes: [
+                { name: 'Login' }
+            ]
+        })
+    };
+    const logoutAlert = () => {
+        Alert.alert('Logout', 'Are you sure you want to logout', [
+            {
+                text: 'Cancel',
+                onPress: () => { },
+                style: 'cancel',
+            },
+            { text: 'OK', onPress: () => logoutUser() },
+        ]);
     }
     return (
         <View style={styles.container}>
@@ -90,6 +112,20 @@ const MPinLoginScreen = ({ navigation }: Props) => {
                         extraStyle={[styles.loginStyle, { marginTop: errorInput ? scaler(15) : scaler(25) }]}
                         onPress={() => loginMpin()}
                     />
+                    <View style={showReset ? styles?.resetView : styles.loginView}>
+                        <TouchableOpacity
+                            onPress={() => logoutAlert()}>
+                            <Text style={styles.signUpText}>
+                                Logout
+                            </Text>
+                        </TouchableOpacity>
+                        {showReset && <TouchableOpacity
+                            onPress={() => navigation.navigate('LoginMPinOtp')}>
+                            <Text style={styles.signUpText}>
+                                Reset MPIN
+                            </Text>
+                        </TouchableOpacity>}
+                    </View>
                 </View>
             </ImageBackground>
         </View>

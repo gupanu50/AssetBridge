@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetcher } from '../../../Utils/helper';
 import { ExitApiProps } from './types';
 const exitPositions = async (data: ExitApiProps): Promise<AxiosResponse<any>> => {
@@ -12,10 +12,15 @@ const exitPositions = async (data: ExitApiProps): Promise<AxiosResponse<any>> =>
         });
 };
 
-function useExitPostionsMutation() {
+function useExitPostionsMutation(status: string, symbol?: string) {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (data: ExitApiProps) => exitPositions(data),
-        onSuccess: () => { },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['/api/v1/positions/', status, symbol],
+            });
+        },
         onError: errr => {
             console.log('ExitPostionsApiError', errr)
         },

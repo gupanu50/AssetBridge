@@ -1,5 +1,5 @@
 import { View, ScrollView, FlatList } from 'react-native';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import CommonHeader from '../../ReusableComponents/commonHeader';
 import scaler from '../../Utils/scaler';
 import { MainStackScreenProps } from '../../Navigation/NavigationTypes/screenTypes';
@@ -11,11 +11,37 @@ import PositionsOpenComponent from '../../ReusableScreenComponents/PositionsOpen
 import PositionsClosedComponent from '../../ReusableScreenComponents/PositionsClosedComponent';
 import CommonTopBtnSlider from '../../ReusableComponents/commonTopBtnSlider';
 import NotificationsModal from '../NotificationScreen';
+import useOptionChainDatesDataQuery from '../OptionsChainScreen/Hooks/useGetOptionDatesDataQuery';
+import { useDispatch } from 'react-redux';
+import { expiry50Data, expiryBankData } from '../../Redux/optionChainExpirySlice';
 
 type Props = MainStackScreenProps<'HomeTab'>;
 const HomeScreen = ({ navigation }: Props) => {
+  const dispatch = useDispatch();
   // -------------------- STATE --------------------
   const [activeTopTab, setActiveTopTab] = useState('Explore');
+  const { data: optionChain50DatesData } = useOptionChainDatesDataQuery({
+    symbol: String('Nifty50'),
+  })
+  const nifty50Data = useMemo(() => optionChain50DatesData?.data?.data?.data, [optionChain50DatesData]);
+  const { data: optionChainBankDatesData } = useOptionChainDatesDataQuery({
+    symbol: String('NiftyBank'),
+  });
+  const niftyBankData = useMemo(() => optionChainBankDatesData?.data?.data?.data, [optionChainBankDatesData]);
+
+  // Dispatch data to Redux when it changes
+  useEffect(() => {
+    if (nifty50Data) {
+      dispatch(expiry50Data(nifty50Data));
+    }
+  }, [nifty50Data, dispatch]);
+
+  useEffect(() => {
+    if (niftyBankData) {
+      dispatch(expiryBankData(niftyBankData));
+    }
+  }, [niftyBankData, dispatch]);
+
   // refs to keep tab visible while sliding
   const topTabListRef: any = useRef(null);
 

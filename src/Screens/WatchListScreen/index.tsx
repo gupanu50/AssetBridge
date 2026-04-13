@@ -24,7 +24,6 @@ import useCompressQuery from '../HomeScreen/Hooks/useCompressQuery';
 import { ContractsObj } from '../../ReusableComponents/commonTypes';
 import IconButton from '../../ReusableComponents/iconButton';
 import useAddItemsWatchlistMutation from './Hooks/useAddWatchlistItemsMutation';
-// import { addApiData } from './Hooks/types';
 import snackbarHandler from '../../Utils/snackbarHandler';
 import WatchlistSkeleton from './SkeletonLoading/WatchlistSkeleton';
 type Props = MainStackScreenProps<'WatchList'>;
@@ -36,13 +35,11 @@ const WatchListScreen = ({ navigation }: Props) => {
   const [visible, setVisible] = useState(false);
   const [selectedWatchItem, setSelectedWatchItem] = useState<WatchRow | null>(null);
   const { data, refetch, isLoading: watchlistLoading } = useWatchlistQuery();
-  // const [watchlistId, setWatchlistId] = useState<number>();
   const [activeTopTab, setActiveTopTab] = useState(null);
   const watchListApiData = data?.data?.data;
   // console.log('WatchListData', watchListApiData)
   const [anchor, setAnchor] = useState<AnchorRect | null>(null);
   const [showNoti, setShowNoti] = useState(false);
-  const [tick, setTick] = useState(0);
   const debouncedValue = useDebounce(input, 300);
   const { data: compressData } = useCompressQuery();
   const { mutate } = useAddItemsWatchlistMutation();
@@ -184,14 +181,6 @@ const WatchListScreen = ({ navigation }: Props) => {
     };
   }, [wsPayload]);
 
-//   useEffect(() => {
-//     const off = onWsMessage((msg) => {
-//       if (msg?.type !== "snapshot" && msg?.type !== "update") return;
-//       if (!msg?.data || typeof msg.data !== "object") return;
-//       setTick((t) => t + 1);
-//     });
-//     return () => off();
-//   }, []);
 
   const activeWatchRows: WatchRow[] = useMemo(() => {
     if (!Array.isArray(watchListApiData) || !watchListApiData.length) return [];
@@ -204,7 +193,6 @@ const WatchListScreen = ({ navigation }: Props) => {
   const renderWatchRow = ({ item }: { item: WatchRow }) => {
     const base = item?.items?.[0];
     if (!base) return null;
-    const sym = String(base?.symbol || "").trim();
     const wsSeg = mapApiToWsSegment(base?.segment, base?.exchange);
     const cacheKey = buildWsKey(wsSeg, base?.symbol);
     const payload = getLastByKey(cacheKey);
@@ -231,24 +219,7 @@ const WatchListScreen = ({ navigation }: Props) => {
       />
     );
   };
-  const areActiveRowsHydrated = useMemo(() => {
-    if (activeWatchRows.length === 0) return true; // <-- treat empty list as hydrated
-
-    return activeWatchRows.every((row) => {
-      const base = row?.items?.[0];
-      if (!base) return false;
-
-      const wsSeg = mapApiToWsSegment(base?.segment, base?.exchange);
-      const cacheKey = buildWsKey(wsSeg, base?.symbol);
-      const payload = getLastByKey(cacheKey);
-      const { ltp } = computeChange(payload);
-
-      return ltp != null || base?.current_price != null;
-    });
-  }, [activeWatchRows, tick]);
-
-    //const showWatchlistSkeleton = watchlistLoading || (!activeTopTab || (activeWatchRows.length > 0 && !areActiveRowsHydrated));
-    const showWatchlistSkeleton = watchlistLoading || !activeTopTab;
+  const showWatchlistSkeleton = watchlistLoading || !activeTopTab;
   return (
     <View style={styles.container}>
       <CommonHeader onPressBell={() => setShowNoti(!showNoti)} navigation={navigation} />
@@ -261,101 +232,6 @@ const WatchListScreen = ({ navigation }: Props) => {
       <View style={styles.mainView}>
         <CommonTopBtnSlider navigation={navigation} />
       </View>
-      {/* {watchListApiData?.length > 0 ? (
-        showWatchlistSkeleton ? (
-          <WatchlistSkeleton />
-        ) :
-          (
-            <View>
-              <View style={styles.topTabsWrap}>
-                <FlatList
-                  ref={topTabListRef}
-                  data={watchListApiData}
-                  keyExtractor={item => item.name}
-                  renderItem={renderTopTab}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.topTabsContent}
-                  onScrollToIndexFailed={() => { }}
-                />
-              </View>
-
-              <View style={styles.mainView}>
-                <View style={styles.flexView}>
-                  <CommonTextInput
-                    value={input}
-                    setValue={setInput}
-                    placeholder="Search here"
-                    leftImage={
-                      <View style={styles.searchView}>
-                        <Image source={Images.search} resizeMode="contain" style={styles.searchLogo} />
-                      </View>
-                    }
-                    containerStyle={{
-                      height: scaler(38),
-                      marginTop: scaler(15),
-                      borderRadius: 25,
-                      borderColor: '#202020',
-                    }}
-                    style={{ fontSize: scaler(11) }}
-                  />
-                </View>
-
-                {debouncedValue.trim().length > 0 && (
-                  <View style={styles.dropdown}>
-                    {results.length === 0 ? (
-                      <Text style={styles.noResult}>No match found</Text>
-                    ) : (
-                      <FlatList
-                        data={results}
-                        keyExtractor={(it) => `${it.segment}:${it.symbol}:${it.fullName}`}
-                        keyboardShouldPersistTaps="handled"
-                        initialNumToRender={15}
-                        maxToRenderPerBatch={20}
-                        windowSize={7}
-                        removeClippedSubviews
-                        style={styles.list}
-                        contentContainerStyle={styles.listContent}
-                        renderItem={({ item }) => (
-                          <TouchableOpacity style={styles.row} onPress={() => { }}>
-                            <View>
-                              <Text style={styles.fullName}>{item.fullName}</Text>
-                              <Text style={styles.subText}>
-                                {item.symbol} • {item.segment}
-                              </Text>
-                            </View>
-                            <IconButton
-                              vectorType="MaterialIcons"
-                              name="add-circle-outline"
-                              size={scaler(24)}
-                              color={mainColors.white}
-                              onPress={() => addItemsWatchlist(item)}
-                            />
-                          </TouchableOpacity>
-                        )}
-                        ItemSeparatorComponent={() => <View style={styles.separator} />}
-                      />
-                    )}
-                  </View>
-                )}
-
-                <View style={styles.watchListWrap}>
-                  <FlatList
-                    data={activeWatchRows}
-                    keyExtractor={(x: any, idx) => `${x?.items?.[0]?.symbol || 'row'}-${idx}`}
-                    renderItem={renderWatchRow}
-                    showsVerticalScrollIndicator={false}
-                    ItemSeparatorComponent={() => <View style={styles.watchSeparator} />}
-                    contentContainerStyle={{ paddingBottom: scaler(10) }}
-                    extraData={tick}
-                  />
-                </View>
-              </View>
-            </View>
-          )
-      ) : (
-        <NoWatchListData />
-      )} */}
       {watchListApiData?.length > 0 ? (
         showWatchlistSkeleton ? (
           <WatchlistSkeleton />

@@ -4,6 +4,7 @@ import { fetcher } from '../../../Utils/helper';
 import { apiData } from './type';
 
 const otpLogin = async (data: apiData): Promise<AxiosResponse<any>> => {
+    console.log('DataOTP', data)
     return fetcher
         ({
             url: '/api/v1/accounts/auth/verify-otp/',

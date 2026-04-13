@@ -23,6 +23,8 @@ import NoDataFoundComponent from '../../ReusableScreenComponents/NoDataFoundComp
 import TradingViewScreen from '../../Screens/TradingViewScreen';
 import MPinScreen from '../../Screens/MPin';
 import MPinLoginScreen from '../../Screens/LoginMPin';
+import ForgetMPINOTP from '../../Screens/ForgetMPin';
+import ResetMPinScreen from '../../Screens/ResetMPin';
 export default function AppNavigation() {
   const Stack = createNativeStackNavigator<MainStackParamList>();
   return (
@@ -40,6 +42,8 @@ export default function AppNavigation() {
           <Stack.Screen name="Otp" component={OtpScreen} />
           <Stack.Screen name="MPin" component={MPinScreen} />
           <Stack.Screen name="LoginMPin" component={MPinLoginScreen} />
+          <Stack.Screen name="LoginMPinOtp" component={ForgetMPINOTP} />
+          <Stack.Screen name="ResetMPIN" component={ResetMPinScreen} />
           <Stack.Screen name="Forget" component={ForgetPassword} />
           <Stack.Screen name="Instrument" component={InstumentScreen} />
           <Stack.Screen name="OptionsChain" component={OptionsChainScreen} />
@@ -49,7 +53,6 @@ export default function AppNavigation() {
             name="ChangePassword"
             component={ChangePasswordScreen}
           />
-          <Stack.Screen name="Notifications" component={NotificationsScreen} />
           <Stack.Screen name="BuySellOrder" component={BuySellOrderScreen} />
           <Stack.Screen name="ContactUs" component={ContactUsScreen} />
           <Stack.Screen

@@ -136,17 +136,11 @@ const PortfolioScreen = () => {
                     onScrollToIndexFailed={() => { }}
                 />
             </View>
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ flexGrow: 1 }}
-            >
-                {activeTopTab === 'Opened Positions' && (
-                    <PositionsOpenComponent />
-                )}
-                {activeTopTab === 'Closed Positions' && <PositionsClosedComponent />}
-                {activeTopTab === 'Orders' && <OrderComponent />}
-
-            </ScrollView>
+            {activeTopTab === 'Opened Positions' && (
+                <PositionsOpenComponent />
+            )}
+            {activeTopTab === 'Closed Positions' && <PositionsClosedComponent />}
+            {activeTopTab === 'Orders' && <OrderComponent />}
         </View>
     )
 }

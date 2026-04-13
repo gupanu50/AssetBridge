@@ -32,6 +32,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
     const [isBuySellEnable, setIsBuySellEnable] = useState(true);
     const [selectedPercentId, setSelectedPercentId] = useState<number | null>(null);
     const [showImg, setShowImg] = useState(true);
+    const lockedLtpRef = useRef<number | null>(null);
     const [selectedPercentId1, setSelectedPercentId1] = useState<number | null>(null);
     const [stopLossvalue, setStopLossValue] = useState(0);
     const [takeProfitValue, setTakeProfitValue] = useState(0);
@@ -79,16 +80,31 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
         live?.ltp ?? moversDetails?.current_price ?? safeParamItem?.current_price ?? 0
     );
     useEffect(() => {
+        setMarketPrice(ltp);
         setStopLossValue(ltp);
         setTakeProfitValue(ltp);
-    }, [ltp]);
-    const horFlatData = [
-        { id: 1, name: "+2.5%", percent: 2.5 },
-        { id: 2, name: "+5%", percent: 5 },
-        { id: 3, name: "+10%", percent: 10 },
-        { id: 4, name: "+15%", percent: 15 },
-        { id: 5, name: "Custom", percent: null },
-    ];
+    }, []);
+    const horFlatData = useMemo(() => {
+        const slSign = buySellParams?.buynav === 'buy' ? '-' : '+';
+        return [
+            { id: 1, name: `${slSign}2.5%`, percent: 2.5 },
+            { id: 2, name: `${slSign}5%`, percent: 5 },
+            { id: 3, name: `${slSign}10%`, percent: 10 },
+            { id: 4, name: `${slSign}15%`, percent: 15 },
+            { id: 5, name: "Custom", percent: null },
+        ];
+    }, [buySellParams?.buynav]);
+
+    const horFlatData1 = useMemo(() => {
+        const tpSign = buySellParams?.buynav === 'buy' ? '+' : '-';
+        return [
+            { id: 1, name: `${tpSign}2.5%`, percent: 2.5 },
+            { id: 2, name: `${tpSign}5%`, percent: 5 },
+            { id: 3, name: `${tpSign}10%`, percent: 10 },
+            { id: 4, name: `${tpSign}15%`, percent: 15 },
+            { id: 5, name: "Custom", percent: null },
+        ];
+    }, [buySellParams?.buynav]);
     const renderHoriFlatData = ({ item }: { item: any }) => {
         const isActive = selectedPercentId === item.id;
 
@@ -97,6 +113,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                 style={[styles.flatItem, isActive && { borderColor: mainColors.mainButton, borderWidth: 1 }]}
                 onPress={() => {
                     if (item.name === "Custom") {
+                        setSelectedPercentId(item?.id);
                         // optional: open modal / do nothing
                         return;
                     }
@@ -115,6 +132,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                 style={[styles.flatItem, isActive && { borderColor: mainColors.mainButton, borderWidth: 1 }]}
                 onPress={() => {
                     if (item.name === "Custom") {
+                        setSelectedPercentId1(item?.id);
                         // optional: open modal / do nothing
                         return;
                     }
@@ -149,73 +167,40 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
         );
     };
     const topTabListRef: any = useRef(null);
-    // const applyPercentToStopLoss = (percent: number, id?: number) => {
-    //     setStopLossValue((prev: any) => {
-    //         const base =
-    //             typeof prev === "number"
-    //                 ? prev
-    //                 : parseFloat(String(prev).replace(/[^\d.]/g, "")) || 0;
-
-    //         const next = base + (base * percent) / 100;
-
-    //         // If you want integer values only:
-    //         // return Math.round(next);
-
-    //         // If you want 2 decimals:
-    //         return Number(next.toFixed(2));
-    //     });
-
-    //     if (typeof id === "number") setSelectedPercentId(id);
-    // };
-    // const applyPercentToTakeProfit = (percent: number, id?: number) => {
-    //     setTakeProfitValue((prev: any) => {
-    //         const base =
-    //             typeof prev === "number"
-    //                 ? prev
-    //                 : parseFloat(String(prev).replace(/[^\d.]/g, "")) || 0;
-
-    //         const next = base + (base * percent) / 100;
-
-    //         // If you want integer values only:
-    //         // return Math.round(next);
-
-    //         // If you want 2 decimals:
-    //         return Number(next.toFixed(2));
-    //     });
-
-    //     if (typeof id === "number") setSelectedPercentId1(id);
-    // };
     // -------------------- DATA --------------------
     // Tabs exactly like image (slidable) + counts
     const applyPercentToStopLoss = (percent: number, id?: number) => {
+        const basePrice = lockedLtpRef.current ?? ltp; // Use locked LTP if exists
         let newValue: number;
 
         if (buySellParams?.buynav === 'buy') {
             // Buy: SL = LTP - %
-            newValue = ltp - (ltp * percent) / 100;
+            newValue = basePrice - (basePrice * percent) / 100;
         } else {
             // Sell: SL = LTP + %
-            newValue = ltp + (ltp * percent) / 100;
+            newValue = basePrice + (basePrice * percent) / 100;
         }
 
         setStopLossValue(Number(newValue.toFixed(2)));
         if (typeof id === 'number') setSelectedPercentId(id);
+        lockedLtpRef.current = basePrice;
     };
 
     const applyPercentToTakeProfit = (percent: number, id?: number) => {
-
+        const basePrice = lockedLtpRef.current ?? ltp; // Use locked LTP if exists
         let newValue: number;
 
         if (buySellParams?.buynav === 'buy') {
             // Buy: TP = LTP + %
-            newValue = ltp + (ltp * percent) / 100;
+            newValue = basePrice + (basePrice * percent) / 100;
         } else {
             // Sell: TP = LTP - %
-            newValue = ltp - (ltp * percent) / 100;
+            newValue = basePrice - (basePrice * percent) / 100;
         }
 
         setTakeProfitValue(Number(newValue.toFixed(2)));
         if (typeof id === 'number') setSelectedPercentId1(id);
+        lockedLtpRef.current = basePrice;
     };
     const topTabs = useMemo(
         () => [
@@ -539,7 +524,6 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                                 keyboardType='numeric'
                                 style={{ color: limitMarket === 'market' ? mainColors.textGrey : mainColors?.white }}
                                 containerStyle={styles.inputContainerStyle}
-                                max={4}
                             />
                             <TouchableOpacity onPress={() => bumpMarketPrice(+1)} disabled={limitMarket === 'market' ? true : false}>
                                 <Image source={Images.increase} resizeMode='contain' style={[styles.img, { tintColor: limitMarket === 'market' ? mainColors.inputLabel : mainColors.mainButton }]} />
@@ -613,7 +597,11 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                                 </TouchableOpacity>
                                 <CommonTextInput
                                     value={String(stopLossvalue)}
-                                    setValue={setStopLossValue}
+                                    // setValue={setStopLossValue}
+                                    setValue={(val) => {
+                                        setStopLossValue(val);
+                                        lockedLtpRef.current = null; // unlock LTP
+                                    }}
                                     keyboardType='numeric'
                                     style={styles.onlyWidth}
                                     containerStyle={styles.inputContainerStyle1}
@@ -666,7 +654,10 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                                 </TouchableOpacity>
                                 <CommonTextInput
                                     value={String(takeProfitValue)}
-                                    setValue={setTakeProfitValue}
+                                    setValue={(val) => {
+                                        setTakeProfitValue(val);
+                                        lockedLtpRef.current = null; // unlock LTP
+                                    }}
                                     keyboardType='numeric'
                                     style={styles.onlyWidth}
                                     containerStyle={styles.inputContainerStyle1}
@@ -675,14 +666,17 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                                     <Image source={Images.increase} resizeMode='contain' style={styles.img} />
                                 </TouchableOpacity>
                             </View>
-                            <FlatList data={horFlatData} renderItem={renderHoriFlatData1} showsHorizontalScrollIndicator={false} horizontal style={{ marginVertical: scaler(10) }} />
+                            <FlatList data={horFlatData1} renderItem={renderHoriFlatData1} showsHorizontalScrollIndicator={false} horizontal style={{ marginVertical: scaler(10) }} />
                         </View>
                         }
                         <View style={styles.lineView} />
                         <View style={[styles.innerFlexValidityView, { marginBottom: scaler(20) }]}>
                             <View>
                                 <Text style={styles.validityText}>Margin Required (Approx)</Text>
-                                <Text style={styles.valueText}>₹ {(live?.ltp || moversDetails?.current_price) * calculatedDisclosedQuantity} + Charges</Text>
+                                {/* <Text style={styles.valueText}>₹ {(live?.ltp || moversDetails?.current_price) * calculatedDisclosedQuantity} + Charges</Text> */}
+                                <Text style={styles.valueText}>
+                                    ₹ {((live?.ltp || moversDetails?.current_price) * calculatedDisclosedQuantity).toFixed(2)} + Charges
+                                </Text>
                             </View>
                             <View>
                                 <Text style={styles.validityText}>Available Margin</Text>

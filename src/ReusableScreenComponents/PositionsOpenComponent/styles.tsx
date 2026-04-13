@@ -3,6 +3,9 @@ import scaler from '../../Utils/scaler';
 import { fontFamily, mainColors } from '../../Utils/helper';
 
 export const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
   main: {
     marginHorizontal: scaler(15),
     marginVertical: scaler(10),
@@ -201,5 +204,21 @@ export const styles = StyleSheet.create({
     color: mainColors.white,
     fontSize: scaler(15),
     fontFamily: fontFamily.poppinsRegular
+  },
+  fixedFooter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: scaler(10),
+    paddingHorizontal: scaler(15),
+    backgroundColor: mainColors.black,
+    // borderTopWidth: 1,
+    // borderColor: mainColors.inputBorder,
+    zIndex: 999,
+    elevation: 10,
   }
 });

@@ -82,4 +82,18 @@ export const styles = StyleSheet.create({
         fontSize: scaler(11),
         marginTop: scaler(10)
     },
+    signUpText: {
+        fontFamily: fontFamily.poppinsRegular,
+        fontSize: scaler(14),
+        marginVertical: scaler(25),
+        color: mainColors.mainButton,
+        alignSelf: 'center',
+    },
+    loginView: {
+
+    },
+    resetView: {
+        justifyContent: 'space-between',
+        flexDirection: 'row'
+    }
 });

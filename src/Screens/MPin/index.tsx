@@ -24,9 +24,7 @@ const MPinScreen = ({ navigation }: Props) => {
             mpin: input
         }, {
             onSuccess: (res) => {
-                console.log('Res', res)
                 snackbarHandler.successToast(res?.data?.data?.message);
-                console.log('RunningCreateMPINDispatch')
                 dispatch(logout())
                 navigation.reset({
                     index: 0,

@@ -114,4 +114,14 @@ export const styles = StyleSheet.create({
         color: mainColors.white,
         fontSize: scaler(12),
     },
+    emptyView: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: scaler(650)
+    },
+    emptyText: {
+        color: mainColors.white,
+        fontSize: scaler(15),
+        fontFamily: fontFamily.poppinsRegular
+    },
 })

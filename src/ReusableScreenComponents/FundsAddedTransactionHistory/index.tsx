@@ -52,12 +52,20 @@ const FundsAddedComponent = () => {
             </View>}
         </View>
     );
+    const renderEmptyComponent = () => {
+        return (
+            <View style={styles.emptyView}>
+                <Text style={styles.emptyText}>No Data Found</Text>
+            </View>
+        )
+    }
     return (
         <View style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <FlatList
                     data={transactionData}
                     renderItem={renderTransactionItem}
+                    ListEmptyComponent={renderEmptyComponent}
                     scrollEnabled={false}
                     ItemSeparatorComponent={<View style={styles.lineView} />}
                     keyExtractor={(item: any) => item.id}
