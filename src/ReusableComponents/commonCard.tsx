@@ -180,7 +180,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               resizeMode="contain"
               style={styles.inInsRunImg}
             />
-            <Text style={styles.actionText}>Intraday</Text>
+            <Text style={styles.actionText}>{props?.intra}</Text>
           </View>
           <View style={[styles.actionPill, { marginRight: scaler(20) }]}>
             <Image
@@ -188,7 +188,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               resizeMode="contain"
               style={styles.inInsRunImg}
             />
-            <Text style={styles.actionText}>Instrument</Text>
+            <Text style={styles.actionText}>{props?.instr}</Text>
           </View>
           <TouchableOpacity style={styles.actionPillGreen} onPress={props.onPressSubscribe}>
             {(props?.is_subscribed && props?.status === 'pause') ?

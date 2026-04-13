@@ -153,13 +153,15 @@ const AlgoMarketPlaceComponent = ({ navigation }: MyAlgoProps) => {
           onPressSubscribe={() => handleCardAction(item)}
           tagLeft={item.tagLeft}
           tagRight={item.tagRight}
-          ltp={item.backtest_results.summary.net_pnl}
-          ltpChange={item.backtest_results.summary.net_pnl_pct}
-          intraday={item.backtest_results.summary.total_trades}
-          intradayChange={item.backtest_results.summary.rr_pct}
-          pAndL={item.backtest_results.summary.max_drawdown}
-          pAndLChange={item.backtest_results.summary.max_dd_pct}
-          status={item.running_status}
+          intra={item?.metadata?.card_tags?.[0] || ''}
+          instr={item?.metadata?.card_tags?.[1] || ''}
+          ltp={item?.backtest_results?.summary?.net_pnl}
+          ltpChange={item?.backtest_results?.summary?.net_pnl_pct}
+          intraday={item?.backtest_results?.summary?.total_trades}
+          intradayChange={item?.backtest_results?.summary?.rr_pct}
+          pAndL={item?.backtest_results?.summary?.max_drawdown}
+          pAndLChange={item?.backtest_results?.summary?.max_dd_pct}
+          status={item?.running_status}
           is_subscribed={item?.is_subscribed}
         />
       </View>

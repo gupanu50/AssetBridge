@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../../Screens/SplashScreen';
 import { MainStackParamList } from '../NavigationTypes';
@@ -25,12 +25,22 @@ import MPinScreen from '../../Screens/MPin';
 import MPinLoginScreen from '../../Screens/LoginMPin';
 import ForgetMPINOTP from '../../Screens/ForgetMPin';
 import ResetMPinScreen from '../../Screens/ResetMPin';
+import { mainColors } from '../../Utils/helper';
 export default function AppNavigation() {
   const Stack = createNativeStackNavigator<MainStackParamList>();
+  const AppTheme = {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      background: mainColors.black,
+      card: mainColors.black,
+      border: mainColors.black,
+    },
+  };
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={AppTheme}>
       <Stack.Navigator
-        screenOptions={{ headerShown: false }}
+        screenOptions={{ headerShown: false, contentStyle: { backgroundColor: mainColors.black } }}
         initialRouteName="Splash"
       >
         <Stack.Group>

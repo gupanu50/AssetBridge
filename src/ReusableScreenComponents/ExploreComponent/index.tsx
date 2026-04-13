@@ -100,7 +100,7 @@ export default function ExploreComponent(props: ExploreProps) {
     queryKey: ['/api/v1/strategy/bots/'],
   });
   const tradingBotData = tradingData?.data?.data;
-  // console.log('Trading Bots Data:', tradingBotData);
+  console.log('Trading Bots Data:', tradingBotData);
   const { data: newsApiData, refetch: refetchNews, isLoading: newsLoading } = useNewsQuery();
   const bots = tradingBotData ?? [];
   const loopedBots = React.useMemo(() => {
@@ -216,6 +216,8 @@ export default function ExploreComponent(props: ExploreProps) {
         dayDD={item?.backtest_results?.summary?.day?.max_drawdown || '0'}
         tagLeft={item.tagLeft}
         tagRight={item.tagRight}
+        intra={item?.metadata?.card_tags?.[0] || ''}
+        instr={item?.metadata?.card_tags?.[1] || ''}
         ltp={item?.backtest_results?.summary?.month?.net_pnl || 0}
         ltpChange={item.backtest_results?.summary?.day?.net_pnl_pct || 0}
         ltpChangeMonth={item.backtest_results?.summary?.month?.net_pnl_pct || 0}

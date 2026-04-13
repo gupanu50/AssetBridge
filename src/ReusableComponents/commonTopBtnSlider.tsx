@@ -150,7 +150,7 @@ const CommonTopBtnSlider = ({ navigation }: CommonTopBtnSliderProps) => {
     const showSkeleton =
         isLoading ||
         (!isMarketOpen && !offlineLtp?.length) ||
-        (isMarketOpen && !horidata?.length);
+        (isMarketOpen && horidata?.length <= 0);
 
     if (showSkeleton) {
         return <CommonTopBtnSliderSkeleton />;

@@ -22,6 +22,8 @@ export type PropCommonCardTypes = {
   ltpChange: number;
   intraday: string;
   intradayChange: string;
+  intra?: string;
+  instr?: string;
   pAndL: string;
   pAndLChange: string;
   status: string;
@@ -46,6 +48,9 @@ export type PropCommonCardApiTypes = {
   intraday: string;
   intradayChange: string;
   pAndL: string;
+  metadata: {
+    card_tags: string[];
+  };
   pAndLChange: string;
   status: string;
   onPress?: () => void;

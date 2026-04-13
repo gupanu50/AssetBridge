@@ -7,12 +7,13 @@ import ProfileSettingsScreen from '../../Screens/ProfileScreen/ProfileSettingsSc
 import TransactionHistoryScreen from '../../Screens/TransactionHistoryScreen';
 import StatementScreen from '../../Screens/Statement';
 import PaymentMethodScreen from '../../Screens/PaymentMethodScreen';
+import { mainColors } from '../../Utils/helper';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 const ProfileStackNavigator = () => {
     return (
-        <Stack.Navigator initialRouteName="Profile" screenOptions={{ headerShown: false }}>
+        <Stack.Navigator initialRouteName="Profile" screenOptions={{ headerShown: false, contentStyle: { backgroundColor: mainColors.black } }}>
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="ProfileSettings" component={ProfileSettingsScreen} />
             <Stack.Screen name="PaymentMethod" component={PaymentMethodScreen} />

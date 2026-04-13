@@ -10,7 +10,7 @@ const CommonNews = (props: NewsItemProps) => {
     <TouchableOpacity style={[styles.newsItem]} onPress={props?.onPress}>
       <View style={styles.flexView}>
         <View style={styles.newsLeft}>
-          <Text style={styles.sourceText}>{props?.source}</Text>
+          <Text style={styles.sourceText}>{props?.source?.slice(0, 15) + '...'}</Text>
         </View>
         <Text style={styles.newsTime}>{moment(props.published_at).fromNow()}</Text>
       </View>

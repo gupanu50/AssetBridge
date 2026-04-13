@@ -59,6 +59,8 @@ const MyAlgoComponent = ({ navigation, subsData }: MyAlgoProps) => {
           tagLeft={item.tagLeft}
           tagRight={item.tagRight}
           ltp={item?.users_result?.month_realized_pnl}
+          intra={item?.metadata?.card_tags?.[0] || ''}
+          instr={item?.metadata?.card_tags?.[1] || ''}
           ltpChange={item?.users_result?.today_realized_pnl_pct}
           ltpChangeMonth={item.users_result?.month_realized_pnl_pct || 0}
           ddPct={item?.users_result?.today_max_drawdown_pct || 0}
