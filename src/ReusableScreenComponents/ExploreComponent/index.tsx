@@ -105,20 +105,23 @@ export default function ExploreComponent(props: ExploreProps) {
   const bots = tradingBotData ?? [];
   const loopedBots = React.useMemo(() => {
     if (!bots.length) return [];
-    return [...bots, bots[0]]; // 👈 add first item at end
+    return [bots[bots.length - 1], ...bots, bots[0]];
   }, [bots]);
   useEffect(() => {
     if (!bots.length) return;
 
-    const id = setInterval(() => {
-      let next = featureIndexRef.current + 1;
+    featureListRef.current?.scrollToOffset({
+      offset: ITEM_SIZE,
+      animated: false,
+    });
+    featureIndexRef.current = 1;
 
-      // move forward to next (including the duplicated last item)
+    const id = setInterval(() => {
+      const next = featureIndexRef.current + 1;
       featureListRef.current?.scrollToOffset({
         offset: next * ITEM_SIZE,
         animated: true,
       });
-
       featureIndexRef.current = next;
     }, 10000);
 
@@ -127,20 +130,30 @@ export default function ExploreComponent(props: ExploreProps) {
   const onFeatureScrollEnd = (e: any) => {
     const x = e.nativeEvent.contentOffset.x;
     const i = Math.round(x / ITEM_SIZE);
-
     featureIndexRef.current = i;
 
-    // If we are at the duplicated last item (index = bots.length),
-    // jump to real first item without animation
-    if (bots.length && i === bots.length) {
-      // small delay ensures the animated scroll finishes cleanly
+    // Agar last cloned item pe aa gaye (forward se)
+    if (i === bots.length + 1) {
       setTimeout(() => {
         featureListRef.current?.scrollToOffset({
-          offset: 0,
-          animated: false, // ✅ instant, no "back swipe"
+          offset: ITEM_SIZE,
+          animated: false,
         });
-        featureIndexRef.current = 0;
+        featureIndexRef.current = 1;
       }, 50);
+      return;
+    }
+
+    // Agar first cloned item pe aa gaye (backward se)
+    if (i === 0) {
+      setTimeout(() => {
+        featureListRef.current?.scrollToOffset({
+          offset: bots.length * ITEM_SIZE,
+          animated: false,
+        });
+        featureIndexRef.current = bots.length;
+      }, 50);
+      return;
     }
   };
   const newsData = newsApiData?.data?.data?.results;
