@@ -67,7 +67,7 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
       bot_id: parseInt(route?.params?.cardData?.bot_id)
     }, {
       onSuccess: async (res) => {
-        // console.log('PaymentOrderCreateApiSuccess', res);
+        console.log('PaymentOrderCreateApiSuccess', res);
         let resData = res?.data?.data;
         // snackbarHandler.successToast('Subscribed successfully!');
         setShowRiskModal(false);

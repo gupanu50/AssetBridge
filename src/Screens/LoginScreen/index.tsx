@@ -1,6 +1,7 @@
 import {
   Image,
   ImageBackground,
+  Platform,
   Text,
   TouchableOpacity,
   View,
@@ -66,24 +67,29 @@ const LoginScreen = ({ navigation }: Props) => {
   }
   return (
     <View style={styles.container}>
-      <ImageBackground source={Images.onboardBg} style={styles.backgroundImg} resizeMode='stretch'>
-        <View style={styles.logoView}>
-          <Image
-            source={Images.logo}
-            style={styles.logoImg}
-            resizeMode="contain"
-          />
-        </View>
-        <View style={styles.main}>
-          <Text style={styles.headingText}>Hello</Text>
-          <Text style={styles.headingText}>Welcome to Asset Bridge</Text>
-          <KeyboardAwareScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ flexGrow: 1 }}
-            enableOnAndroid={true}
-            extraScrollHeight={20}
-            keyboardShouldPersistTaps="handled"
-          >
+      <KeyboardAwareScrollView
+        // @ts-ignore
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+        enableOnAndroid={true}
+        extraScrollHeight={20}
+        keyboardShouldPersistTaps="handled"
+      >
+        <ImageBackground source={Images.onboardBg} style={styles.backgroundImg} resizeMode='stretch'>
+          <View style={styles.logoView}>
+            <Image
+              source={Images.logo}
+              style={styles.logoImg}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.main}>
+            <Text style={styles.headingText}>Hello</Text>
+            <Text style={styles.headingText}>Welcome to Asset Bridge</Text>
+
             <View style={styles.inputContainer}>
               <Text style={styles.inputLable}>Enter mobile number</Text>
               <CommonTextInput
@@ -141,33 +147,33 @@ const LoginScreen = ({ navigation }: Props) => {
                 }
               />
             </View>
-          </KeyboardAwareScrollView>
-          <CommonButton
-            label="Login"
-            extraStyle={styles.buttonStyle}
-            onPress={() => onBtnPressed()}
-          />
-          <Text style={styles.orText}>Or</Text>
-          <CommonButton
-            label="Continue with Google"
-            leftImage={
-              <Image
-                source={Images.googleIcon}
-                style={styles.googleIcon}
-                resizeMode="contain"
-              />
-            }
-            backgroundColor={mainColors.googleButton}
-          />
-          <TouchableOpacity
-            onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.signUpText}>
-              Don't Have an Account{'   '}
-              <Text style={{ color: mainColors.mainButton }}>Sign Up</Text>
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ImageBackground>
+            <CommonButton
+              label="Login"
+              extraStyle={styles.buttonStyle}
+              onPress={() => onBtnPressed()}
+            />
+            <Text style={styles.orText}>Or</Text>
+            <CommonButton
+              label="Continue with Google"
+              leftImage={
+                <Image
+                  source={Images.googleIcon}
+                  style={styles.googleIcon}
+                  resizeMode="contain"
+                />
+              }
+              backgroundColor={mainColors.googleButton}
+            />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('SignUp')}>
+              <Text style={styles.signUpText}>
+                Don't Have an Account{'   '}
+                <Text style={{ color: mainColors.mainButton }}>Sign Up</Text>
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
+      </KeyboardAwareScrollView>
       {loader && <CommonLoader />}
     </View>
   );

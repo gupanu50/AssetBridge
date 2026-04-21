@@ -176,7 +176,6 @@ const PositionsClosedComponent = (props?: any) => {
         ListEmptyComponent={renderEmptyComponent}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
-        scrollEnabled={false}
       />
       {filteredOrderData?.length > 0 && <View style={styles.itemSeperator} />}
       <View

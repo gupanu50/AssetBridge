@@ -76,6 +76,20 @@ export const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'transparent',
   },
-
-  // -------------------- SECTION HEADER --------------------
+  renderText: {
+    color: mainColors.orangeChart,
+    fontFamily: fontFamily.poppinsMedium,
+    fontSize: scaler(12),
+    marginLeft: scaler(10)
+  },
+  bannerView: {
+    paddingHorizontal: scaler(10),
+    paddingVertical: scaler(10),
+    marginHorizontal: scaler(10),
+    marginVertical: scaler(10),
+    borderRadius: 15,
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: mainColors.orangeChart
+  }
 });

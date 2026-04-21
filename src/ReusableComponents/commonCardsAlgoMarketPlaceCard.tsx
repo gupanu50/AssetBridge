@@ -80,8 +80,6 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
     .startsWith('-')
     ? mainColors.red
     : mainColors.green;
-
-
   return (
     <View style={styles.featureCardWrapper}>
       <View style={styles.featureCard}>
@@ -159,9 +157,13 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
                   resizeMode="contain"
                   style={styles.swiperUpImg}
                 />
-                <Text style={[styles.statChange, { color: ltpColor }]}>
-                  {props.ltpChange}%
-                </Text>
+                {props?.ltpChange?.toString().length > 8 ?
+                  <Text style={[styles.statChange, { color: ltpColor }]}>
+                    {props.ltpChange?.toString().slice(0, 2) + "..."}%
+                  </Text> :
+                  <Text style={[styles.statChange, { color: ltpColor }]}>
+                    {props.ltpChange ?? 0}%
+                  </Text>}
               </View>
             </View>
           </View>
@@ -179,7 +181,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
                   style={styles.swiperUpImg}
                 />
                 <Text style={[styles.statChange, { color: intraColor }]}>
-                  {props.intradayChange}%
+                  {props.intradayChange ?? 0}%
                 </Text>
               </View>
             </View>
@@ -203,7 +205,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
                   style={styles.swiperUpImg}
                 />
                 <Text style={[styles.statChange, { color: mainColors.redText }]}>
-                  {props.pAndLChange}%
+                  {props.pAndLChange ?? 0}%
                 </Text>
               </View>
             </View>
@@ -264,7 +266,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
               resizeMode="contain"
               style={styles.inInsRunImg}
             />
-            <Text style={styles.actionText}>{props?.intra}</Text>
+            <Text style={styles.actionText}>{props?.intra ?? 'Intraday'}</Text>
           </View>
           <View style={styles.actionPill}>
             <Image
@@ -272,7 +274,7 @@ const CommonAlgoMarketPlaceCard = (props: PropCommonCardTypes) => {
               resizeMode="contain"
               style={styles.inInsRunImg}
             />
-            <Text style={styles.actionText}>{props?.instr}</Text>
+            <Text style={styles.actionText}>{props?.instr ?? 'Instrument'}</Text>
           </View>
           <TouchableOpacity style={[styles.actionPillGreen]} onPress={props.onPressSubscribe}>
             {(props?.is_subscribed && props?.status === 'pause') ?

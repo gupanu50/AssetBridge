@@ -309,7 +309,6 @@ const OrderComponent = (props?: any) => {
         ListEmptyComponent={renderEmptyComponent}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
-        scrollEnabled={false}
         extraData={tick}
       />
       <OrderEditModal visibile={visible} setVisible={setVisible} selectedItem={selectedItem} />

@@ -40,6 +40,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
     const { mutate } = useBuySellMutation();
     const [isEnabled, setIsEnabled] = useState(false);
     const [isEnabled1, setIsEnabled1] = useState(false);
+    const [isInitialPriceSet, setIsInitialPriceSet] = useState(false);
     const isMarketHours = isMarketOpenIST();
     // console.log('routeParamsBuySell', route?.params?.buySelldata);
     const buySellParams = route?.params?.buySelldata;
@@ -80,10 +81,16 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
         live?.ltp ?? moversDetails?.current_price ?? safeParamItem?.current_price ?? 0
     );
     useEffect(() => {
-        setMarketPrice(ltp);
-        setStopLossValue(ltp);
-        setTakeProfitValue(ltp);
-    }, []);
+        const parsedLtp = Number(ltp);
+
+        if (isInitialPriceSet) return;
+        if (!parsedLtp || parsedLtp <= 0) return;
+
+        setMarketPrice(parsedLtp);
+        setStopLossValue(parsedLtp);
+        setTakeProfitValue(parsedLtp);
+        setIsInitialPriceSet(true);
+    }, [ltp, isInitialPriceSet]);
     const horFlatData = useMemo(() => {
         const slSign = buySellParams?.buynav === 'buy' ? '-' : '+';
         return [
@@ -349,23 +356,24 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
             stop_loss: parseInt(stopLossvalue)
         }
         console.log('ParamsBuySellApi', params);
+        // @ts-ignore
         mutate({
             exchange: buySellParams?.paramItem?.segment || 'NFO',
             is_automated: false,
             segment: buySellParams?.paramItem?.segment || 'NFO-OPT',
-            //@ts-ignore
-            quantity: parseInt(calculatedDisclosedQuantity),
+            quantity: calculatedDisclosedQuantity,
             side: buySellParams?.buynav,
             order_type: limitMarket,
             product_type: 'mis',
-            //@ts-ignore
-            take_profit: parseInt(takeProfitValue),
             symbol: buySellParams?.paramItem?.symbol,
             time_in_force: selectedValue || 'day',
-            //@ts-ignore
-            limit_price: parseInt(marketPrice),
-            //@ts-ignore
-            stop_loss: parseInt(stopLossvalue)
+            limit_price: marketPrice,
+            ...(isEnabled && {
+                stop_loss: Number(stopLossvalue),
+            }),
+            ...(isEnabled1 && {
+                take_profit: Number(takeProfitValue),
+            }),
         },
             {
                 onSuccess: response => {
@@ -445,7 +453,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                         </View>
                     )}
                 </View>
-                <View style={styles.resultsBasedView}>
+                {/* <View style={styles.resultsBasedView}>
                     <View style={styles.redIconView}>
                         <IconButton
                             vectorType="MaterialCommunityIcons"
@@ -458,7 +466,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                     <Text style={styles.redIconText}>
                         This security under surveillance measure
                     </Text>
-                </View>
+                </View> */}
                 <View style={styles.topTabsWrap}>
                     <FlatList
                         ref={topTabListRef}

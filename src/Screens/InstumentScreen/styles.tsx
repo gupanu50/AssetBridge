@@ -351,4 +351,14 @@ export const styles = StyleSheet.create({
   chartSkeletonWrap: {
     width: '100%',
   },
+  noChatView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: scaler(200)
+  },
+  noChartText: {
+    color: mainColors.white,
+    fontSize: scaler(14),
+    fontFamily: fontFamily.poppinsMedium,
+  }
 });

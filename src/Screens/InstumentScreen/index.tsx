@@ -114,7 +114,7 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     }));
   }, [candleData]);
   // console.log('candleData', candleData);
-  const isChartLoading = candleLoading || !candleData120?.length;
+  const isChartLoading = candleLoading;
   let moversDetails;
   if (paramItem?.segment) {
     const { data: moversPercentageData } = useTopMoversPercentageQuery({
@@ -246,17 +246,6 @@ const InstumentScreen = ({ navigation, route }: Props) => {
     { label: '10Y' },
     { label: 'All' },
   ];
-  const renderItem = ({ item }: { item: LabelItem }) => {
-    const isSelected = item.label === selectedLabel;
-    return (
-      <TouchableOpacity
-        style={[styles.item, isSelected && styles.selectedItem]}
-        onPress={() => setSelectedLabel(item.label)}
-      >
-        <Text style={styles.text}>{item.label}</Text>
-      </TouchableOpacity>
-    );
-  }
   const navBuySell = (nav: string) => {
     const fallbackParamItem = {
       symbol: route?.params?.symbol ?? symbolNormalized,
@@ -387,9 +376,13 @@ const InstumentScreen = ({ navigation, route }: Props) => {
                   <SkeletonBlock width={scaler(30)} height={scaler(12)} radius={6} />
                 </View>
               </View>
-            ) : (
-              <ChartComponent data={candleData120} />
-            )}
+            ) : candleData120?.length === 0 ?
+              <View style={styles.noChatView}>
+                <Text style={styles.noChartText}>No candles found for this timeframe</Text>
+              </View> :
+              (
+                <ChartComponent data={candleData120} />
+              )}
 
           </View>
           {!isChartLoading ? (

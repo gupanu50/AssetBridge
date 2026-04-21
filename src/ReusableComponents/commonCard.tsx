@@ -121,7 +121,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
                   style={styles.swiperUpImg}
                 />
                 <Text style={[styles.statChange, { color: ltpColor }]}>
-                  {activeDayMonthMoverTab === 'Day' ? props?.ltpChange : props.ltpChangeMonth}%
+                  {activeDayMonthMoverTab === 'Day' ? (props?.ltpChange || 0) : (props.ltpChangeMonth || 0)}%
                 </Text>
               </View>
             </View>
@@ -132,7 +132,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               Reward/Risk Ratio
             </Text>
             <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? props.dayReward : props.intraday}</Text>
+              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? (props.dayReward || 0) : (props.intraday || 0)}</Text>
               <View style={styles.swiperPnlView}>
                 <Image
                   source={Images.swiperUp}
@@ -140,7 +140,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
                   style={styles.swiperUpImg}
                 />
                 <Text style={[styles.statChange, { color: intraColor }]}>
-                  {activeDayMonthMoverTab === 'Day' ? props?.rewardPct : props.rewardPctMonth}%
+                  {activeDayMonthMoverTab === 'Day' ? (props?.rewardPct || 0) : (props.rewardPctMonth || 0)}%
                 </Text>
               </View>
             </View>
@@ -156,7 +156,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
           >
             <Text style={[styles.statLabel, { paddingLeft: 5 }]}>Max DD</Text>
             <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? props.dayDD : props.pAndL}</Text>
+              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? (props.dayDD || 0) : (props.pAndL || 0)}</Text>
               <View style={styles.swiperMaxDDView}>
                 <Image
                   source={Images.swiperDown}
@@ -164,7 +164,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
                   style={styles.swiperUpImg}
                 />
                 <Text style={[styles.statChange, { color: mainColors.redText }]}>
-                  {activeDayMonthMoverTab === 'Day' ? props?.ddPct : props.ddPctMonth}%
+                  {activeDayMonthMoverTab === 'Day' ? (props?.ddPct || 0) : (props.ddPctMonth || 0)}%
                 </Text>
               </View>
             </View>
@@ -180,7 +180,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               resizeMode="contain"
               style={styles.inInsRunImg}
             />
-            <Text style={styles.actionText}>{props?.intra}</Text>
+            <Text style={styles.actionText}>{props?.intra || 'Intraday'}</Text>
           </View>
           <View style={[styles.actionPill, { marginRight: scaler(20) }]}>
             <Image
@@ -188,7 +188,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               resizeMode="contain"
               style={styles.inInsRunImg}
             />
-            <Text style={styles.actionText}>{props?.instr}</Text>
+            <Text style={styles.actionText}>{props?.instr || 'Instrument'}</Text>
           </View>
           <TouchableOpacity style={styles.actionPillGreen} onPress={props.onPressSubscribe}>
             {(props?.is_subscribed && props?.status === 'pause') ?

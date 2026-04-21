@@ -234,12 +234,12 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.1)',
     marginVertical: 2,
   },
-cellPressed: {
-  backgroundColor: 'rgba(255,255,255,0.06)',
-  borderRadius: scaler(6),
-},
-rowNavigating: {
-  backgroundColor: 'rgba(255,255,255,0.04)',
-  // Poori row thodi highlight hogi jab navigate ho raha ho
-},
+  cellPressed: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: scaler(6),
+  },
+  rowNavigating: {
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    // Poori row thodi highlight hogi jab navigate ho raha ho
+  },
 });

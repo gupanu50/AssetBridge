@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>assetBridge</string>
+	<string>Asset Bridge</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -29,22 +29,34 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
-		<false/>
+		<true/>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
-			<key>NSExceptionDomains</key>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>13.234.232.141</key>
 			<dict>
-				<key>13.234.232.141</key>
-					<dict>
-						<key>NSExceptionAllowsInsecureHTTPLoads</key>
-						<true/>
-						<key>NSIncludesSubdomains</key>
-						<true/>
-					</dict>
-  			</dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>We use the camera to allow users to capture and upload photos for attendance, reports, and verification purposes.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Location access is required to ensure accurate attendance logging and provide location-based Marg Power services.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We use your location for real-time tracking of field employees and seamless attendance management.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string />
+	<string>We use your location to enable features such as attendance tracking and office check-ins to streamline Marg Power processes.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app does not require access to the microphone.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need access to your photo library to save images.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires access to the photo library.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>

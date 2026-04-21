@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { fontFamily, mainColors } from "../../Utils/helper";
 import scaler from "../../Utils/scaler";
 
@@ -71,6 +71,7 @@ export const styles = StyleSheet.create({
     balanceCard: {
         marginTop: scaler(16),
         borderRadius: scaler(14),
+        height: Platform.OS === 'ios' ? scaler(100) : undefined,
         paddingHorizontal: scaler(16),
         paddingVertical: scaler(14),
     },
