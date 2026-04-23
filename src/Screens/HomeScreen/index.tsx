@@ -164,11 +164,13 @@ const HomeScreen = ({ navigation }: Props) => {
                   textDecorationLine: 'underline',
                   fontFamily: fontFamily.poppinsMedium,
                   fontSize: scaler(12),
+                  lineHeight: scaler(18),
                 }
                 : {
                   color: mainColors.orangeChart,
                   fontFamily: fontFamily.poppinsRegular,
                   fontSize: scaler(12),
+                  lineHeight: scaler(18),
                 }
             }
           >
@@ -191,9 +193,18 @@ const HomeScreen = ({ navigation }: Props) => {
       />
       <CommonTopBtnSlider navigation={navigation} />
       {bannerData.length > 0 && (
-        <View style={styles.bannerView} >
-          <IconButton vectorType="MaterialIcons" name="warning" color={mainColors.orangeChart} />
-          {renderInlineBannerText()}
+        <View style={styles.bannerView}>
+          <View style={styles.bannerIconWrap}>
+            <IconButton
+              vectorType="MaterialIcons"
+              name="warning"
+              color={mainColors.orangeChart}
+            />
+          </View>
+
+          <View style={styles.bannerTextWrap}>
+            {renderInlineBannerText()}
+          </View>
         </View>
       )}
       {/* -------------------- SLIDABLE TOP TABS (LIKE IMAGE) -------------------- */}

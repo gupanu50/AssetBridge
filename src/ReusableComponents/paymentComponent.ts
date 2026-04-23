@@ -22,6 +22,7 @@ export async function startRazorpayPayment(p: PaymentScreenProps) {
         const data = await RazorpayCheckout.open(options);
         return { ok: true as const, data };
     } catch (error: any) {
+        console.log('Razorpay error =>', JSON.stringify(error, null, 2));
         return { ok: false as const, error };
     }
 }

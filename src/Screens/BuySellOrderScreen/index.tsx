@@ -498,6 +498,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                             </View>}
                         {buySellParams?.isOptionChainFlow ? <CommonTextInput
                             value={valueShares}
+                            keyboardType='numeric'
                             setValue={setValueShares}
                             //@ts-ignore
                             style={[styles.onlyWidth1, { width: '75%' }]}
@@ -516,15 +517,16 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                             <CommonTextInput
                                 value={valueShares}
                                 setValue={setValueShares}
+                                keyboardType='numeric'
                                 style={styles.onlyWidth1}
                             />
                         }
                         <View style={styles.lineView} />
                         <Text style={styles.noSharesText}>Limit Price</Text>
                         <View style={styles.imgView}>
-                            <TouchableOpacity onPress={() => bumpMarketPrice(-1)} disabled={limitMarket === 'market' ? true : false}>
+                            {/* <TouchableOpacity onPress={() => bumpMarketPrice(-1)} disabled={limitMarket === 'market' ? true : false}>
                                 <Image source={Images.decrease} resizeMode='contain' style={[styles.img, { tintColor: limitMarket === 'market' ? mainColors.inputLabel : mainColors.mainButton }]} />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                             <CommonTextInput
                                 value={String(marketPrice)}
                                 setValue={setMarketPrice}
@@ -533,9 +535,9 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                                 style={{ color: limitMarket === 'market' ? mainColors.textGrey : mainColors?.white }}
                                 containerStyle={styles.inputContainerStyle}
                             />
-                            <TouchableOpacity onPress={() => bumpMarketPrice(+1)} disabled={limitMarket === 'market' ? true : false}>
+                            {/* <TouchableOpacity onPress={() => bumpMarketPrice(+1)} disabled={limitMarket === 'market' ? true : false}>
                                 <Image source={Images.increase} resizeMode='contain' style={[styles.img, { tintColor: limitMarket === 'market' ? mainColors.inputLabel : mainColors.mainButton }]} />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                             <View style={styles.limitMarketView}>
                                 <TouchableOpacity style={[styles.limitView, { backgroundColor: limitMarket === 'limit' ? mainColors.buySellColor : mainColors.pnlCard }]} onPress={() => setLimitMarket('limit')}>
                                     <Text style={styles.limitText}>Limit</Text>
@@ -683,7 +685,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                                 <Text style={styles.validityText}>Margin Required (Approx)</Text>
                                 {/* <Text style={styles.valueText}>₹ {(live?.ltp || moversDetails?.current_price) * calculatedDisclosedQuantity} + Charges</Text> */}
                                 <Text style={styles.valueText}>
-                                    ₹ {((live?.ltp || moversDetails?.current_price) * calculatedDisclosedQuantity).toFixed(2)} + Charges
+                                    ₹ {((live?.ltp || moversDetails?.current_price) * calculatedDisclosedQuantity).toFixed(2) || '0.00'} + Charges
                                 </Text>
                             </View>
                             <View>

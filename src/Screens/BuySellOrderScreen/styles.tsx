@@ -114,8 +114,8 @@ export const styles = StyleSheet.create({
     },
     inputContainerStyle: {
         height: scaler(50),
-        width: scaler(70),
-        marginHorizontal: scaler(5)
+        width: scaler(170),
+        // marginHorizontal: scaler(5)
     },
     inputContainerStyle1: {
         height: scaler(50),
@@ -127,7 +127,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         borderTopLeftRadius: 10,
         borderBottomLeftRadius: 10,
-        paddingHorizontal: scaler(15),
+        paddingHorizontal: scaler(20),
         backgroundColor: mainColors.pnlCard,
     },
     limitText: {
@@ -140,7 +140,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         borderTopRightRadius: 10,
         borderBottomRightRadius: 10,
-        paddingHorizontal: scaler(10),
+        paddingHorizontal: scaler(20),
         backgroundColor: '#002238'
     },
     limitMarketView: {

@@ -42,6 +42,16 @@
 				<true/>
 			</dict>
 		</dict>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>tez</string>
+			<string>phonepe</string>
+			<string>paytmmp</string>
+			<string>paytm</string>
+			<string>upi</string>
+			<string>bharatpe</string>
+			<string>credpay</string>
+		</array>
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>We use the camera to allow users to capture and upload photos for attendance, reports, and verification purposes.</string>

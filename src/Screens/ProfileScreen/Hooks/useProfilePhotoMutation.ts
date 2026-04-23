@@ -10,7 +10,7 @@ const updateUserData = async (data: any) => {
         type: data?.encodedImage?.mime,
         name: data?.encodedImage?.filename,
     })
-    // console.log('FormData', formData, token)
+    // console.log('FormData', formData)
     const response = await fetch(`${NEW_BASE_URL}/api/v1/accounts/user/upload-profile-picture/`, {
         method: 'POST',
         headers: {

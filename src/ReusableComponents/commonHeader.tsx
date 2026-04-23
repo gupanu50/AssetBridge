@@ -71,10 +71,9 @@ const CommonHeader = (props: CommonHeaderProps) => {
               style={styles.searchLogo}
             />
           </TouchableOpacity>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={styles.bellWrapper}>
             <TouchableOpacity
               onPress={() => {
-                // ✅ open modal if provided, else fallback to your old screen
                 if (props.onPressBell) {
                   props.onPressBell();
                   return;
@@ -87,6 +86,7 @@ const CommonHeader = (props: CommonHeaderProps) => {
                 style={styles.notiLogo}
               />
             </TouchableOpacity>
+
             <View style={styles.notiCountView}>
               <Text style={styles.notiCountText}>{notiCount}</Text>
             </View>
@@ -154,11 +154,11 @@ const styles = StyleSheet.create({
     height: scaler(20),
     width: scaler(20),
   },
-  notiLogo: {
-    height: scaler(25),
-    width: scaler(25),
-    marginLeft: scaler(8),
-  },
+  // notiLogo: {
+  //   height: scaler(25),
+  //   width: scaler(25),
+  //   marginLeft: scaler(8),
+  // },
   containerStyle: {
     marginHorizontal: scaler(10),
     height: scaler(30),
@@ -212,18 +212,34 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     backgroundColor: mainColors.white, // or border color you prefer
   },
+  bellWrapper: {
+    position: 'relative',
+    marginLeft: scaler(8),
+  },
+
+  notiLogo: {
+    height: scaler(25),
+    width: scaler(25),
+  },
+
   notiCountView: {
+    position: 'absolute',
+    top: scaler(-5),
+    left: scaler(12), // keeps badge on the right side like before
+    minHeight: scaler(18),
+    minWidth: scaler(18),
+    paddingHorizontal: scaler(4),
     borderRadius: 100 / 2,
     backgroundColor: mainColors.redText,
-    height: scaler(17),
-    width: scaler(15),
-    position: 'absolute',
-    right: scaler(-3),
-    top: scaler(-5),
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   notiCountText: {
-    color: mainColors.white, fontSize: scaler(10), fontFamily: fontFamily.poppinsBold
-  }
+    color: mainColors.white,
+    fontSize: scaler(9),
+    fontFamily: fontFamily.poppinsBold,
+    textAlign: 'center',
+    includeFontPadding: false,
+  },
 });

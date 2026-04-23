@@ -76,11 +76,14 @@ export const styles = StyleSheet.create({
     color: mainColors.white,
     fontSize: scaler(14),
     fontFamily: fontFamily.poppinsRegular,
+    flexShrink: 1,
+    maxWidth: '45%',
   },
   exchangeBadge: {
     paddingHorizontal: scaler(8),
     paddingVertical: scaler(3),
-    width: scaler(125),
+    maxWidth: scaler(90),
+    marginLeft: scaler(6),
   },
 
   exchangeBadgeText: {
@@ -149,6 +152,11 @@ export const styles = StyleSheet.create({
     backgroundColor: mainColors.manualBg,
     paddingHorizontal: scaler(6),
     paddingVertical: scaler(2),
+    maxWidth: scaler(90),
+    marginLeft: scaler(8),
+    flexShrink: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pillDirection: {
     borderRadius: scaler(10),
@@ -220,5 +228,16 @@ export const styles = StyleSheet.create({
     // borderColor: mainColors.inputBorder,
     zIndex: 999,
     elevation: 10,
-  }
+  },
+  topRowBetween: {
+    justifyContent: 'space-between',
+    marginRight: scaler(5),
+  },
+  topRowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    flexShrink: 1,
+    marginRight: scaler(8),
+  },
 });

@@ -307,6 +307,7 @@ const OrderComponent = (props?: any) => {
         data={filteredOrderData}
         renderItem={renderCardData}
         ListEmptyComponent={renderEmptyComponent}
+        contentContainerStyle={{ paddingBottom: scaler(80) }}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
         extraData={tick}

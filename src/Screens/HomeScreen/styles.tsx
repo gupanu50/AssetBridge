@@ -76,12 +76,6 @@ export const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'transparent',
   },
-  renderText: {
-    color: mainColors.orangeChart,
-    fontFamily: fontFamily.poppinsMedium,
-    fontSize: scaler(12),
-    marginLeft: scaler(10)
-  },
   bannerView: {
     paddingHorizontal: scaler(10),
     paddingVertical: scaler(10),
@@ -89,7 +83,27 @@ export const styles = StyleSheet.create({
     marginVertical: scaler(10),
     borderRadius: 15,
     flexDirection: 'row',
+    alignItems: 'flex-start',
     borderWidth: 1,
-    borderColor: mainColors.orangeChart
-  }
+    borderColor: mainColors.orangeChart,
+  },
+
+  bannerIconWrap: {
+    marginTop: scaler(2),
+    marginRight: scaler(8),
+  },
+
+  bannerTextWrap: {
+    flex: 1,
+    flexShrink: 1,
+    paddingRight: scaler(4),
+  },
+  renderText: {
+    color: mainColors.orangeChart,
+    fontFamily: fontFamily.poppinsMedium,
+    fontSize: scaler(12),
+    flexShrink: 1,
+    lineHeight: scaler(18),
+    includeFontPadding: false,
+  },
 });
