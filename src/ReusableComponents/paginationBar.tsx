@@ -136,10 +136,10 @@ const s = StyleSheet.create({
     pageBtn: {
         borderRadius: scaler(8),
         height: scaler(35),
-        width: scaler(30),
+        width: scaler(43),
         alignItems: "center",
         justifyContent: "center",
-        marginHorizontal: scaler(4),
+        marginHorizontal: scaler(3),
     },
     pageBtnActive: {
         backgroundColor: "#3C3C3C",

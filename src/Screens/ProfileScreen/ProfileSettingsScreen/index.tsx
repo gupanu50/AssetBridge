@@ -16,8 +16,10 @@ import useUpdateProfileMutation from '../Hooks/useUpdateProfileMutation'
 import useIIFLLoginQuery from '../Hooks/useIIFLLoginMutation'
 import useProfilePhotoMutation from '../Hooks/useProfilePhotoMutation'
 import useMedia from '../Hooks/useMedia'
+import useProfileQuery from '../Hooks/useProfileQuery'
+import CommonLoader from '../../../ReusableComponents/commonLoader'
 type Props = MainStackScreenProps<'ProfileSettings'>;
-const ProfileSettingsScreen = ({ navigation, route }: Props) => {
+const ProfileSettingsScreen = ({ navigation }: Props) => {
     const [mail, setMail] = useState('');
     const [oldPass, setOldPass] = useState('');
     const [errorOld, setErrorOld] = useState('');
@@ -32,7 +34,8 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
     const [secureText1, setSecureText1] = useState(true);
     const [secureText2, setSecureText2] = useState(true);
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
-    const profileData = route?.params?.profileData;
+    const { data, refetch, isLoading } = useProfileQuery();
+    const profileData = data?.data?.data[0]
     const { data: IIFLData } = useIIFLLoginQuery();
     // console.log('ProfileData', profileData);
     // console.log('ProfileDataIIFLData', IIFLData, error);
@@ -59,11 +62,15 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
         }
     });
     const onBtnPressed = () => {
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
         if (!oldPass) {
             setErrorOld('Please enter Old Password');
             return;
         } if (!newPass) {
             setErrorNew('Please enter new password');
+            return;
+        } else if (!passwordRegex.test(newPass)) {
+            setErrorNew('Your password should contain one capital letter, one special character and one number');
             return;
         } else if (!rePass) {
             setErrorCon('Please enter confirm password');
@@ -101,6 +108,7 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
                 onSuccess: () => {
                     snackbarHandler.successToast('Email Update Successfully')
                     setMail('');
+                    refetch();
                 },
                 onError: er => {
                     const msg = getApiErrorMessage(er)
@@ -145,6 +153,7 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
                     <Text style={styles.headerId}>{profileData?.username}</Text>
                     <Text style={styles.headerName}>{`${profileData?.first_name} ${profileData?.last_name}`}</Text>
                     <Text style={styles.headerPhone}>{`${profileData?.contact}`}</Text>
+                    <Text style={styles.headerPhone}>{`${profileData?.email}`}</Text>
                 </View>
 
                 <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => { iiflURL ? Linking.openURL(iiflURL) : setShowTooltip(true) }}>
@@ -326,6 +335,7 @@ const ProfileSettingsScreen = ({ navigation, route }: Props) => {
                 <View style={[styles.lineHeight, { height: scaler(15) }]} />
                 <CommonButton label='Save Changes' extraStyle={styles.saveBtn} onPress={() => onBtnPressed()} />
             </KeyboardAwareScrollView>
+            {isLoading && <CommonLoader />}
         </ScrollView>
     )
 }

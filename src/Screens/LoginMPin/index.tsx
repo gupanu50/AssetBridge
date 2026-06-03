@@ -13,11 +13,14 @@ import snackbarHandler from '../../Utils/snackbarHandler';
 import useLoginMPinMutation from './Hooks/useaLoginMPinMutation';
 import { useDispatch, useSelector } from 'react-redux';
 import { login, logout, selectUserData } from '../../Redux/authSlice';
+import useResetLoginMpinOTPMutation from '../ForgetMPin/Hooks/useResetMPinOTPMutation';
 type Props = MainStackScreenProps<'LoginMPin'>;
 const MPinLoginScreen = ({ navigation }: Props) => {
     const [input, setInput] = useState('');
     const userData = useSelector(selectUserData);
     const contact = userData?.user?.contact;
+    const resetContact = contact?.replace('+91', '');
+    const { mutate: resetLoginMpinOTPMutation } = useResetLoginMpinOTPMutation();
     const [showReset, setShowReset] = useState(false);
     const dispatch = useDispatch();
     const [errorInput, setErrorInput] = useState('');
@@ -62,6 +65,21 @@ const MPinLoginScreen = ({ navigation }: Props) => {
             },
             { text: 'OK', onPress: () => logoutUser() },
         ]);
+    }
+    const onResetMPINBtnPressed = () => {
+        resetLoginMpinOTPMutation({
+            contact: `+91${resetContact}`,
+        },
+            {
+                onSuccess: response => {
+                    snackbarHandler.successToast(response?.data?.data?.message);
+                    navigation.navigate('Otp', { mobile: resetContact, navScr: 'forgot_mpin' })
+                },
+                onError: er => {
+                    const message = getApiErrorMessage(er);
+                    snackbarHandler.errorToast(message);
+                },
+            },)
     }
     return (
         <View style={styles.container}>
@@ -120,7 +138,7 @@ const MPinLoginScreen = ({ navigation }: Props) => {
                             </Text>
                         </TouchableOpacity>
                         {showReset && <TouchableOpacity
-                            onPress={() => navigation.navigate('LoginMPinOtp')}>
+                            onPress={() => onResetMPINBtnPressed()}>
                             <Text style={styles.signUpText}>
                                 Reset MPIN
                             </Text>

@@ -10,7 +10,7 @@ import CommonLoader from '../../ReusableComponents/commonLoader';
 import useForgetMutation from './Hooks/useForgetMutation';
 import snackbarHandler from '../../Utils/snackbarHandler';
 import IconButton from '../../ReusableComponents/iconButton';
-import { mainColors } from '../../Utils/helper';
+import { getApiErrorMessage, mainColors } from '../../Utils/helper';
 type Props = MainStackScreenProps<'Forget'>;
 const ForgetPassword = ({ navigation }: Props) => {
   const [value, setValue] = useState('');
@@ -21,9 +21,11 @@ const ForgetPassword = ({ navigation }: Props) => {
     setLoader(true);
     if (!value) {
       setValueError('Please enter mobile number');
+      setLoader(false);
       return;
     } else if (value.length < 10) {
       setValueError('Please enter 10 digit mobile number');
+      setLoader(false);
       return;
     }
     mutate({
@@ -31,13 +33,14 @@ const ForgetPassword = ({ navigation }: Props) => {
     },
       {
         onSuccess: response => {
-          snackbarHandler.successToast('Register')
+          snackbarHandler.successToast(response?.data?.data?.message);
           setLoader(false)
           navigation.navigate('Otp', { mobile: value, navScr: 'forgot_password' })
         },
         onError: er => {
           setLoader(false);
-          snackbarHandler.errorToast('Invalid mobile number or Password');
+          const message = getApiErrorMessage(er);
+          snackbarHandler.errorToast(message);
         },
       },)
   }

@@ -11,6 +11,7 @@ import moment from 'moment';
 import CommonTextInput from '../../ReusableComponents/commonTextInput';
 import { downloadExcelToDownloads, formatAmount } from '../../ReusableComponents/commonFunctions';
 import snackbarHandler from '../../Utils/snackbarHandler';
+import { SymbolWithTooltip } from '../../ReusableComponents/SymbolTooltip';
 const PositionsClosedComponent = (props?: any) => {
   const { data } = usePostionsOpenQuery('closed', props?.symbol);
   const flatData = data?.data?.data?.results;
@@ -30,7 +31,8 @@ const PositionsClosedComponent = (props?: any) => {
         {/* Top row: checkbox + Name + Exchange badge */}
         <View style={[styles.cardTopRow, { justifyContent: 'space-between' }]}>
           <View style={styles.cardTopRow}>
-            <Text style={styles.cardTitle}>{item.symbol}</Text>
+            {/* <Text style={styles.cardTitle}>{item.symbol}</Text> */}
+            <SymbolWithTooltip symbol={item.symbol} />
 
             <View style={styles.exchangeBadge}>
               <Text style={styles.exchangeBadgeText}>{item.exchange}</Text>
@@ -170,13 +172,15 @@ const PositionsClosedComponent = (props?: any) => {
           backgroundColor={mainColors.black}
         />
       </View>
-      <FlatList
-        data={filteredOrderData}
-        renderItem={renderCardData}
-        ListEmptyComponent={renderEmptyComponent}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
-      />
+      <View style={{ height: scaler(350) }}>
+        <FlatList
+          data={filteredOrderData}
+          renderItem={renderCardData}
+          ListEmptyComponent={renderEmptyComponent}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
+        />
+      </View>
       {filteredOrderData?.length > 0 && <View style={styles.itemSeperator} />}
       <View
         style={[

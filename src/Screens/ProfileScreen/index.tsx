@@ -28,7 +28,6 @@ type Props = MainStackScreenProps<'Profile'>;
 const ProfileScreen = ({ navigation }: Props) => {
     const dispatch = useDispatch();
     const logoutUser = () => {
-        console.log('runningProfileLogout')
         dispatch(logout());
         navigation.reset({
             index: 0,
@@ -105,6 +104,7 @@ const ProfileScreen = ({ navigation }: Props) => {
                     <Text style={styles.headerId}>{profileData?.username}</Text>
                     <Text style={styles.headerName}>{`${profileData?.first_name} ${profileData?.last_name}`}</Text>
                     <Text style={styles.headerPhone}>{`${profileData?.contact}`}</Text>
+                    <Text style={styles.headerPhone}>{`${profileData?.email}`}</Text>
                 </View>
 
                 <TouchableOpacity activeOpacity={0.85} style={styles.headerGearBtn} onPress={() => { iiflURL ? Linking.openURL(iiflURL) : setShowTooltip(true) }}>
@@ -189,7 +189,7 @@ const ProfileScreen = ({ navigation }: Props) => {
             <View style={[styles.hr, { marginTop: scaler(20) }]} />
 
             {/* Menu */}
-            <MenuItem icon={Images.tabProfile} label="Profile Settings" onPress={() => navigation.navigate('ProfileSettings', { profileData: profileData })} />
+            <MenuItem icon={Images.tabProfile} label="Profile Settings" onPress={() => navigation.navigate('ProfileSettings')} />
             <View style={styles.hr} />
             {/* <MenuItem icon={Images.profilePayment} label="Payment Methods" onPress={() => navigation.navigate('PaymentMethod')} /> */}
             <MenuItem icon={Images.profileHistory} label="Transaction History" onPress={() => navigation.navigate('TransactionHistory')} />

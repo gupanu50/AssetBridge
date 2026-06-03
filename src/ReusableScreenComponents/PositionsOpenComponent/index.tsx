@@ -17,6 +17,7 @@ import CommonTextInput from '../../ReusableComponents/commonTextInput';
 import { downloadExcelToDownloads, formatAmount } from '../../ReusableComponents/commonFunctions';
 import snackbarHandler from '../../Utils/snackbarHandler';
 import useExitPostionsMutation from './Hooks/useExitPostionsMutation';
+import { SymbolWithTooltip } from '../../ReusableComponents/SymbolTooltip';
 
 const PositionsOpenComponent = (props?: any) => {
   // console.log('PropsOpenPosition', props)
@@ -102,7 +103,6 @@ const PositionsOpenComponent = (props?: any) => {
       data: dataArr,
     };
   }, [flatData]);
-  console.log('WS Payload PositionsOpenComponent', wsPayload);
 
   const handleDownload = async (item: any) => {
     if (item && Array.isArray(item) && item.length > 0) {
@@ -233,13 +233,14 @@ const PositionsOpenComponent = (props?: any) => {
               />
             </TouchableOpacity>
 
-            <Text
+            {/* <Text
               style={styles.cardTitle}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
               {item.symbol}
-            </Text>
+            </Text> */}
+            <SymbolWithTooltip symbol={item.symbol} />
 
             <View style={styles.exchangeBadge}>
               <Text

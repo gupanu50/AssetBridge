@@ -21,10 +21,10 @@ const MarketPlaceOverviewComponent = (props: OverViewProps) => {
 
     const disclaimerBullets = useMemo(
         () => [
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
-            "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type",
-            'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-            'It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum',
+            'Trading in derivatives carries substantial risk of loss and is not suitable for every investor. The algorithms listed on Asset Bridge are based on historical and backtested data. Past performance does not guarantee future results.',
+            "Asset Bridge is a technology platform that enables algorithmic trade execution through your linked broker account.We do not provide investment advice, portfolio management, orguaranteed returns.All trading decisions and outcomes remain solely your responsibility.",
+            `P&L figures shown are derived from the algo's backtested or live track record under specificmarket conditions. Actual results may differ materially due to slippage, liquidity, brokerlatency, and changes in market volatility.`,
+            'Please read the full SEBI Risk Disclosure on Derivatives before subscribing to any strategy. By subscribing, you acknowledge that you understand and accept these risks.',
         ],
         [],
     );

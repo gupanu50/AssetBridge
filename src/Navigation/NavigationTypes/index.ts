@@ -60,26 +60,7 @@ export type MainStackParamList = {
   TransactionHistory: undefined;
   AlgoMain: { item: any };
   Profile: undefined;
-  ProfileSettings: {
-    profileData: {
-      broker_auth: {
-        status: string,
-        color: string,
-        message: string
-      },
-      last_login: null,
-      username: string,
-      profile_picture_url: string;
-      first_name: string,
-      last_name: string,
-      email: string,
-      country_code: string,
-      contact: string,
-      portfolio_balance: string,
-      available_balance: string,
-      invested_amount: string,
-    }
-  };
+  ProfileSettings: undefined;
   Statement: undefined;
   PaymentMethod: undefined;
   Portfolio: undefined;

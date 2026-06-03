@@ -254,23 +254,24 @@ export default function ExploreComponent(props: ExploreProps) {
           onPress={() => props?.navigation?.navigate('AlgoMain', { item })}
           name={item.name}
           sub={item?.tags?.description || ''}
-          dayPnl={item?.backtest_results?.summary?.day?.net_pnl || '0'}
-          dayReward={item?.backtest_results?.summary?.day?.total_trades || '0'}
-          dayDD={item?.backtest_results?.summary?.day?.max_drawdown || '0'}
+          // @ts-ignore
+          dayPnl={item?.is_subscribed ? item?.users_result?.today_realized_pnl || '0' : item?.backtest_results?.summary?.day?.net_pnl || '0'}
+          dayReward={item?.is_subscribed ? item?.users_result?.today_reward_risk_ratio || '0' : item?.backtest_results?.summary?.day?.total_trades || '0'}
+          dayDD={item?.is_subscribed ? item?.users_result?.today_max_drawdown || '0' : item?.backtest_results?.summary?.day?.max_drawdown || '0'}
           tagLeft={item.tagLeft}
           tagRight={item.tagRight}
           intra={item?.metadata?.card_tags?.[0] || ''}
           instr={item?.metadata?.card_tags?.[1] || ''}
-          ltp={item?.backtest_results?.summary?.month?.net_pnl || 0}
-          ltpChange={item.backtest_results?.summary?.day?.net_pnl_pct || 0}
-          ltpChangeMonth={item.backtest_results?.summary?.month?.net_pnl_pct || 0}
-          ddPct={item?.backtest_results?.summary?.day?.max_dd_pct || 0}
-          ddPctMonth={item?.backtest_results?.summary?.month?.max_dd_pct || 0}
-          rewardPct={item?.backtest_results?.summary?.day?.Reward_risk_ratio_percentage || 0}
-          rewardPctMonth={item?.backtest_results?.summary?.month?.Reward_risk_ratio_percentage || 0}
-          intraday={item?.backtest_results?.summary?.month?.total_trades || ''}
+          ltp={item?.is_subscribed ? item?.users_result?.month_realized_pnl || 0 : item?.backtest_results?.summary?.month?.net_pnl || 0}
+          ltpChange={item?.is_subscribed ? item?.users_result?.today_realized_pnl_pct : item.backtest_results?.summary?.day?.net_pnl_pct || 0}
+          ltpChangeMonth={item?.is_subscribed ? item.users_result?.month_realized_pnl_pct || 0 : item.backtest_results?.summary?.month?.net_pnl_pct || 0}
+          ddPct={item?.is_subscribed ? item?.users_result?.today_max_drawdown_pct : item?.backtest_results?.summary?.day?.max_dd_pct || 0}
+          ddPctMonth={item?.is_subscribed ? item?.users_result?.month_max_drawdown_pct || 0 : item?.backtest_results?.summary?.month?.max_dd_pct || 0}
+          rewardPct={item?.is_subscribed ? item?.users_result?.today_reward_risk_ratio_pct || 0 : item?.backtest_results?.summary?.day?.Reward_risk_ratio_percentage || 0}
+          rewardPctMonth={item?.is_subscribed ? item?.users_result?.month_reward_risk_ratio_pct || 0 : item?.backtest_results?.summary?.month?.Reward_risk_ratio_percentage || 0}
+          intraday={item?.is_subscribed ? item?.users_result?.month_reward_risk_ratio : item?.backtest_results?.summary?.month?.total_trades || ''}
           intradayChange={item.intradayChange}
-          pAndL={item?.backtest_results?.summary?.month?.max_drawdown || ''}
+          pAndL={item?.is_subscribed ? item?.users_result?.month_max_drawdown : item?.backtest_results?.summary?.month?.max_drawdown || ''}
           pAndLChange={item.pAndLChange}
           is_subscribed={item?.is_subscribed}
           status={item?.running_status}
@@ -603,12 +604,12 @@ export default function ExploreComponent(props: ExploreProps) {
           Terms and Privacy Policy {' | '} Trust &amp; Security {' | '} Careers
         </Text>
         <Text style={styles.footerText}>
-          Investor {' | '} Lorem Ipsum1 &amp; Lorem Ipsum1 {' | '} Lorem Ipsum1
+          Investor Charter{' | '} Prices &amp; Charges {' | '} Grievance Redressal
         </Text>
         <Image source={Images.line} resizeMode="contain" style={styles.line} />
         <Text style={[styles.footerText]}>
           Made with <Text style={{ color: mainColors.red }}>♥</Text> India{' | '}
-          Copyright © 2025 • <Text style={{ color: mainColors.mainButton }}>Asset Bridge</Text>
+          Copyright © 2026 • <Text style={{ color: mainColors.mainButton }}>Asset Bridge</Text>
         </Text>
       </View>
 

@@ -303,15 +303,16 @@ const OrderComponent = (props?: any) => {
           backgroundColor={mainColors.black}
         />
       </View>
-      <FlatList
-        data={filteredOrderData}
-        renderItem={renderCardData}
-        ListEmptyComponent={renderEmptyComponent}
-        contentContainerStyle={{ paddingBottom: scaler(80) }}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
-        extraData={tick}
-      />
+      <View style={{ height: scaler(365) }}>
+        <FlatList
+          data={filteredOrderData}
+          renderItem={renderCardData}
+          ListEmptyComponent={renderEmptyComponent}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={styles.itemSeperator} />}
+          extraData={tick}
+        />
+      </View>
       <OrderEditModal visibile={visible} setVisible={setVisible} selectedItem={selectedItem} />
     </View>
   );

@@ -311,14 +311,32 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
         live?.ltp ?? moversDetails?.current_price ?? safeParamItem?.current_price ?? 0
     );
 
-    const availableBalance = Number(profileData?.available_balance ?? 0);
+    const calculationPrice = Math.max(
+        Number(
+            limitMarket === 'limit'
+                ? marketPrice
+                : currentBuyPrice
+        ) || 0,
+        0
+    );
 
-    const enteredShares = Number(valueShares ?? 0);
+    const availableBalance = Math.max(Number(profileData?.available_balance ?? 0), 0);
 
+    const enteredShares = Math.max(Number(valueShares || 0), 0);
+
+    const totalAffordableQuantity =
+        calculationPrice > 0
+            ? Math.max(Math.floor(availableBalance / calculationPrice), 0)
+            : 0;
+
+    // Show 0 initially. After user enters shares, show remaining quantity.
     const maxQuantity =
-        currentBuyPrice > 0 ? Math.floor(availableBalance / currentBuyPrice) : 0;
+        enteredShares > 0
+            ? Math.max(totalAffordableQuantity, 0)
+            : 0;
 
-    const isQtyExceeded = enteredShares > maxQuantity;
+    // Validation should compare with actual affordable quantity, not remaining maxQuantity.
+    const isQtyExceeded = enteredShares > totalAffordableQuantity;
     const calculatedDisclosedQuantity = useMemo(() => {
         const qty = Number(valueShares || 0);
         const symbol = String(buySellParams?.paramItem?.symbol || '').toUpperCase();
@@ -494,7 +512,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                             </View> :
                             <View style={[styles.labelFlexView]}>
                                 <Text style={styles.noSharesText}>No. of Shares</Text>
-                                <Text style={styles.maxQText}>Max Qty. - {maxQuantity}</Text>
+                                <Text style={styles.maxQText}>Max Qty: {maxQuantity}</Text>
                             </View>}
                         {buySellParams?.isOptionChainFlow ? <CommonTextInput
                             value={valueShares}
@@ -685,7 +703,7 @@ const BuySellOrderScreen = ({ navigation, route }: Props) => {
                                 <Text style={styles.validityText}>Margin Required (Approx)</Text>
                                 {/* <Text style={styles.valueText}>₹ {(live?.ltp || moversDetails?.current_price) * calculatedDisclosedQuantity} + Charges</Text> */}
                                 <Text style={styles.valueText}>
-                                    ₹ {((live?.ltp || moversDetails?.current_price) * calculatedDisclosedQuantity).toFixed(2) || '0.00'} + Charges
+                                    ₹ {((calculationPrice || 0) * calculatedDisclosedQuantity).toFixed(2)} + Charges
                                 </Text>
                             </View>
                             <View>

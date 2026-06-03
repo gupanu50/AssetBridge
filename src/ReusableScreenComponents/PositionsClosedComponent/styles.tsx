@@ -60,6 +60,7 @@ export const styles = StyleSheet.create({
   cardTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '90%'
   },
 
   checkboxHit: {

@@ -504,12 +504,12 @@ const MarketPlaceScreen = ({ navigation, route }: Props) => {
               <Text style={styles.redIconText}>
                 {`The results are based on past data. Historical${'\n'} data does not guarantee future results.`}
               </Text>
-              <CommonButton
+              {/* <CommonButton
                 label="Know more"
                 backgroundColor="transparent"
                 textColor={mainColors.mainButton}
                 extraStyle={styles.btnKnow}
-              />
+              /> */}
             </View>
           </View>
           {cardData?.is_subscribed ?

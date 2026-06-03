@@ -19,7 +19,7 @@ import usePostionsBotOpenQuery from './Hooks/usePostionsBotOpenQuery';
 import useExitBotPostionsMutation from './Hooks/useExitBotPostionsMutation';
 
 const PositionsOpenBotComponent = (bot_id: any) => {
-  const { data, refetch } = usePostionsBotOpenQuery('open', bot_id);
+  const { data, refetch } = usePostionsBotOpenQuery('open', bot_id?.bot_id);
   const flatData = data?.data?.data?.results;
   const totalData = data?.data?.data?.total_invested_value;
   // console.log('DataAllOpenPositions', data?.data?.data)
@@ -51,22 +51,39 @@ const PositionsOpenBotComponent = (bot_id: any) => {
   const wsPayload: SubscribePayload | null = useMemo(() => {
     if (!Array.isArray(flatData) || !flatData.length) return null;
 
-    // seg__type -> symbols set
-    const bucket = new Map<string, { segment: string; subscription_type: string; symbols: Set<string> }>();
+    const bucket = new Map<
+      string,
+      { segment: string; subscription_type: string; symbols: Set<string> }
+    >();
+
+    const isOptionSymbol = (symbol: string) => {
+      const upperSymbol = String(symbol || "").trim().toUpperCase();
+      return upperSymbol.endsWith("CE") || upperSymbol.endsWith("PE");
+    };
 
     for (const order of flatData) {
-      const seg = String(order?.segment || "NSE").trim();
+      const originalSeg = String(order?.segment || "NSE").trim();
       const sym = String(order?.symbol || "").trim();
-      const wsSeg = mapApiToWsSegment(order?.segment, order?.exchange); // Map API segment to WS segment
+      const mappedSeg = mapApiToWsSegment(order?.segment, order?.exchange);
 
-      if (!seg || !sym) continue;
+      if (!originalSeg || !sym) continue;
 
-      const typ = "contract";
+      const optionSymbol = isOptionSymbol(sym);
+
+      // only change for option symbols
+      const wsSeg = optionSymbol ? "NFO-OPT" : mappedSeg;
+      const typ = optionSymbol ? "NFO-OPT" : "contract";
+
       const key = `${wsSeg}__${typ}`;
 
       if (!bucket.has(key)) {
-        bucket.set(key, { segment: wsSeg, subscription_type: typ, symbols: new Set() });
+        bucket.set(key, {
+          segment: wsSeg,
+          subscription_type: typ,
+          symbols: new Set(),
+        });
       }
+
       bucket.get(key)!.symbols.add(sym);
     }
 
@@ -75,8 +92,13 @@ const PositionsOpenBotComponent = (bot_id: any) => {
       subscription_type: b.subscription_type,
       symbols: Array.from(b.symbols),
     }));
+
     if (!dataArr.length) return null;
-    return { type: "subscribe", data: dataArr };
+
+    return {
+      type: "subscribe",
+      data: dataArr,
+    };
   }, [flatData]);
   // console.log('WS Payload', wsPayload);
 

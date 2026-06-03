@@ -57,6 +57,7 @@ export const styles = StyleSheet.create({
   flexView: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: scaler(200)
   },
   innerFlexView: {},
   img: {

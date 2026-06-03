@@ -27,6 +27,7 @@ const SignUpScreen = ({ navigation }: Props) => {
   const [loader, setLoader] = useState(false);
   const onBtnPressed = () => {
     setLoader(true);
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
     if (!email) {
       setEmailError('Please enter mobile number');
       setLoader(false);
@@ -37,6 +38,12 @@ const SignUpScreen = ({ navigation }: Props) => {
       return;
     } else if (!password) {
       setPasswordError('Please enter password');
+      setLoader(false);
+      return;
+    } else if (!passwordRegex.test(password)) {
+      setPasswordError(
+        'Your password should contain one capital letter, one special character and one number'
+      );
       setLoader(false);
       return;
     } else if (!password1) {

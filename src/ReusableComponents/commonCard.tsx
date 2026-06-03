@@ -32,7 +32,13 @@ const CommonCard = (props: PropCommonCardTypes) => {
     .startsWith('-')
     ? mainColors.red
     : mainColors.green;
+  const formatValue = (value: any) => {
+    const num = Number(value);
 
+    if (!num) return 0; // handles 0, null, undefined, NaN
+
+    return Number(num.toFixed(2)).toString();
+  };
   return (
     <View style={styles.featureCardWrapper}>
       <View style={styles.featureCard}>
@@ -132,7 +138,7 @@ const CommonCard = (props: PropCommonCardTypes) => {
               Reward/Risk Ratio
             </Text>
             <View style={[styles.statValueRow, { paddingLeft: 5 }]}>
-              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? (props.dayReward || 0) : (props.intraday || 0)}</Text>
+              <Text style={styles.statValue}>{activeDayMonthMoverTab === 'Day' ? (formatValue(props.dayReward) || 0) : (formatValue(props.intraday) || 0)}</Text>
               <View style={styles.swiperPnlView}>
                 <Image
                   source={Images.swiperUp}
@@ -281,7 +287,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontFamily: fontFamily.poppinsSemiBold,
     color: mainColors.white,
-    fontSize: scaler(12),
+    fontSize: scaler(11),
     marginRight: scaler(6),
   },
   statChange: {

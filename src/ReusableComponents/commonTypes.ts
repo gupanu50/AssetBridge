@@ -80,7 +80,23 @@ export type PropCommonCardApiTypes = {
     daily_pnl: [
       { cumulative_pnl: number; date: string; pnl: number }
     ]
-  }
+  };
+  users_result: {
+    today_realized_pnl: number,
+    month_realized_pnl: number,
+    today_unrealized_pnl: string,
+    month_unrealized_pnl: string,
+    today_reward_risk_ratio: string,
+    month_reward_risk_ratio: string,
+    today_max_drawdown: string,
+    month_max_drawdown: string,
+    today_realized_pnl_pct: number;
+    month_realized_pnl_pct: number;
+    today_max_drawdown_pct: number;
+    month_max_drawdown_pct: number;
+    today_reward_risk_ratio_pct: number;
+    month_reward_risk_ratio_pct: number;
+  };
 };
 export type NewsItemProps = {
   published_at: string;

@@ -76,8 +76,6 @@ export const styles = StyleSheet.create({
     color: mainColors.white,
     fontSize: scaler(14),
     fontFamily: fontFamily.poppinsRegular,
-    flexShrink: 1,
-    maxWidth: '45%',
   },
   exchangeBadge: {
     paddingHorizontal: scaler(8),

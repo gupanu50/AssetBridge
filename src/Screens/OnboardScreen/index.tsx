@@ -17,30 +17,30 @@ const OnboardScreen = ({ navigation }: Props) => {
   const swiperData = [
     {
       id: 1,
-      perAmt: '$5k',
-      descText: 'Lorem Ipsum 1',
-      incText: '+10% from yesterday',
+      perAmt: 'Curated',
+      descText: 'Algo Marketplace',
+      incText: 'Hand-picked strategies across Indian markets',
       img: Images.swiperImg,
     },
     {
       id: 2,
-      perAmt: '500',
-      descText: 'Lorem Ipsum 2',
-      incText: '+5% from yesterday',
+      perAmt: 'Auto',
+      descText: 'Trade Execution',
+      incText: 'No manual intervention needed',
       img: Images.swiperImg1,
     },
     {
       id: 3,
-      perAmt: '9',
-      descText: 'Lorem Ipsum 3',
-      incText: '+15% from yesterday',
+      perAmt: '6+',
+      descText: 'Performance Metrics',
+      incText: 'Sharpe • Max DD • Win Rate • Recovery & more',
       img: Images.swiperImg2,
     },
     {
       id: 4,
-      perAmt: '100',
-      descText: 'Lorem Ipsum 3',
-      incText: '+8% from yesterday',
+      perAmt: '3',
+      descText: 'Steps to Start',
+      incText: 'Login → Connect Broker → Subscribe',
       img: Images.swiperImg3,
     },
   ];
@@ -75,14 +75,12 @@ const OnboardScreen = ({ navigation }: Props) => {
           />
         </View>
         <View style={styles.mainView}>
-          <Text style={styles.headingText}>What is Lorem Ipsum?</Text>
+          <Text style={styles.headingText}>What is Asset Bridge?</Text>
           <Text style={styles.descText}>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500.
+            Asset Bridge is a smart algo trading platform that lets you invest in automated strategies built by experienced traders. No charts, no manual trading—just data-driven execution.
           </Text>
           <View style={styles.heightView} />
-          <Text style={styles.headingText1}>Lorem Ipsum is simply dummy</Text>
+          <Text style={styles.headingText1}></Text>
           <SwiperFlatList
             data={swiperData}
             showPagination
